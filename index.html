@@ -3,46 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V/OS</title>
+    <title>Virtuozzo VZX - Intelligent Control Plane</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --vz-red: #EA0029;
-            --vz-red-hover: #C40022;
-            --vz-navy: #0B1120;
-            --vz-navy-light: #1A2538;
-            --vz-gray-bg: #F3F4F6;
-            --vz-border: #E5E7EB;
-            --text-dark: #111827;
-            --text-muted: #6B7280;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --info: #3B82F6;
+            --vz-red: #EA0029; --vz-red-hover: #C40022;
+            --vz-navy: #0B1120; --vz-navy-light: #1A2538;
+            --vz-gray-bg: #F3F4F6; --vz-border: #E5E7EB;
+            --text-dark: #111827; --text-muted: #6B7280;
+            --success: #10B981; --warning: #F59E0B; --info: #3B82F6;
         }
 
         * { box-sizing: border-box; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--vz-gray-bg); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; }
 
-        /* --- Sidebar Navigation --- */
-        .sidebar { width: 260px; background-color: var(--vz-navy); color: white; display: flex; flex-direction: column; flex-shrink: 0; z-index: 10;}
-        .logo-area { padding: 20px; font-size: 1.5rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px; }
-        .logo-area i { color: var(--vz-red); }
+        /* --- Layout --- */
+        .sidebar { width: 260px; background-color: var(--vz-navy); color: white; display: flex; flex-direction: column; z-index: 10;}
+        .logo-area { padding: 20px; font-size: 1.5rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); color: white;}
+        .logo-area i { color: var(--vz-red); margin-right: 8px;}
         .nav-menu { list-style: none; padding: 15px 0; margin: 0; flex: 1; overflow-y: auto;}
         .nav-menu li { padding: 12px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: #9CA3AF; transition: 0.2s; font-size: 0.95rem;}
         .nav-menu li:hover { background-color: rgba(255,255,255,0.05); color: white; }
         .nav-menu li.active { background-color: var(--vz-navy-light); color: white; border-left: 4px solid var(--vz-red); }
 
-        /* --- Main Layout --- */
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        /* Topbar & Context Switcher */
-        .topbar { height: 65px; background-color: white; border-bottom: 1px solid var(--vz-border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; flex-shrink: 0; }
-        .context-chain { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); flex-wrap: wrap;}
+        .topbar { height: 70px; background-color: white; border-bottom: 1px solid var(--vz-border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; flex-shrink: 0; }
+        .context-chain { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
         .context-chain select { background: var(--vz-gray-bg); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--vz-border); font-weight: 600; color: var(--vz-navy); cursor: pointer; outline: none; font-size: 0.85rem;}
         .context-chain select:focus { border-color: var(--vz-red); }
         .tier-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; display: block; margin-bottom: 2px;}
 
-        /* Content Area */
         .content-area { padding: 30px; overflow-y: auto; flex: 1; position: relative; }
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
@@ -52,7 +43,7 @@
         .page-header h1 { margin: 0 0 5px 0; font-size: 1.8rem; color: var(--vz-navy); }
         .page-header p { margin: 0; color: var(--text-muted); }
 
-        /* UI Components */
+        /* --- UI Components --- */
         .card { background: white; border-radius: 8px; border: 1px solid var(--vz-border); padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -70,34 +61,36 @@
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
         .badge.green { background: #D1FAE5; color: #065F46; }
         .badge.yellow { background: #FEF3C7; color: #92400E; }
-        .badge.blue { background: #DBEAFE; color: #1E40AF; }
 
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--vz-border); font-size: 0.9rem;}
         th { color: var(--text-muted); font-weight: 600; background: #F9FAFB; }
 
-        /* AI Panel Specifics */
-        .ai-panel { background: #F0FDF4; border: 1px solid #86EFAC; border-left: 4px solid var(--success); }
-        .ai-panel h4 { margin: 0 0 10px 0; color: #166534; display: flex; align-items: center; gap: 8px;}
-
-        /* Builder Layout */
-        .builder-layout { display: flex; gap: 20px; height: 500px; }
-        .builder-palette { width: 250px; border-right: 1px solid var(--vz-border); padding-right: 20px; overflow-y: auto;}
-        .builder-canvas { flex: 1; background: var(--vz-gray-bg); border-radius: 8px; padding: 20px; border: 2px dashed var(--vz-border); overflow-y: auto;}
-        .builder-item { background: white; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
-        .builder-item:hover { border-color: var(--vz-navy); }
-        .canvas-item { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid var(--vz-navy); margin-bottom: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; justify-content: space-between;}
-
-        /* Sub-navigation (Pills) */
         .nav-pills { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--vz-border); padding-bottom: 10px;}
         .nav-pills span { padding: 8px 16px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; }
         .nav-pills span.active { background: var(--vz-navy); color: white; }
+
+        /* --- Modals --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 17, 32, 0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px);}
+        .modal { background: white; border-radius: 8px; width: 600px; max-width: 90%; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--vz-border); padding-bottom: 15px;}
+        .modal-header h2 { margin: 0; font-size: 1.3rem; color: var(--vz-navy); }
+        .modal-close { cursor: pointer; color: var(--text-muted); font-size: 1.2rem; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: var(--vz-navy);}
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 0.95rem; }
+        
+        .baas-box { background: var(--vz-navy); color: white; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px;}
+        .baas-box .val { font-size: 1.3rem; font-weight: bold; color: var(--success); }
+
+        /* TCO Embedded Style */
+        .tco-slider { width: 100%; accent-color: var(--vz-red); }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="logo-area"><i class="fa-solid fa-cube"></i>V/OS</div>
+        <div class="logo-area"><i class="fa-solid fa-cube"></i> VZX Platform</div>
         <ul class="nav-menu">
             <li class="active" onclick="switchView('overview')"><i class="fa-solid fa-gauge"></i> Overview</li>
             <li onclick="switchView('workloads')"><i class="fa-solid fa-layer-group"></i> Workloads</li>
@@ -112,44 +105,22 @@
     <div class="main-wrapper">
         <header class="topbar">
             <div class="context-chain">
-                <div>
-                    <span class="tier-label">Tier 1</span>
-                    <div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px;">Virtuozzo</div>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="margin: 0 5px; margin-top: 15px;"></i>
+                <div><span class="tier-label">Tier 1</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px;">Virtuozzo</div></div>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
                 
-                <div>
-                    <span class="tier-label">Region</span>
-                    <select id="selRegion" onchange="cascadeContext('region')">
-                        <option value="eu">EU (Frankfurt)</option>
-                        <option value="us">US (Virginia)</option>
-                    </select>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="margin: 0 5px; margin-top: 15px;"></i>
+                <div><span class="tier-label">Region</span><select id="selRegion" onchange="cascadeContext('region')">
+                    <option value="eu">EU (Frankfurt) - No GPU</option>
+                    <option value="us">US (Virginia) - Full Stack</option>
+                </select></div>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
                 
-                <div>
-                    <span class="tier-label">Tier 2 (Distributor)</span>
-                    <select id="selT2" onchange="cascadeContext('t2')">
-                        </select>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="margin: 0 5px; margin-top: 15px;"></i>
+                <div><span class="tier-label">Tier 2 (Distributor)</span><select id="selT2" onchange="cascadeContext('t2')"></select></div>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
 
-                <div>
-                    <span class="tier-label">Tier 3 (MSP)</span>
-                    <select id="selT3" onchange="cascadeContext('t3')">
-                        </select>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="margin: 0 5px; margin-top: 15px;"></i>
+                <div><span class="tier-label">Tier 3 (MSP)</span><select id="selT3" onchange="cascadeContext('t3')"></select></div>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
 
-                <div>
-                    <span class="tier-label">Tier 4 (Tenant)</span>
-                    <select id="selT4">
-                        </select>
-                </div>
-            </div>
-            <div>
-                <button class="btn btn-secondary" style="border:none;"><i class="fa-solid fa-bell"></i></button>
-                <div style="display:inline-block; width:35px; height:35px; background:var(--vz-navy); color:white; border-radius:50%; text-align:center; line-height:35px; font-weight:bold; margin-left:10px;">AD</div>
+                <div><span class="tier-label">Tier 4 (Tenant)</span><select id="selT4" onchange="renderApp()"></select></div>
             </div>
         </header>
 
@@ -157,239 +128,106 @@
             
             <div id="view-overview" class="view-section active">
                 <div class="page-header">
-                    <div><h1>Platform Overview</h1><p>Global activity across all selected tenants.</p></div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-download"></i> Export Report</button>
+                    <div><h1><span id="ov-tenant-name">Tenant</span> Overview</h1><p>Real-time telemetry and financial health.</p></div>
                 </div>
-
-                <div class="card ai-panel">
-                    <h4><i class="fa-solid fa-robot"></i> Copilot Remediation Alert</h4>
-                    <p style="margin: 0 0 10px 0; font-size: 0.9rem;"><strong>Bottleneck detected:</strong> The Tier 3 MSP "Berlin IT" is nearing its 500TB S3 Storage quota (96% utilized) in the EU Region. This will cause downstream End-User deployment failures within 48 hours.</p>
-                    <button class="btn btn-primary" style="background: #166534;"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Expand Quota by 50TB</button>
-                </div>
-
                 <div class="grid-4">
-                    <div class="card metric-card"><h3>Global Monthly Spend</h3><div class="val">$142,500</div><span style="color:var(--vz-red); font-size:0.8rem;"><i class="fa-solid fa-arrow-up"></i> 4% vs last month</span></div>
-                    <div class="card metric-card"><h3>Active Workloads</h3><div class="val">842</div></div>
-                    <div class="card metric-card"><h3>Avg Provider Margin</h3><div class="val">34.2%</div></div>
-                    <div class="card metric-card"><h3>Platform Health</h3><div class="val" style="color:var(--success);">99.99%</div></div>
-                </div>
-
-                <div class="card">
-                    <h3 style="margin-top:0; color: var(--vz-navy);">Recent Provisioning Activity</h3>
-                    <table>
-                        <tr><th>Tenant</th><th>Action</th><th>Template / Resource</th><th>Status</th></tr>
-                        <tr><td>Healthcare Corp</td><td>Deployed</td><td>HA Database (Gold)</td><td><span class="badge green">Success</span></td></tr>
-                        <tr><td>Fintech Startup</td><td>Auto-Scaled</td><td>K8s Worker Nodes (+3)</td><td><span class="badge green">Success</span></td></tr>
-                        <tr><td>EduTech Inc</td><td>Failed</td><td>Sovereign VDI</td><td><span class="badge yellow">Quota Exceeded</span></td></tr>
-                    </table>
+                    <div class="card metric-card"><h3>Monthly Spend</h3><div class="val" id="ov-spend">$0</div></div>
+                    <div class="card metric-card"><h3>Active Workloads</h3><div class="val" id="ov-workloads">0</div></div>
+                    <div class="card metric-card"><h3>MSP Margin</h3><div class="val" id="ov-margin">0%</div></div>
+                    <div class="card metric-card"><h3>Quota Health</h3><div class="val" style="color:var(--success);">Optimal</div></div>
                 </div>
             </div>
 
             <div id="view-workloads" class="view-section">
                 <div class="page-header">
-                    <div><h1>Workloads</h1><p>Outcome-driven deployments abstracted from raw infrastructure.</p></div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
+                    <div><h1>Workloads</h1><p>Deployed services for current tenant.</p></div>
+                    <button class="btn btn-primary" onclick="openModal('deployModal')"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
                 </div>
-                <div class="grid-3">
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
-                            <strong style="font-size: 1.1rem; color:var(--vz-navy);">PostgreSQL HA Cluster</strong>
-                            <span class="badge green">Running</span>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Template: DBaaS Gold Tier<br>Tenant: Fintech Startup</div>
-                        <div style="background: var(--vz-gray-bg); padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 0.85rem;">
-                            <div><span style="display:block; color:var(--text-muted); font-size:0.7rem;">COST</span>$850/mo</div>
-                            <div><span style="display:block; color:var(--text-muted); font-size:0.7rem;">IOPS</span>14,200</div>
-                        </div>
+                <div id="workload-list" class="grid-2">
                     </div>
-                    <div class="card">
-                        <div style="display:flex; justify-content:space-between; margin-bottom: 10px;">
-                            <strong style="font-size: 1.1rem; color:var(--vz-navy);">Medical VDI Workspace</strong>
-                            <span class="badge green">Running</span>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px;">Template: Sovereign Desktop<br>Tenant: Healthcare Corp</div>
-                        <div style="background: var(--vz-gray-bg); padding: 10px; border-radius: 6px; display: flex; justify-content: space-between; font-size: 0.85rem;">
-                            <div><span style="display:block; color:var(--text-muted); font-size:0.7rem;">COST</span>$1,200/mo</div>
-                            <div><span style="display:block; color:var(--text-muted); font-size:0.7rem;">USERS</span>45 Active</div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div id="view-templates" class="view-section">
                 <div class="page-header">
-                    <div><h1>Template Catalogue</h1><p>Pre-packaged services ready for syndication.</p></div>
-                    <button class="btn btn-primary" onclick="toggleBuilder()"><i class="fa-solid fa-hammer"></i> Template Builder</button>
+                    <div><h1>Template Catalogue</h1><p>Available blueprints based on regional hardware.</p></div>
+                    <button class="btn btn-secondary"><i class="fa-solid fa-hammer"></i> Open Builder</button>
                 </div>
-
-                <div id="catalog-grid" class="grid-3">
-                    <div class="card" style="border-top: 4px solid var(--vz-navy);">
-                        <h3 style="margin-top:0;">HA Database (Gold)</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); min-height: 40px;">Fully managed PostgreSQL with synchronous replication and NVMe storage.</p>
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--vz-border); display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>Retail: $850/mo</span>
-                            <span style="color: var(--success);">Margin: 40%</span>
-                        </div>
+                <div id="template-grid" class="grid-3">
                     </div>
-                    <div class="card" style="border-top: 4px solid var(--vz-navy);">
-                        <h3 style="margin-top:0;">AI Reasoning Agent</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); min-height: 40px;">Local LLM runtime (Llama-3) with dedicated GPU pass-through and vector DB.</p>
-                        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--vz-border); display: flex; justify-content: space-between; font-weight: bold;">
-                            <span>Retail: $2,500/mo</span>
-                            <span style="color: var(--success);">Margin: 25%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="template-builder" class="card" style="display: none; margin-top: 20px;">
-                    <h3 style="margin-top:0; color:var(--vz-navy);"><i class="fa-solid fa-hammer"></i> API-First Template Builder</h3>
-                    <div class="builder-layout">
-                        <div class="builder-palette">
-                            <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted);">Available Components</h4>
-                            <div class="builder-item" onclick="addBuilderItem('Compute Node (16 vCPU)', 120)">Compute Node <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderItem('NVMe Block Storage (1TB)', 80)">NVMe Storage <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderItem('S3 Object Bucket (10TB)', 40)">S3 Storage <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderItem('Envoy API Gateway', 50)">API Gateway <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderItem('AgentOps Security Mesh', 100)">Agent Mesh <i class="fa-solid fa-plus"></i></div>
-                        </div>
-                        <div class="builder-canvas" id="builder-canvas">
-                            <div style="text-align: center; color: var(--text-muted); margin-top: 100px;" id="canvas-empty">
-                                <i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i><br>Click components to add to template.
-                            </div>
-                        </div>
-                        <div style="width: 250px; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px;">
-                            <h4 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">Template Economics</h4>
-                            <div style="margin-bottom: 15px;">
-                                <div style="font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase;">Wholesale Cost</div>
-                                <div style="font-size: 1.5rem; font-weight: bold;" id="bld-cost">$0</div>
-                            </div>
-                            <div style="margin-bottom: 15px;">
-                                <div style="font-size: 0.75rem; color: #9CA3AF; text-transform: uppercase;">Suggested Retail</div>
-                                <div style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="bld-retail">$0</div>
-                            </div>
-                            <button class="btn" style="background: white; color: var(--vz-navy); width: 100%; margin-top: 20px;" onclick="toggleBuilder()">Save to Catalog</button>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div id="view-services" class="view-section">
-                <div class="page-header"><div><h1>Services</h1><p>Service definitions, profitability, and benchmarks.</p></div></div>
+                <div class="page-header">
+                    <div><h1>Service Definitions</h1><p>Pricing and SLA models for downstream tenants.</p></div>
+                    <button class="btn btn-primary" onclick="openModal('serviceModal')"><i class="fa-solid fa-plus"></i> Add Service</button>
+                </div>
                 <div class="card">
-                    <table>
-                        <tr><th>Service Name</th><th>Description</th><th>BaaS Benchmark</th><th>Profitability</th><th>Risk / Notes</th></tr>
-                        <tr>
-                            <td><strong>DBaaS</strong></td><td>Relational Database as a Service</td><td><span class="badge blue">14,000 IOPS</span></td>
-                            <td><span style="color:var(--success); font-weight:bold;">High (40%)</span></td><td>Low resource contention.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>AIaaS</strong></td><td>Autonomous Agent Orchestration</td><td><span class="badge blue">45 Tokens/sec</span></td>
-                            <td><span style="color:var(--warning); font-weight:bold;">Medium (25%)</span></td><td>High API token cost risk. Requires circuit breakers.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>S3 Storage</strong></td><td>Global Object Storage</td><td><span class="badge blue">82 Gbps Throughput</span></td>
-                            <td><span style="color:var(--success); font-weight:bold;">High (55%)</span></td><td>Leverages Erasure Coding. Highly profitable.</td>
-                        </tr>
-                    </table>
+                    <table id="services-table">
+                        <tr><th>Service Name</th><th>Base Cost</th><th>Retail Markup</th><th>BaaS Guarantee</th></tr>
+                        </table>
                 </div>
             </div>
 
             <div id="view-infrastructure" class="view-section">
-                <div class="page-header"><div><h1>Infrastructure</h1><p>Underlying OSS Virtual Graph & Hardware limits.</p></div></div>
-                
-                <div class="nav-pills">
-                    <span class="active">Regions</span>
-                    <span>Clusters</span>
-                    <span>Storage (S3/Block)</span>
-                    <span>Networking (Gateways)</span>
+                <div class="page-header">
+                    <div><h1>Infrastructure</h1><p>Underlying OSS constraints and capacities.</p></div>
+                    <button class="btn btn-secondary" onclick="alert('Provisioning new cluster...')"><i class="fa-solid fa-plus"></i> Add Capacity</button>
                 </div>
-
-                <div class="grid-2">
-                    <div class="card">
-                        <h3 style="margin-top:0;"><i class="fa-solid fa-globe"></i> EU-Central (Frankfurt)</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Sovereign Data Center. Active/Active replication enabled.</p>
-                        <div style="margin-top: 15px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;"><span>Compute Capacity</span><span>78%</span></div>
-                            <div style="background: var(--vz-gray-bg); height: 8px; border-radius: 4px; overflow: hidden;">
-                                <div style="background: var(--vz-navy); width: 78%; height: 100%;"></div>
-                            </div>
-                        </div>
+                <div class="nav-pills" id="infra-pills">
+                    <span class="active" onclick="switchInfraTab('clusters')">VHI Clusters</span>
+                    <span onclick="switchInfraTab('storage')">S3 / Block Storage</span>
+                    <span onclick="switchInfraTab('network')">Gateways</span>
+                </div>
+                <div id="infra-content" class="card">
                     </div>
-                    <div class="card">
-                        <h3 style="margin-top:0;"><i class="fa-solid fa-database"></i> Global S3 Storage Fabric</h3>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Cross-region replicated object storage. Usable capacity after EC.</p>
-                        <div style="display: flex; gap: 20px; margin-top: 15px;">
-                            <div><div style="font-size: 0.75rem; color: var(--text-muted);">TOTAL CAPACITY</div><div style="font-size: 1.2rem; font-weight: bold;">12.4 PB</div></div>
-                            <div><div style="font-size: 0.75rem; color: var(--text-muted);">PROVISIONED</div><div style="font-size: 1.2rem; font-weight: bold; color: var(--vz-red);">9.1 PB</div></div>
-                        </div>
-                        <button class="btn btn-secondary" style="margin-top: 15px; width: 100%;"><i class="fa-solid fa-plus"></i> Provision S3 Bucket</button>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3 style="margin-top:0;">API Gateways & Networking</h3>
-                    <table>
-                        <tr><th>Gateway ID</th><th>Type</th><th>Location</th><th>Traffic Limit</th><th>Status</th></tr>
-                        <tr><td>GW-EU-01</td><td>Envoy (Agentic Mesh)</td><td>Frankfurt</td><td>10,000 Req/s</td><td><span class="badge green">Active</span></td></tr>
-                        <tr><td>GW-US-02</td><td>Nginx Ingress</td><td>Virginia</td><td>5,000 Req/s</td><td><span class="badge green">Active</span></td></tr>
-                    </table>
-                </div>
             </div>
 
             <div id="view-observability" class="view-section">
-                <div class="page-header"><div><h1>Observability</h1><p>Predictive analytics and performance monitoring.</p></div></div>
-                <div class="card ai-panel">
-                    <h4><i class="fa-solid fa-brain"></i> AI Predictive Analytics</h4>
-                    <p style="font-size: 0.9rem; margin:0;">Based on historical ingestion rates, <strong>Tenant 'Fintech Startup'</strong> will hit their 10TB NVMe storage limit in exactly 6 days. <br><br><strong>Recommendation:</strong> Propose an automated Tiering Policy to move cold logs to S3, saving the client $400/mo and avoiding downtime.</p>
+                <div class="page-header"><div><h1>Observability</h1><p>Predictive analytics for current tenant.</p></div></div>
+                
+                <div class="card" style="background: #F0FDF4; border: 1px solid #86EFAC; border-left: 4px solid var(--success);" id="ai-alert-box">
+                    <h4 style="margin: 0 0 10px 0; color: #166534;"><i class="fa-solid fa-robot"></i> Copilot Remediation Required</h4>
+                    <p style="font-size: 0.9rem;" id="ai-alert-text">Analyzing...</p>
+                    <button class="btn btn-primary" style="background: #166534;" onclick="executeAiFix()"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Remediate</button>
                 </div>
+
                 <div class="grid-2">
                     <div class="card">
-                        <h3 style="margin-top:0; color:var(--text-muted); font-size:0.85rem; text-transform:uppercase;">Global Storage Latency (ms)</h3>
-                        <div style="height: 150px; background: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--vz-border) 20px); position: relative; border-bottom: 2px solid var(--vz-navy); border-left: 2px solid var(--vz-navy);">
-                            <div style="position:absolute; bottom:0; left:10%; width:10%; height:40%; background:var(--vz-red);"></div>
-                            <div style="position:absolute; bottom:0; left:30%; width:10%; height:30%; background:var(--vz-red);"></div>
-                            <div style="position:absolute; bottom:0; left:50%; width:10%; height:45%; background:var(--vz-red);"></div>
-                            <div style="position:absolute; bottom:0; left:70%; width:10%; height:20%; background:var(--vz-red);"></div>
-                        </div>
-                        <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Avg: 12ms (Well within 15ms SLA)</div>
+                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">IOPS Consumption</h3>
+                        <div style="height: 120px; background: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--vz-border) 20px); border-left: 2px solid var(--vz-navy); border-bottom: 2px solid var(--vz-navy);"></div>
                     </div>
                     <div class="card">
-                        <h3 style="margin-top:0; color:var(--text-muted); font-size:0.85rem; text-transform:uppercase;">Agent API Tool Calls / Sec</h3>
-                        <div style="height: 150px; background: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--vz-border) 20px); position: relative; border-bottom: 2px solid var(--vz-navy); border-left: 2px solid var(--vz-navy);">
-                            <svg width="100%" height="100%" preserveAspectRatio="none"><polyline fill="none" stroke="var(--vz-navy)" stroke-width="3" points="0,120 50,130 100,50 150,80 200,20 250,90 300,10"></polyline></svg>
-                        </div>
-                        <div style="text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Peak: 1,420 calls/sec</div>
+                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">API Rate Limits</h3>
+                        <div style="height: 120px; background: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--vz-border) 20px); border-left: 2px solid var(--vz-navy); border-bottom: 2px solid var(--vz-navy);"></div>
                     </div>
                 </div>
             </div>
 
             <div id="view-finops" class="view-section">
-                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Multi-tier economic governance and quota management.</p></div></div>
-                <div class="grid-3">
+                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Financial governance and TCO estimates.</p></div></div>
+                <div class="grid-2">
                     <div class="card">
-                        <h3 style="margin-top:0;">Tenant Budget Ceilings</h3>
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;"><span>Healthcare Corp</span><span>$4.2k / $6k</span></div>
-                            <div style="background: var(--vz-gray-bg); height: 8px; border-radius: 4px; overflow: hidden;"><div style="background: var(--success); width: 70%; height: 100%;"></div></div>
-                        </div>
-                        <div style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;"><span>Fintech Startup</span><span>$12k / $12.5k</span></div>
-                            <div style="background: var(--vz-gray-bg); height: 8px; border-radius: 4px; overflow: hidden;"><div style="background: var(--vz-red); width: 95%; height: 100%;"></div></div>
-                        </div>
+                        <h3 style="margin-top:0;">Tenant Budget Ceiling</h3>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;"><span id="fin-spend">$0</span><span id="fin-budget">$0</span></div>
+                        <div style="background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden;"><div id="fin-bar" style="background: var(--success); width: 0%; height: 100%;"></div></div>
                     </div>
-                    <div class="card">
-                        <h3 style="margin-top:0;">Global Markups (Tier 3)</h3>
-                        <table style="font-size: 0.8rem;">
-                            <tr><td>Compute (vCPU)</td><td><strong>+ 25%</strong></td></tr>
-                            <tr><td>Storage (NVMe)</td><td><strong>+ 40%</strong></td></tr>
-                            <tr><td>Storage (S3)</td><td><strong>+ 55%</strong></td></tr>
-                            <tr><td>AI Inference Tokens</td><td><strong>+ 10%</strong></td></tr>
-                        </table>
-                    </div>
-                    <div class="card">
-                        <h3 style="margin-top:0;">Outstanding Invoices</h3>
-                        <div style="font-size: 2rem; font-weight: 800; color: var(--vz-navy);">$34,250</div>
-                        <p style="font-size: 0.85rem; color: var(--text-muted);">Due in 14 days. Collected via Stripe API.</p>
-                        <button class="btn btn-secondary" style="width: 100%;">View Ledgers</button>
+                    
+                    <div class="card" style="border: 2px solid var(--vz-navy);">
+                        <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> TCO Estimator (Wholesale vs Retail)</h3>
+                        <div class="form-group">
+                            <label>Compute Nodes: <span id="tco-nodes-val">10</span></label>
+                            <input type="range" class="tco-slider" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid var(--vz-border); padding-top: 15px;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE COST</div>
+                                <div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">RETAIL REVENUE (30% Markup)</div>
+                                <div style="font-size: 1.2rem; font-weight: bold; color: var(--success);" id="tco-retail">$0</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -397,117 +235,252 @@
         </main>
     </div>
 
+    <div class="modal-overlay" id="deployModal">
+        <div class="modal">
+            <div class="modal-header"><h2>Deploy New Workload</h2><span class="modal-close" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="form-group">
+                <label>Target Tenant</label>
+                <input type="text" class="form-control" id="deploy-target" disabled>
+            </div>
+            <div class="form-group">
+                <label>Select Template</label>
+                <select class="form-control" id="deploy-template" onchange="updateDeployInfo()">
+                    </select>
+            </div>
+            <div id="deploy-info" style="display: none;">
+                <div class="baas-box">
+                    <div>
+                        <div style="font-size: 0.75rem; color: #9CA3AF;">GUARANTEED BENCHMARK</div>
+                        <div id="deploy-bench" style="font-size: 1rem; font-weight: bold; color: white;">--</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 0.75rem; color: #9CA3AF;">MONTHLY COST</div>
+                        <div id="deploy-cost" class="val">--</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="executeDeploy()" id="btn-execute-deploy">Confirm & Deploy</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="serviceModal">
+        <div class="modal">
+            <div class="modal-header"><h2>Define New Service</h2><span class="modal-close" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="form-group"><label>Service Name</label><input type="text" class="form-control" placeholder="e.g., Gold K8s Cluster"></div>
+            <div class="form-group"><label>Base Template</label><select class="form-control"><option>Kubernetes HA</option><option>DBaaS</option></select></div>
+            <div class="form-group"><label>Retail Markup (%)</label><input type="number" class="form-control" value="30"></div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="closeModal('serviceModal')">Save Service</button>
+        </div>
+    </div>
+
     <script>
-        // --- 1. MOCK DATA ENGINE (Hierarchy) ---
-        const platformData = {
-            eu: {
-                name: "EU (Frankfurt)",
-                t2: {
-                    eurocloud: {
-                        name: "EuroCloud Disti",
-                        t3: {
-                            berlinIT: { name: "Berlin IT MSP", t4: ["AutoMakers GmbH", "MedTech EU"] },
-                            parisTech: { name: "Paris Tech Cloud", t4: ["Fashion SaaS", "Gov Data"] }
-                        }
-                    }
-                }
+        const formatCurrency = (num) => '$' + num.toLocaleString('en-US');
+
+        // --- 1. MOCK DATA ENGINE ---
+        // Simulates the OSS/BSS backend
+        const DB = {
+            regions: {
+                eu: { hasGPU: false, hasArchive: true, clusters: 4, storage: '12 PB' },
+                us: { hasGPU: true, hasArchive: false, clusters: 9, storage: '28 PB' }
             },
-            us: {
-                name: "US (Virginia)",
-                t2: {
-                    amerihost: {
-                        name: "AmeriHost Wholesale",
-                        t3: {
-                            nySolutions: { name: "NY Solutions", t4: ["Wall St Data", "Healthcare Corp"] },
-                            valleyCloud: { name: "Silicon Valley Cloud", t4: ["Fintech Startup", "AI Lab"] }
-                        }
+            templates: [
+                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 850, reqGPU: false, bench: '14,000 IOPS' },
+                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 1200, reqGPU: false, bench: '<15ms Latency' },
+                { id: 'ai', name: 'AI Reasoning Agent (LLM)', cost: 2500, reqGPU: true, bench: '45 Tokens/sec' },
+                { id: 'arc', name: 'S3 Cold Archive', cost: 300, reqGPU: false, bench: '99.9999% Durability' }
+            ],
+            hierarchy: {
+                eu: {
+                    t2: {
+                        eurocloud: { name: "EuroCloud Disti", t3: {
+                            berlinIT: { name: "Berlin IT MSP", tenants: [
+                                { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, workloads: [{name: 'Main DB', type: 'db'}] },
+                                { id: 't2', name: 'MedTech EU', spend: 1200, budget: 1500, margin: 32, workloads: [{name: 'VDI Pool', type: 'vdi'}] }
+                            ]}
+                        }}
+                    }
+                },
+                us: {
+                    t2: {
+                        amerihost: { name: "AmeriHost Wholesale", t3: {
+                            nySolutions: { name: "NY Solutions", tenants: [
+                                { id: 't3', name: 'Wall St Data', spend: 14000, budget: 15000, margin: 18, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}] },
+                                { id: 't4', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, workloads: [{name: 'Records DB', type: 'db'}] }
+                            ]}
+                        }}
                     }
                 }
             }
         };
 
-        // --- 2. INITIALIZATION & CONTEXT LOGIC ---
-        function initContext() {
-            cascadeContext('root');
-        }
+        // --- 2. STATE MANAGEMENT ---
+        let AppState = { region: 'eu', t2: '', t3: '', t4: null };
 
-        function cascadeContext(changedLevel) {
+        function cascadeContext(level) {
             const selRegion = document.getElementById('selRegion');
             const selT2 = document.getElementById('selT2');
             const selT3 = document.getElementById('selT3');
             const selT4 = document.getElementById('selT4');
 
-            if (changedLevel === 'root' || changedLevel === 'region') {
-                const rData = platformData[selRegion.value].t2;
+            AppState.region = selRegion.value;
+
+            if (level === 'region' || level === 'init') {
+                const t2s = DB.hierarchy[AppState.region].t2;
                 selT2.innerHTML = '';
-                for (let k in rData) { selT2.innerHTML += `<option value="${k}">${rData[k].name}</option>`; }
+                for (let k in t2s) selT2.innerHTML += `<option value="${k}">${t2s[k].name}</option>`;
             }
+            AppState.t2 = selT2.value;
 
-            if (changedLevel === 'root' || changedLevel === 'region' || changedLevel === 't2') {
-                const t3Data = platformData[selRegion.value].t2[selT2.value].t3;
+            if (level === 'region' || level === 't2' || level === 'init') {
+                const t3s = DB.hierarchy[AppState.region].t2[AppState.t2].t3;
                 selT3.innerHTML = '';
-                for (let k in t3Data) { selT3.innerHTML += `<option value="${k}">${t3Data[k].name}</option>`; }
+                for (let k in t3s) selT3.innerHTML += `<option value="${k}">${t3s[k].name}</option>`;
             }
+            AppState.t3 = selT3.value;
 
-            // Always update T4
-            const t4Data = platformData[selRegion.value].t2[selT2.value].t3[selT3.value].t4;
+            // Always update Tenants
+            const tenants = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
             selT4.innerHTML = '';
-            t4Data.forEach(tenant => {
-                selT4.innerHTML += `<option>${tenant}</option>`;
+            tenants.forEach((t, index) => {
+                selT4.innerHTML += `<option value="${index}">${t.name}</option>`;
             });
+            
+            renderApp();
         }
 
-        // --- 3. VIEW SWITCHING LOGIC ---
+        // --- 3. RENDER ENGINE ---
+        function renderApp() {
+            const tIndex = document.getElementById('selT4').value;
+            AppState.t4 = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants[tIndex];
+
+            // Overview
+            document.getElementById('ov-tenant-name').innerText = AppState.t4.name;
+            document.getElementById('ov-spend').innerText = formatCurrency(AppState.t4.spend);
+            document.getElementById('ov-workloads').innerText = AppState.t4.workloads.length;
+            document.getElementById('ov-margin').innerText = AppState.t4.margin + '%';
+
+            // Workloads
+            const wlContainer = document.getElementById('workload-list');
+            wlContainer.innerHTML = '';
+            AppState.t4.workloads.forEach(w => {
+                wlContainer.innerHTML += `<div class="card"><h3 style="margin-top:0; color:var(--vz-navy);">${w.name}</h3><span class="badge green">Running</span><p style="font-size:0.85rem; color:var(--text-muted);">Based on template: ${w.type}</p></div>`;
+            });
+
+            // Templates (Filtered by Region HW)
+            const regionData = DB.regions[AppState.region];
+            const tplContainer = document.getElementById('template-grid');
+            tplContainer.innerHTML = '';
+            
+            let availTemplates = DB.templates.filter(t => !t.reqGPU || regionData.hasGPU);
+            if(!regionData.hasArchive) availTemplates = availTemplates.filter(t => t.id !== 'arc');
+
+            availTemplates.forEach(t => {
+                tplContainer.innerHTML += `<div class="card" style="border-top: 4px solid var(--vz-navy);"><h3 style="margin-top:0;">${t.name}</h3><p style="font-size:0.8rem; color:var(--text-muted);">Guaranteed: ${t.bench}</p><div style="font-weight:bold; margin-top:10px;">${formatCurrency(t.cost)}/mo</div></div>`;
+            });
+
+            // Services
+            const srvTable = document.getElementById('services-table');
+            srvTable.innerHTML = `<tr><th>Service Name</th><th>Base Cost</th><th>Retail Markup</th><th>BaaS Guarantee</th></tr>`;
+            availTemplates.forEach(t => {
+                srvTable.innerHTML += `<tr><td>${t.name}</td><td>${formatCurrency(t.cost)}</td><td><span class="badge green">+30%</span></td><td>${t.bench}</td></tr>`;
+            });
+
+            // Infrastructure (Reacts to Region)
+            switchInfraTab('clusters');
+
+            // Observability & FinOps
+            document.getElementById('ai-alert-text').innerHTML = `Tenant <strong>${AppState.t4.name}</strong> is approaching storage IOPS limits. Recommendation: Scale block storage tier.`;
+            
+            document.getElementById('fin-spend').innerText = formatCurrency(AppState.t4.spend);
+            document.getElementById('fin-budget').innerText = formatCurrency(AppState.t4.budget);
+            const pct = (AppState.t4.spend / AppState.t4.budget) * 100;
+            const bar = document.getElementById('fin-bar');
+            bar.style.width = pct + '%';
+            bar.style.background = pct > 90 ? 'var(--vz-red)' : 'var(--success)';
+
+            runTCO();
+        }
+
+        // --- 4. VIEW & TAB SWITCHING ---
         function switchView(viewId) {
-            // Update Sidebar
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
             event.currentTarget.classList.add('active');
-
-            // Update Main View
             document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
         }
 
-        // --- 4. TEMPLATE BUILDER LOGIC ---
-        let builderCost = 0;
-        function toggleBuilder() {
-            const grid = document.getElementById('catalog-grid');
-            const bld = document.getElementById('template-builder');
-            if (bld.style.display === 'none') {
-                grid.style.display = 'none';
-                bld.style.display = 'block';
-                // Reset
-                document.getElementById('builder-canvas').innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 100px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i><br>Click components to add to template.</div>';
-                builderCost = 0;
-                updateBuilderCost();
-            } else {
-                grid.style.display = 'grid';
-                bld.style.display = 'none';
+        function switchInfraTab(tab) {
+            document.querySelectorAll('#infra-pills span').forEach(s => s.classList.remove('active'));
+            event.currentTarget?.classList.add('active');
+            
+            const content = document.getElementById('infra-content');
+            const reg = DB.regions[AppState.region];
+            if(tab === 'clusters') content.innerHTML = `<h3>Active Clusters</h3><p>${reg.clusters} Virtuozzo Infrastructure clusters running in ${AppState.region.toUpperCase()}.</p>`;
+            if(tab === 'storage') content.innerHTML = `<h3>Storage Fabric</h3><p>Total capacity: ${reg.storage}. S3 and Block ready.</p>`;
+            if(tab === 'network') content.innerHTML = `<h3>Gateways</h3><p>Envoy Mesh Active. Cross-region routing enabled.</p>`;
+        }
+
+        // --- 5. MODALS & DEPLOY FLOW ---
+        function openModal(id) { 
+            document.getElementById(id).style.display = 'flex'; 
+            if(id === 'deployModal') {
+                document.getElementById('deploy-target').value = AppState.t4.name;
+                const sel = document.getElementById('deploy-template');
+                sel.innerHTML = '<option value="none">-- Select Template --</option>';
+                const regData = DB.regions[AppState.region];
+                DB.templates.forEach(t => {
+                    if((!t.reqGPU || regData.hasGPU) && (t.id !== 'arc' || regData.hasArchive)) {
+                        sel.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+                    }
+                });
+                document.getElementById('deploy-info').style.display = 'none';
             }
         }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        function addBuilderItem(name, cost) {
-            const canvas = document.getElementById('builder-canvas');
-            const emptyState = document.getElementById('canvas-empty');
-            if(emptyState) emptyState.remove();
-
-            const item = document.createElement('div');
-            item.className = 'canvas-item';
-            item.innerHTML = `<div><strong>${name}</strong><div style="font-size:0.75rem; color:gray;">API Connected</div></div> <div style="font-weight:bold;">$${cost}/mo</div>`;
-            canvas.appendChild(item);
-
-            builderCost += cost;
-            updateBuilderCost();
+        function updateDeployInfo() {
+            const id = document.getElementById('deploy-template').value;
+            if(id === 'none') { document.getElementById('deploy-info').style.display = 'none'; return; }
+            const tpl = DB.templates.find(t => t.id === id);
+            document.getElementById('deploy-bench').innerText = tpl.bench;
+            document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost);
+            document.getElementById('deploy-info').style.display = 'block';
         }
 
-        function updateBuilderCost() {
-            document.getElementById('bld-cost').innerText = '$' + builderCost;
-            // Auto calculate 30% markup for retail
-            document.getElementById('bld-retail').innerText = '$' + Math.round(builderCost * 1.3);
+        function executeDeploy() {
+            const btn = document.getElementById('btn-execute-deploy');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning...';
+            setTimeout(() => {
+                const tplId = document.getElementById('deploy-template').value;
+                const tpl = DB.templates.find(t => t.id === tplId);
+                AppState.t4.workloads.push({name: 'New ' + tpl.name, type: tplId});
+                AppState.t4.spend += tpl.cost;
+                
+                btn.innerHTML = 'Confirm & Deploy';
+                closeModal('deployModal');
+                renderApp(); // re-render to show new workload
+            }, 800);
         }
 
-        // Run on load
-        initContext();
+        function executeAiFix() {
+            alert('Remediation Policy Executed via CPMS.');
+            document.getElementById('ai-alert-box').style.display = 'none';
+        }
+
+        // --- 6. EMBEDDED TCO CALCULATOR ---
+        function runTCO() {
+            const nodes = parseInt(document.getElementById('tco-nodes').value);
+            document.getElementById('tco-nodes-val').innerText = nodes;
+            
+            // Basic math matching previous logic: Hardware + Lic + Colo
+            const wholesale = (nodes * 22000 / 36) + (nodes * 64 * 8) + (nodes * 230);
+            document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo';
+            document.getElementById('tco-retail').innerText = formatCurrency(wholesale * 1.30) + '/mo';
+        }
+
+        // Boot App
+        cascadeContext('init');
+        switchInfraTab('clusters');
 
     </script>
 </body>

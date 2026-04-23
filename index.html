@@ -11,7 +11,7 @@
             --vz-navy: #0B1120; --vz-navy-light: #1A2538;
             --vz-gray-bg: #F3F4F6; --vz-border: #E5E7EB;
             --text-dark: #111827; --text-muted: #6B7280;
-            --success: #10B981; --warning: #F59E0B; --info: #3B82F6;
+            --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --info: #3B82F6;
         }
 
         * { box-sizing: border-box; }
@@ -28,11 +28,11 @@
 
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        .topbar { height: 70px; background-color: white; border-bottom: 1px solid var(--vz-border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; flex-shrink: 0; }
-        .context-chain { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
-        .context-chain select { background: var(--vz-gray-bg); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--vz-border); font-weight: 600; color: var(--vz-navy); cursor: pointer; outline: none; font-size: 0.85rem;}
+        .topbar { height: 75px; background-color: white; border-bottom: 1px solid var(--vz-border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; flex-shrink: 0; }
+        .context-chain { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-muted); }
+        .context-chain select { background: var(--vz-gray-bg); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--vz-border); font-weight: 600; color: var(--vz-navy); cursor: pointer; outline: none; font-size: 0.85rem; max-width: 180px;}
         .context-chain select:focus { border-color: var(--vz-red); }
-        .tier-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.7; display: block; margin-bottom: 2px;}
+        .tier-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; display: block; margin-bottom: 2px; color: var(--vz-navy);}
 
         .content-area { padding: 30px; overflow-y: auto; flex: 1; position: relative; }
         .view-section { display: none; animation: fadeIn 0.3s ease; }
@@ -52,7 +52,7 @@
         .metric-card h3 { margin: 0 0 10px 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
         .metric-card .val { font-size: 1.8rem; font-weight: 800; color: var(--vz-navy); }
         
-        .btn { padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px;}
+        .btn { padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;}
         .btn-primary { background: var(--vz-red); color: white; }
         .btn-primary:hover { background: var(--vz-red-hover); }
         .btn-secondary { background: var(--vz-gray-bg); color: var(--vz-navy); border: 1px solid var(--vz-border); }
@@ -61,30 +61,32 @@
         .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
         .badge.green { background: #D1FAE5; color: #065F46; }
         .badge.yellow { background: #FEF3C7; color: #92400E; }
+        .badge.red { background: #FEE2E2; color: #991B1B; }
 
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--vz-border); font-size: 0.9rem;}
         th { color: var(--text-muted); font-weight: 600; background: #F9FAFB; }
 
-        .nav-pills { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--vz-border); padding-bottom: 10px;}
-        .nav-pills span { padding: 8px 16px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 6px; }
-        .nav-pills span.active { background: var(--vz-navy); color: white; }
+        /* Builder Layout */
+        .builder-layout { display: flex; gap: 20px; height: 500px; }
+        .builder-palette { width: 250px; border-right: 1px solid var(--vz-border); padding-right: 20px; overflow-y: auto;}
+        .builder-canvas { flex: 1; background: #F8FAFC; border-radius: 8px; padding: 20px; border: 2px dashed #CBD5E1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;}
+        .builder-item { background: white; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
+        .builder-item:hover { border-color: var(--vz-navy); }
+        .canvas-node { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid var(--vz-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: relative;}
+        .canvas-connector { text-align: center; color: var(--vz-red); font-size: 1.2rem; margin: -5px 0;}
 
-        /* --- Modals --- */
+        /* Alert Box */
+        .alert-box { background: #FFF1F2; border: 1px solid #FECDD3; border-left: 4px solid var(--vz-red); padding: 15px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
+
+        /* Modals */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 17, 32, 0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px);}
         .modal { background: white; border-radius: 8px; width: 600px; max-width: 90%; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--vz-border); padding-bottom: 15px;}
         .modal-header h2 { margin: 0; font-size: 1.3rem; color: var(--vz-navy); }
-        .modal-close { cursor: pointer; color: var(--text-muted); font-size: 1.2rem; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: var(--vz-navy);}
         .form-control { width: 100%; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 0.95rem; }
-        
-        .baas-box { background: var(--vz-navy); color: white; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px;}
-        .baas-box .val { font-size: 1.3rem; font-weight: bold; color: var(--success); }
-
-        /* TCO Embedded Style */
-        .tco-slider { width: 100%; accent-color: var(--vz-red); }
     </style>
 </head>
 <body>
@@ -105,7 +107,7 @@
     <div class="main-wrapper">
         <header class="topbar">
             <div class="context-chain">
-                <div><span class="tier-label">Tier 1</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px;">Virtuozzo</div></div>
+                <div><span class="tier-label">Tier 1</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px;">Virtuozzo Admin</div></div>
                 <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
                 
                 <div><span class="tier-label">Region</span><select id="selRegion" onchange="cascadeContext('region')">
@@ -128,105 +130,147 @@
             
             <div id="view-overview" class="view-section active">
                 <div class="page-header">
-                    <div><h1><span id="ov-tenant-name">Tenant</span> Overview</h1><p>Real-time telemetry and financial health.</p></div>
+                    <div><h1><span id="ov-tenant-name">Tenant</span> Overview</h1><p>Aggregated telemetry and business metrics.</p></div>
                 </div>
-                <div class="grid-4">
+                <div class="grid-4" style="margin-bottom: 20px;">
                     <div class="card metric-card"><h3>Monthly Spend</h3><div class="val" id="ov-spend">$0</div></div>
                     <div class="card metric-card"><h3>Active Workloads</h3><div class="val" id="ov-workloads">0</div></div>
-                    <div class="card metric-card"><h3>MSP Margin</h3><div class="val" id="ov-margin">0%</div></div>
-                    <div class="card metric-card"><h3>Quota Health</h3><div class="val" style="color:var(--success);">Optimal</div></div>
+                    <div class="card metric-card"><h3>Average Margin</h3><div class="val" id="ov-margin">0%</div></div>
+                    <div class="card metric-card"><h3>End Users</h3><div class="val" id="ov-users">0</div></div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-top:0;">Compute Core Utilization</h3>
+                        <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
+                            <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--vz-red) <span id="ov-core-deg">250deg</span>, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center;">
+                                <div style="width: 90px; height: 90px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: var(--vz-navy);" id="ov-core-pct">70%</div>
+                            </div>
+                            <div>
+                                <div style="font-weight: bold; color: var(--vz-navy);">Highly Optimized</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);">Allocated cores are generating revenue. Minimal stranded capacity.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card" id="ov-alerts-container">
+                        </div>
                 </div>
             </div>
 
             <div id="view-workloads" class="view-section">
                 <div class="page-header">
-                    <div><h1>Workloads</h1><p>Deployed services for current tenant.</p></div>
-                    <button class="btn btn-primary" onclick="openModal('deployModal')"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
+                    <div><h1>Workloads</h1><p>Running services across selected scope.</p></div>
+                    <button class="btn btn-primary" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
                 </div>
-                <div id="workload-list" class="grid-2">
+                <div id="workload-list" class="grid-3">
                     </div>
             </div>
 
             <div id="view-templates" class="view-section">
                 <div class="page-header">
-                    <div><h1>Template Catalogue</h1><p>Available blueprints based on regional hardware.</p></div>
-                    <button class="btn btn-secondary"><i class="fa-solid fa-hammer"></i> Open Builder</button>
+                    <div><h1>Template Catalogue</h1><p>Hardware-aware blueprints available in this region.</p></div>
+                    <button class="btn btn-secondary" onclick="toggleBuilder()"><i class="fa-solid fa-hammer"></i> Template Builder</button>
                 </div>
                 <div id="template-grid" class="grid-3">
                     </div>
+
+                <div id="template-builder" class="card" style="display: none; margin-top: 20px; border: 2px solid var(--vz-navy);">
+                    <h3 style="margin-top:0; color:var(--vz-navy);"><i class="fa-solid fa-hammer"></i> Interactive API-First Builder</h3>
+                    <div class="builder-layout">
+                        <div class="builder-palette">
+                            <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted);">Components</h4>
+                            <div class="builder-item" onclick="addBuilderNode('Compute Node (16 vCPU)', 120)">Compute Node <i class="fa-solid fa-plus"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('NVMe Block (1TB)', 80)">NVMe Storage <i class="fa-solid fa-plus"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('S3 Bucket (10TB)', 40)">S3 Storage <i class="fa-solid fa-plus"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('Envoy API Gateway', 50)">API Gateway <i class="fa-solid fa-plus"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('AgentOps Mesh', 100)">Agent Mesh <i class="fa-solid fa-plus"></i></div>
+                        </div>
+                        <div class="builder-canvas" id="builder-canvas">
+                            <div style="text-align: center; color: var(--text-muted); margin-top: 100px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i><br>Click components to build architecture.</div>
+                        </div>
+                        <div style="width: 250px; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px;">
+                            <h4 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">Template Economics</h4>
+                            <div style="margin-bottom: 15px;"><div style="font-size: 0.75rem; color: #9CA3AF;">WHOLESALE COST</div><div style="font-size: 1.5rem; font-weight: bold;" id="bld-cost">$0</div></div>
+                            <div style="margin-bottom: 15px;"><div style="font-size: 0.75rem; color: #9CA3AF;">SUGGESTED RETAIL (+30%)</div><div style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="bld-retail">$0</div></div>
+                            <button class="btn" style="background: white; color: var(--vz-navy); width: 100%; margin-top: 20px;" onclick="toggleBuilder()"><i class="fa-solid fa-save"></i> Save Template</button>
+                            <button class="btn" style="background: transparent; color: white; border: 1px solid white; width: 100%; margin-top: 10px;" onclick="clearBuilder()">Clear</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="view-services" class="view-section">
                 <div class="page-header">
-                    <div><h1>Service Definitions</h1><p>Pricing and SLA models for downstream tenants.</p></div>
+                    <div><h1>Services</h1><p>Published pricing and SLAs.</p></div>
                     <button class="btn btn-primary" onclick="openModal('serviceModal')"><i class="fa-solid fa-plus"></i> Add Service</button>
                 </div>
                 <div class="card">
                     <table id="services-table">
-                        <tr><th>Service Name</th><th>Base Cost</th><th>Retail Markup</th><th>BaaS Guarantee</th></tr>
                         </table>
                 </div>
             </div>
 
             <div id="view-infrastructure" class="view-section">
                 <div class="page-header">
-                    <div><h1>Infrastructure</h1><p>Underlying OSS constraints and capacities.</p></div>
-                    <button class="btn btn-secondary" onclick="alert('Provisioning new cluster...')"><i class="fa-solid fa-plus"></i> Add Capacity</button>
+                    <div><h1>Infrastructure & Topology</h1><p>Virtuozzo Admin level view of physical resources.</p></div>
+                    <button class="btn btn-secondary" onclick="alert('Initiating Region Deployment Wizard...')"><i class="fa-solid fa-globe"></i> Deploy Region</button>
                 </div>
-                <div class="nav-pills" id="infra-pills">
-                    <span class="active" onclick="switchInfraTab('clusters')">VHI Clusters</span>
-                    <span onclick="switchInfraTab('storage')">S3 / Block Storage</span>
-                    <span onclick="switchInfraTab('network')">Gateways</span>
-                </div>
-                <div id="infra-content" class="card">
+                <div class="grid-2">
+                    <div class="card">
+                        <h3 style="margin-top:0; color: var(--vz-navy);">Resource Allocation (Active Region)</h3>
+                        <div id="infra-stats" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                            </div>
                     </div>
+                    <div class="card">
+                        <h3 style="margin-top:0; color: var(--vz-navy);">Clusters & Storage</h3>
+                        <table style="margin-top: 15px;" id="infra-clusters">
+                            </table>
+                    </div>
+                </div>
             </div>
 
             <div id="view-observability" class="view-section">
-                <div class="page-header"><div><h1>Observability</h1><p>Predictive analytics for current tenant.</p></div></div>
+                <div class="page-header"><div><h1>Observability & Alerting</h1><p>Aggregated telemetry across selected scope.</p></div></div>
                 
-                <div class="card" style="background: #F0FDF4; border: 1px solid #86EFAC; border-left: 4px solid var(--success);" id="ai-alert-box">
-                    <h4 style="margin: 0 0 10px 0; color: #166534;"><i class="fa-solid fa-robot"></i> Copilot Remediation Required</h4>
-                    <p style="font-size: 0.9rem;" id="ai-alert-text">Analyzing...</p>
-                    <button class="btn btn-primary" style="background: #166534;" onclick="executeAiFix()"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Remediate</button>
-                </div>
+                <h3 style="color: var(--vz-navy); margin-bottom: 10px;">Active Remediations & Alerts</h3>
+                <div id="obs-alerts-container" style="margin-bottom: 30px;">
+                    </div>
 
                 <div class="grid-2">
                     <div class="card">
-                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">IOPS Consumption</h3>
-                        <div style="height: 120px; background: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--vz-border) 20px); border-left: 2px solid var(--vz-navy); border-bottom: 2px solid var(--vz-navy);"></div>
+                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">Compute Usage (vCPU)</h3>
+                        <div style="height: 150px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--vz-navy); border-left: 2px solid var(--vz-navy); padding-left: 10px;" id="chart-cpu">
+                            </div>
                     </div>
                     <div class="card">
-                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">API Rate Limits</h3>
-                        <div style="height: 120px; background: repeating-linear-gradient(0deg, transparent, transparent 19px, var(--vz-border) 20px); border-left: 2px solid var(--vz-navy); border-bottom: 2px solid var(--vz-navy);"></div>
+                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">Storage IOPS</h3>
+                        <div style="height: 150px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--vz-navy); border-left: 2px solid var(--vz-navy); padding-left: 10px;" id="chart-iops">
+                             </div>
                     </div>
                 </div>
             </div>
 
             <div id="view-finops" class="view-section">
-                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Financial governance and TCO estimates.</p></div></div>
+                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Financial governance and quotas.</p></div></div>
                 <div class="grid-2">
                     <div class="card">
-                        <h3 style="margin-top:0;">Tenant Budget Ceiling</h3>
+                        <h3 style="margin-top:0;">Budget vs Actual Spend</h3>
                         <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;"><span id="fin-spend">$0</span><span id="fin-budget">$0</span></div>
-                        <div style="background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden;"><div id="fin-bar" style="background: var(--success); width: 0%; height: 100%;"></div></div>
+                        <div style="background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 20px;"><div id="fin-bar" style="background: var(--success); width: 0%; height: 100%;"></div></div>
+                        
+                        <h3 style="margin-top:20px; font-size: 0.85rem; color: var(--text-muted);">TOP SPENDERS</h3>
+                        <table id="fin-spenders" style="font-size: 0.8rem;">
+                            </table>
                     </div>
                     
                     <div class="card" style="border: 2px solid var(--vz-navy);">
-                        <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> TCO Estimator (Wholesale vs Retail)</h3>
+                        <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> Wholesale TCO Estimator</h3>
                         <div class="form-group">
                             <label>Compute Nodes: <span id="tco-nodes-val">10</span></label>
-                            <input type="range" class="tco-slider" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
+                            <input type="range" style="width: 100%; accent-color: var(--vz-red);" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid var(--vz-border); padding-top: 15px;">
-                            <div>
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE COST</div>
-                                <div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 0.75rem; color: var(--text-muted);">RETAIL REVENUE (30% Markup)</div>
-                                <div style="font-size: 1.2rem; font-weight: bold; color: var(--success);" id="tco-retail">$0</div>
-                            </div>
+                            <div><div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE COST</div><div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div></div>
+                            <div style="text-align: right;"><div style="font-size: 0.75rem; color: var(--text-muted);">RETAIL REVENUE (+30%)</div><div style="font-size: 1.2rem; font-weight: bold; color: var(--success);" id="tco-retail">$0</div></div>
                         </div>
                     </div>
                 </div>
@@ -237,171 +281,273 @@
 
     <div class="modal-overlay" id="deployModal">
         <div class="modal">
-            <div class="modal-header"><h2>Deploy New Workload</h2><span class="modal-close" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
-            <div class="form-group">
-                <label>Target Tenant</label>
-                <input type="text" class="form-control" id="deploy-target" disabled>
-            </div>
+            <div class="modal-header"><h2>Deploy Workload</h2><span style="cursor:pointer;" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="form-group"><label>Target Tenant</label><input type="text" class="form-control" id="deploy-target" disabled></div>
             <div class="form-group">
                 <label>Select Template</label>
-                <select class="form-control" id="deploy-template" onchange="updateDeployInfo()">
-                    </select>
+                <select class="form-control" id="deploy-template" onchange="updateDeployInfo()"></select>
             </div>
-            <div id="deploy-info" style="display: none;">
-                <div class="baas-box">
-                    <div>
-                        <div style="font-size: 0.75rem; color: #9CA3AF;">GUARANTEED BENCHMARK</div>
-                        <div id="deploy-bench" style="font-size: 1rem; font-weight: bold; color: white;">--</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div style="font-size: 0.75rem; color: #9CA3AF;">MONTHLY COST</div>
-                        <div id="deploy-cost" class="val">--</div>
-                    </div>
+            <div id="deploy-info" style="display: none; background: var(--vz-navy); color: white; padding: 15px; border-radius: 6px; margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <div><div style="font-size: 0.75rem; color: #9CA3AF;">BENCHMARK</div><div id="deploy-bench" style="font-weight: bold;">--</div></div>
+                    <div style="text-align: right;"><div style="font-size: 0.75rem; color: #9CA3AF;">COST</div><div id="deploy-cost" style="font-weight: bold; color: var(--success);">--</div></div>
                 </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="executeDeploy()" id="btn-execute-deploy">Confirm & Deploy</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="executeDeploy()" id="btn-execute-deploy">Deploy Now</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="serviceModal">
         <div class="modal">
-            <div class="modal-header"><h2>Define New Service</h2><span class="modal-close" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
-            <div class="form-group"><label>Service Name</label><input type="text" class="form-control" placeholder="e.g., Gold K8s Cluster"></div>
-            <div class="form-group"><label>Base Template</label><select class="form-control"><option>Kubernetes HA</option><option>DBaaS</option></select></div>
+            <div class="modal-header"><h2>Define New Service</h2><span style="cursor:pointer;" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="form-group"><label>Service Name</label><input type="text" class="form-control" placeholder="e.g., Secure DBaaS"></div>
             <div class="form-group"><label>Retail Markup (%)</label><input type="number" class="form-control" value="30"></div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="closeModal('serviceModal')">Save Service</button>
+            <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('serviceModal')">Save Service</button>
         </div>
     </div>
 
     <script>
-        const formatCurrency = (num) => '$' + num.toLocaleString('en-US');
+        const formatCurrency = (num) => '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
 
         // --- 1. MOCK DATA ENGINE ---
-        // Simulates the OSS/BSS backend
-        const DB = {
+        let DB = {
             regions: {
-                eu: { hasGPU: false, hasArchive: true, clusters: 4, storage: '12 PB' },
-                us: { hasGPU: true, hasArchive: false, clusters: 9, storage: '28 PB' }
+                eu: { name: "EU (Frankfurt)", hasGPU: false, hasArchive: true, clusters: 4, storage: '12 PB' },
+                us: { name: "US (Virginia)", hasGPU: true, hasArchive: false, clusters: 9, storage: '28 PB' }
             },
             templates: [
                 { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 850, reqGPU: false, bench: '14,000 IOPS' },
                 { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 1200, reqGPU: false, bench: '<15ms Latency' },
-                { id: 'ai', name: 'AI Reasoning Agent (LLM)', cost: 2500, reqGPU: true, bench: '45 Tokens/sec' },
+                { id: 'ai', name: 'AI Reasoning Agent', cost: 2500, reqGPU: true, bench: '45 Tokens/sec' },
                 { id: 'arc', name: 'S3 Cold Archive', cost: 300, reqGPU: false, bench: '99.9999% Durability' }
             ],
             hierarchy: {
-                eu: {
-                    t2: {
-                        eurocloud: { name: "EuroCloud Disti", t3: {
-                            berlinIT: { name: "Berlin IT MSP", tenants: [
-                                { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, workloads: [{name: 'Main DB', type: 'db'}] },
-                                { id: 't2', name: 'MedTech EU', spend: 1200, budget: 1500, margin: 32, workloads: [{name: 'VDI Pool', type: 'vdi'}] }
-                            ]}
-                        }}
-                    }
-                },
-                us: {
-                    t2: {
-                        amerihost: { name: "AmeriHost Wholesale", t3: {
-                            nySolutions: { name: "NY Solutions", tenants: [
-                                { id: 't3', name: 'Wall St Data', spend: 14000, budget: 15000, margin: 18, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}] },
-                                { id: 't4', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, workloads: [{name: 'Records DB', type: 'db'}] }
-                            ]}
-                        }}
-                    }
-                }
+                eu: { t2: {
+                    eurocloud: { name: "EuroCloud Disti", t3: {
+                        berlinIT: { name: "Berlin IT MSP", tenants: [
+                            { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [{id:'a1', msg: 'Approaching DB Quota', type: 'warning'}] },
+                            { id: 't2', name: 'MedTech EU', spend: 2400, budget: 3000, margin: 32, users: 120, workloads: [{name: 'VDI Pool A', type: 'vdi'}, {name: 'VDI Pool B', type: 'vdi'}], alerts: [] }
+                        ]},
+                        parisTech: { name: "Paris Tech Cloud", tenants: [
+                            { id: 't3', name: 'Fashion SaaS', spend: 600, budget: 1500, margin: 40, users: 50, workloads: [{name: 'Archive', type: 'arc'}], alerts: [] }
+                        ]}
+                    }}
+                }},
+                us: { t2: {
+                    amerihost: { name: "AmeriHost Wholesale", t3: {
+                        nySolutions: { name: "NY Solutions", tenants: [
+                            { id: 't4', name: 'Wall St Data', spend: 14000, budget: 15000, margin: 18, users: 1200, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}], alerts: [{id:'a2', msg: 'Runaway AI Token Burn', type: 'danger'}] },
+                            { id: 't5', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}], alerts: [] }
+                        ]}
+                    }}
+                }}
             }
         };
 
-        // --- 2. STATE MANAGEMENT ---
-        let AppState = { region: 'eu', t2: '', t3: '', t4: null };
+        let AppState = { region: 'eu', t2: '', t3: 'all', t4: 'all' };
 
+        // --- 2. DATA AGGREGATION ---
+        function getAggregatedData() {
+            let res = { name: '', spend: 0, budget: 0, margin: 0, users: 0, workloads: [], alerts: [], tenantCount: 0, t2Count: 0, t3Count: 0 };
+            let totalMargin = 0, marginWeights = 0;
+            
+            const rData = DB.hierarchy[AppState.region].t2;
+            res.t2Count = Object.keys(rData).length;
+
+            let t2Keys = [AppState.t2]; // Assuming T2 is always specific for simplicity in UI topbar
+            
+            t2Keys.forEach(t2Key => {
+                const t3Data = rData[t2Key].t3;
+                res.t3Count = Object.keys(t3Data).length;
+                let t3Keys = AppState.t3 === 'all' ? Object.keys(t3Data) : [AppState.t3];
+                
+                t3Keys.forEach(t3Key => {
+                    let tenants = t3Data[t3Key].tenants;
+                    tenants.forEach(t => {
+                        if(AppState.t4 === 'all' || AppState.t4 === t.id) {
+                            res.spend += t.spend;
+                            res.budget += t.budget;
+                            res.users += t.users;
+                            res.workloads = res.workloads.concat(t.workloads.map(w => ({...w, tenantName: t.name})));
+                            res.alerts = res.alerts.concat(t.alerts.map(a => ({...a, tenantName: t.name, tId: t.id})));
+                            totalMargin += (t.margin * t.spend);
+                            marginWeights += t.spend;
+                            res.tenantCount++;
+                        }
+                    });
+                });
+            });
+
+            res.margin = marginWeights > 0 ? (totalMargin / marginWeights).toFixed(1) : 0;
+            
+            if(AppState.t3 === 'all') res.name = 'All MSPs & Tenants';
+            else if (AppState.t4 === 'all') res.name = `All Tenants under ${rData[AppState.t2].t3[AppState.t3].name}`;
+            else {
+                const tList = rData[AppState.t2].t3[AppState.t3].tenants;
+                res.name = tList.find(t=>t.id === AppState.t4).name;
+            }
+            return res;
+        }
+
+        // --- 3. CONTEXT SWITCHER ---
         function cascadeContext(level) {
-            const selRegion = document.getElementById('selRegion');
-            const selT2 = document.getElementById('selT2');
-            const selT3 = document.getElementById('selT3');
-            const selT4 = document.getElementById('selT4');
-
-            AppState.region = selRegion.value;
+            AppState.region = document.getElementById('selRegion').value;
 
             if (level === 'region' || level === 'init') {
                 const t2s = DB.hierarchy[AppState.region].t2;
+                const selT2 = document.getElementById('selT2');
                 selT2.innerHTML = '';
                 for (let k in t2s) selT2.innerHTML += `<option value="${k}">${t2s[k].name}</option>`;
             }
-            AppState.t2 = selT2.value;
+            AppState.t2 = document.getElementById('selT2').value;
 
             if (level === 'region' || level === 't2' || level === 'init') {
                 const t3s = DB.hierarchy[AppState.region].t2[AppState.t2].t3;
-                selT3.innerHTML = '';
+                const selT3 = document.getElementById('selT3');
+                selT3.innerHTML = '<option value="all">-- ALL MSPs --</option>';
                 for (let k in t3s) selT3.innerHTML += `<option value="${k}">${t3s[k].name}</option>`;
+                selT3.value = 'all';
             }
-            AppState.t3 = selT3.value;
+            AppState.t3 = document.getElementById('selT3').value;
 
-            // Always update Tenants
-            const tenants = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
-            selT4.innerHTML = '';
-            tenants.forEach((t, index) => {
-                selT4.innerHTML += `<option value="${index}">${t.name}</option>`;
-            });
-            
+            const selT4 = document.getElementById('selT4');
+            selT4.innerHTML = '<option value="all">-- ALL TENANTS --</option>';
+            if(AppState.t3 !== 'all') {
+                const tenants = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
+                tenants.forEach(t => selT4.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+            }
+            AppState.t4 = 'all';
+
             renderApp();
         }
 
-        // --- 3. RENDER ENGINE ---
+        // --- 4. RENDER ENGINE ---
         function renderApp() {
-            const tIndex = document.getElementById('selT4').value;
-            AppState.t4 = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants[tIndex];
+            AppState.t3 = document.getElementById('selT3').value;
+            AppState.t4 = document.getElementById('selT4').value;
+            
+            // Re-populate T4 if T3 changes to specific
+            if(event && event.target.id === 'selT3') {
+                const selT4 = document.getElementById('selT4');
+                selT4.innerHTML = '<option value="all">-- ALL TENANTS --</option>';
+                if(AppState.t3 !== 'all') {
+                    DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants.forEach(t => selT4.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+                }
+                AppState.t4 = 'all';
+            }
 
-            // Overview
-            document.getElementById('ov-tenant-name').innerText = AppState.t4.name;
-            document.getElementById('ov-spend').innerText = formatCurrency(AppState.t4.spend);
-            document.getElementById('ov-workloads').innerText = AppState.t4.workloads.length;
-            document.getElementById('ov-margin').innerText = AppState.t4.margin + '%';
+            const data = getAggregatedData();
 
-            // Workloads
+            // 1. Overview
+            document.getElementById('ov-tenant-name').innerText = data.name;
+            document.getElementById('ov-spend').innerText = formatCurrency(data.spend);
+            document.getElementById('ov-workloads').innerText = data.workloads.length;
+            document.getElementById('ov-margin').innerText = data.margin + '%';
+            document.getElementById('ov-users').innerText = data.users.toLocaleString();
+            
+            // Core Utilization ring (mock random variation based on spend)
+            let corePct = Math.min(95, Math.max(40, Math.floor(data.spend / 150)));
+            document.getElementById('ov-core-pct').innerText = corePct + '%';
+            document.getElementById('ov-core-deg').innerText = (corePct * 3.6) + 'deg';
+
+            // Overview Alerts
+            const alertCont = document.getElementById('ov-alerts-container');
+            if(data.alerts.length > 0) {
+                alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--vz-red);"><i class="fa-solid fa-triangle-exclamation"></i> Active Alerts (${data.alerts.length})</h3>`;
+                data.alerts.forEach(a => {
+                    alertCont.innerHTML += `<div style="font-size:0.85rem; padding: 10px; background: #FEF2F2; border-left: 3px solid var(--vz-red); margin-bottom:10px;"><strong>${a.tenantName}:</strong> ${a.msg}</div>`;
+                });
+            } else {
+                alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--success);"><i class="fa-solid fa-check-circle"></i> System Healthy</h3><p style="font-size:0.85rem; color:var(--text-muted);">No active alerts for selected scope.</p>`;
+            }
+
+            // 2. Workloads
             const wlContainer = document.getElementById('workload-list');
             wlContainer.innerHTML = '';
-            AppState.t4.workloads.forEach(w => {
-                wlContainer.innerHTML += `<div class="card"><h3 style="margin-top:0; color:var(--vz-navy);">${w.name}</h3><span class="badge green">Running</span><p style="font-size:0.85rem; color:var(--text-muted);">Based on template: ${w.type}</p></div>`;
+            data.workloads.forEach(w => {
+                wlContainer.innerHTML += `<div class="card"><h3 style="margin-top:0; color:var(--vz-navy);">${w.name}</h3><div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Tenant: ${w.tenantName}</div><span class="badge green">Running</span><div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); padding-top:10px; border-top:1px solid var(--vz-border);">Template: ${DB.templates.find(t=>t.id===w.type).name}</div></div>`;
             });
 
-            // Templates (Filtered by Region HW)
-            const regionData = DB.regions[AppState.region];
+            // 3. Templates (Hardware Filtered)
+            const regData = DB.regions[AppState.region];
             const tplContainer = document.getElementById('template-grid');
             tplContainer.innerHTML = '';
             
-            let availTemplates = DB.templates.filter(t => !t.reqGPU || regionData.hasGPU);
-            if(!regionData.hasArchive) availTemplates = availTemplates.filter(t => t.id !== 'arc');
+            let availTemplates = DB.templates.filter(t => !t.reqGPU || regData.hasGPU);
+            if(!regData.hasArchive) availTemplates = availTemplates.filter(t => t.id !== 'arc');
 
             availTemplates.forEach(t => {
-                tplContainer.innerHTML += `<div class="card" style="border-top: 4px solid var(--vz-navy);"><h3 style="margin-top:0;">${t.name}</h3><p style="font-size:0.8rem; color:var(--text-muted);">Guaranteed: ${t.bench}</p><div style="font-weight:bold; margin-top:10px;">${formatCurrency(t.cost)}/mo</div></div>`;
+                tplContainer.innerHTML += `<div class="card" style="border-top: 4px solid var(--vz-navy);"><h3 style="margin-top:0;">${t.name}</h3><p style="font-size:0.8rem; color:var(--text-muted);">Guaranteed: ${t.bench}</p><div style="font-weight:bold; margin-top:10px; color:var(--success);">${formatCurrency(t.cost)}/mo</div></div>`;
             });
 
-            // Services
+            // 4. Services
             const srvTable = document.getElementById('services-table');
             srvTable.innerHTML = `<tr><th>Service Name</th><th>Base Cost</th><th>Retail Markup</th><th>BaaS Guarantee</th></tr>`;
             availTemplates.forEach(t => {
                 srvTable.innerHTML += `<tr><td>${t.name}</td><td>${formatCurrency(t.cost)}</td><td><span class="badge green">+30%</span></td><td>${t.bench}</td></tr>`;
             });
 
-            // Infrastructure (Reacts to Region)
-            switchInfraTab('clusters');
+            // 5. Infrastructure
+            document.getElementById('infra-stats').innerHTML = `
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 2 Distributors</span><strong>${data.t2Count}</strong></div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 3 MSPs</span><strong>${data.t3Count}</strong></div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 4 Tenants</span><strong>${data.tenantCount}</strong></div>
+                <div style="display:flex; justify-content:space-between; color:var(--info);"><span>Global S3 Fabric</span><strong>${regData.storage}</strong></div>
+            `;
+            document.getElementById('infra-clusters').innerHTML = `<tr><th>Cluster ID</th><th>Type</th><th>Utilization</th></tr><tr><td>VHI-CL-01</td><td>Hyperconverged</td><td><span class="badge green">62%</span></td></tr><tr><td>VHI-CL-02</td><td>Hyperconverged</td><td><span class="badge yellow">85%</span></td></tr>`;
 
-            // Observability & FinOps
-            document.getElementById('ai-alert-text').innerHTML = `Tenant <strong>${AppState.t4.name}</strong> is approaching storage IOPS limits. Recommendation: Scale block storage tier.`;
-            
-            document.getElementById('fin-spend').innerText = formatCurrency(AppState.t4.spend);
-            document.getElementById('fin-budget').innerText = formatCurrency(AppState.t4.budget);
-            const pct = (AppState.t4.spend / AppState.t4.budget) * 100;
+            // 6. Observability
+            const obsContainer = document.getElementById('obs-alerts-container');
+            obsContainer.innerHTML = '';
+            if(data.alerts.length > 0) {
+                data.alerts.forEach(a => {
+                    const color = a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)';
+                    obsContainer.innerHTML += `<div class="alert-box" style="border-left-color: ${color};"><div style="flex:1;"><strong>Tenant: ${a.tenantName}</strong><br><span style="font-size:0.85rem;">${a.msg}</span></div><button class="btn btn-primary" onclick="resolveAlert('${a.tId}', '${a.id}')">Auto-Remediate</button></div>`;
+                });
+            } else {
+                obsContainer.innerHTML = `<div style="padding:15px; background:var(--vz-gray-bg); border-radius:6px; color:var(--text-muted);">No active remediations required for selected scope.</div>`;
+            }
+
+            // Dynamic Charts (CSS Mock)
+            const cCpu = document.getElementById('chart-cpu');
+            const cIops = document.getElementById('chart-iops');
+            cCpu.innerHTML = ''; cIops.innerHTML = '';
+            for(let i=0; i<10; i++) {
+                let h1 = Math.floor(Math.random() * 80) + 10 + (data.spend/1000); // scale bars based on spend roughly
+                let h2 = Math.floor(Math.random() * 60) + 20 + (data.users/200);
+                cCpu.innerHTML += `<div style="width: 8%; background: var(--vz-red); height: ${Math.min(h1, 100)}%;"></div>`;
+                cIops.innerHTML += `<div style="width: 8%; background: var(--vz-navy); height: ${Math.min(h2, 100)}%;"></div>`;
+            }
+
+            // 7. FinOps
+            document.getElementById('fin-spend').innerText = formatCurrency(data.spend);
+            document.getElementById('fin-budget').innerText = formatCurrency(data.budget);
+            const pct = data.budget > 0 ? (data.spend / data.budget) * 100 : 0;
             const bar = document.getElementById('fin-bar');
-            bar.style.width = pct + '%';
+            bar.style.width = Math.min(pct, 100) + '%';
             bar.style.background = pct > 90 ? 'var(--vz-red)' : 'var(--success)';
+
+            // Top Spenders Table
+            const finTable = document.getElementById('fin-spenders');
+            finTable.innerHTML = `<tr><th>Tenant</th><th>Spend</th><th>Margin</th></tr>`;
+            if(AppState.t4 === 'all') {
+                // Collect all tenants in scope and sort
+                let allT = [];
+                let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
+                t3Keys.forEach(t3Key => {
+                    allT = allT.concat(DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants);
+                });
+                allT.sort((a,b) => b.spend - a.spend).slice(0,3).forEach(t => {
+                    finTable.innerHTML += `<tr><td>${t.name}</td><td>${formatCurrency(t.spend)}</td><td>${t.margin}%</td></tr>`;
+                });
+            } else {
+                finTable.innerHTML += `<tr><td>${data.name}</td><td>${formatCurrency(data.spend)}</td><td>${data.margin}%</td></tr>`;
+            }
 
             runTCO();
         }
 
-        // --- 4. VIEW & TAB SWITCHING ---
+        // --- 5. VIEW NAVIGATION ---
         function switchView(viewId) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
             event.currentTarget.classList.add('active');
@@ -409,35 +555,66 @@
             document.getElementById('view-' + viewId).classList.add('active');
         }
 
-        function switchInfraTab(tab) {
-            document.querySelectorAll('#infra-pills span').forEach(s => s.classList.remove('active'));
-            event.currentTarget?.classList.add('active');
-            
-            const content = document.getElementById('infra-content');
-            const reg = DB.regions[AppState.region];
-            if(tab === 'clusters') content.innerHTML = `<h3>Active Clusters</h3><p>${reg.clusters} Virtuozzo Infrastructure clusters running in ${AppState.region.toUpperCase()}.</p>`;
-            if(tab === 'storage') content.innerHTML = `<h3>Storage Fabric</h3><p>Total capacity: ${reg.storage}. S3 and Block ready.</p>`;
-            if(tab === 'network') content.innerHTML = `<h3>Gateways</h3><p>Envoy Mesh Active. Cross-region routing enabled.</p>`;
-        }
-
-        // --- 5. MODALS & DEPLOY FLOW ---
-        function openModal(id) { 
-            document.getElementById(id).style.display = 'flex'; 
-            if(id === 'deployModal') {
-                document.getElementById('deploy-target').value = AppState.t4.name;
-                const sel = document.getElementById('deploy-template');
-                sel.innerHTML = '<option value="none">-- Select Template --</option>';
-                const regData = DB.regions[AppState.region];
-                DB.templates.forEach(t => {
-                    if((!t.reqGPU || regData.hasGPU) && (t.id !== 'arc' || regData.hasArchive)) {
-                        sel.innerHTML += `<option value="${t.id}">${t.name}</option>`;
-                    }
-                });
-                document.getElementById('deploy-info').style.display = 'none';
+        // --- 6. TEMPLATE BUILDER LOGIC ---
+        let builderNodes = [];
+        function toggleBuilder() {
+            const bld = document.getElementById('template-builder');
+            const grid = document.getElementById('template-grid');
+            if(bld.style.display === 'none') {
+                bld.style.display = 'flex'; grid.style.display = 'none';
+                clearBuilder();
+            } else {
+                bld.style.display = 'none'; grid.style.display = 'grid';
             }
         }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function addBuilderNode(name, cost) {
+            builderNodes.push({name, cost});
+            updateBuilderCanvas();
+        }
+        function clearBuilder() {
+            builderNodes = [];
+            updateBuilderCanvas();
+        }
+        function updateBuilderCanvas() {
+            const canvas = document.getElementById('builder-canvas');
+            canvas.innerHTML = '';
+            let total = 0;
+            if(builderNodes.length === 0) {
+                canvas.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 100px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i><br>Click components to build architecture.</div>';
+            } else {
+                builderNodes.forEach((n, i) => {
+                    total += n.cost;
+                    canvas.innerHTML += `<div class="canvas-node"><div><strong>${n.name}</strong></div><div>$${n.cost}/mo</div></div>`;
+                    if(i < builderNodes.length - 1) {
+                        canvas.innerHTML += `<div class="canvas-connector"><i class="fa-solid fa-link"></i></div>`;
+                    }
+                });
+            }
+            document.getElementById('bld-cost').innerText = formatCurrency(total);
+            document.getElementById('bld-retail').innerText = formatCurrency(total * 1.3);
+        }
 
+        // --- 7. DEPLOY WORKLOAD FLOW ---
+        function openDeployModal() {
+            if(AppState.t4 === 'all') {
+                alert("Please select a specific Tenant (Tier 4) from the top navigation before deploying a workload.");
+                return;
+            }
+            const data = getAggregatedData();
+            document.getElementById('deploy-target').value = data.name;
+            
+            const sel = document.getElementById('deploy-template');
+            sel.innerHTML = '<option value="none">-- Select Template --</option>';
+            const regData = DB.regions[AppState.region];
+            DB.templates.forEach(t => {
+                if((!t.reqGPU || regData.hasGPU) && (t.id !== 'arc' || regData.hasArchive)) {
+                    sel.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+                }
+            });
+            document.getElementById('deploy-info').style.display = 'none';
+            document.getElementById('deployModal').style.display = 'flex';
+        }
+        
         function updateDeployInfo() {
             const id = document.getElementById('deploy-template').value;
             if(id === 'none') { document.getElementById('deploy-info').style.display = 'none'; return; }
@@ -453,34 +630,49 @@
             setTimeout(() => {
                 const tplId = document.getElementById('deploy-template').value;
                 const tpl = DB.templates.find(t => t.id === tplId);
-                AppState.t4.workloads.push({name: 'New ' + tpl.name, type: tplId});
-                AppState.t4.spend += tpl.cost;
                 
-                btn.innerHTML = 'Confirm & Deploy';
+                // Find and update specific tenant in DB
+                const tList = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
+                const targetTenant = tList.find(t => t.id === AppState.t4);
+                
+                targetTenant.workloads.push({name: 'New ' + tpl.name, type: tplId});
+                targetTenant.spend += tpl.cost;
+                
+                btn.innerHTML = 'Deploy Now';
                 closeModal('deployModal');
-                renderApp(); // re-render to show new workload
+                renderApp(); 
             }, 800);
         }
 
-        function executeAiFix() {
-            alert('Remediation Policy Executed via CPMS.');
-            document.getElementById('ai-alert-box').style.display = 'none';
+        // --- 8. REMEDIATION FLOW ---
+        function resolveAlert(tId, alertId) {
+            // Find tenant and remove alert
+            let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
+            t3Keys.forEach(t3Key => {
+                let tenants = DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants;
+                let target = tenants.find(t => t.id === tId);
+                if(target) {
+                    target.alerts = target.alerts.filter(a => a.id !== alertId);
+                }
+            });
+            alert('Remediation Policy Executed via CPMS. Quota/Rate limit adjusted.');
+            renderApp();
         }
 
-        // --- 6. EMBEDDED TCO CALCULATOR ---
+        // --- 9. MODALS & TCO ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
         function runTCO() {
             const nodes = parseInt(document.getElementById('tco-nodes').value);
             document.getElementById('tco-nodes-val').innerText = nodes;
-            
-            // Basic math matching previous logic: Hardware + Lic + Colo
             const wholesale = (nodes * 22000 / 36) + (nodes * 64 * 8) + (nodes * 230);
             document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo';
             document.getElementById('tco-retail').innerText = formatCurrency(wholesale * 1.30) + '/mo';
         }
 
-        // Boot App
+        // Boot
         cascadeContext('init');
-        switchInfraTab('clusters');
 
     </script>
 </body>

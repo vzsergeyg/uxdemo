@@ -281,7 +281,9 @@
             </div>
 
             <div id="view-observability" class="view-section">
-                <div class="page-header"><div><h1>Observability & Telemetry</h1><p>Aggregated performance metrics across selected scope.</p></div></div>
+                <div class="page-header">
+                    <div><h1>Observability & Telemetry</h1><p>Aggregated performance metrics across selected scope.</p></div>
+                </div>
                 
                 <div class="grid-2" style="margin-bottom: 24px;">
                     <div class="card">
@@ -304,7 +306,9 @@
             </div>
 
             <div id="view-finops" class="view-section">
-                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Financial governance, quotas, and cost breakdowns.</p></div></div>
+                <div class="page-header">
+                    <div><h1>FinOps & Billing</h1><p>Financial governance, quotas, and cost breakdowns.</p></div>
+                </div>
                 
                 <div class="grid-3" style="margin-bottom: 24px;">
                     <div class="card" style="grid-column: span 2;">
@@ -556,7 +560,7 @@
 
             const alertCont = document.getElementById('ov-alerts-container');
             if(data.alerts.length > 0) {
-                alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--vz-red); font-size:1.1rem; margin-bottom:15px;"><i class="fa-solid fa-triangle-exclamation"></i> Action Required (${data.alerts.length})</h3>`;
+                alertCont.innerHTML = ``;
                 data.alerts.forEach(a => {
                     let aColor = a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)';
                     let bg = a.type === 'danger' ? '#FEF2F2' : '#FFFBEB';
@@ -574,7 +578,7 @@
                 wlContainer.innerHTML += `<div class="card" style="border-top: 4px solid ${tplInfo.color};"><h3 style="margin-top:0; color:var(--vz-navy); font-size:1.2rem;"><i class="fa-solid ${tplInfo.icon}" style="margin-right:8px; opacity:0.7;"></i>${w.name}</h3><div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Tenant: <strong>${w.tenantName}</strong></div><span class="badge green">Running</span><div style="margin-top:15px; font-size:0.8rem; color:var(--text-muted); padding-top:12px; border-top:1px solid var(--vz-border);">Blueprint: ${tplInfo.name}</div></div>`;
             });
 
-            // 3. Templates
+            // 3. Templates (Hardware Filtered)
             const tplContainer = document.getElementById('template-grid');
             tplContainer.innerHTML = '';
             let availTemplates = DB.templates.filter(t => !t.reqGPU || regData.hasGPU);
@@ -609,22 +613,9 @@
             });
 
             // 6. Observability
-            const obsContainer = document.getElementById('obs-alerts-container');
-            obsContainer.innerHTML = '';
-            if(data.alerts.length > 0) {
-                data.alerts.forEach(a => {
-                    const color = a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)';
-                    const icon = a.type === 'danger' ? 'fa-fire' : 'fa-triangle-exclamation';
-                    obsContainer.innerHTML += `<div class="alert-box" style="border-left-color: ${color};"><div style="flex:1;"><strong style="color:var(--vz-navy); font-size:1.1rem;"><i class="fa-solid ${icon}" style="color:${color}; margin-right:8px;"></i>Tenant: ${a.tenantName}</strong><br><span style="font-size:0.9rem; color:var(--text-muted); display:inline-block; margin-top:5px;">${a.msg}</span></div><button class="btn btn-primary" onclick="resolveAlert('${a.tId}', '${a.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Remediate</button></div>`;
-                });
-            } else {
-                obsContainer.innerHTML = `<div style="padding:20px; background:white; border:1px solid var(--vz-border); border-radius:8px; color:var(--text-muted); text-align:center;"><i class="fa-solid fa-shield-check" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>No active remediations required for selected scope.</div>`;
-            }
-
-            // SAFE CHART GENERATION
             const genChart = (id, baseH, variance, color) => {
                 const el = document.getElementById(id);
-                if(!el) return; // Strict safety check
+                if(!el) return;
                 el.innerHTML = '';
                 for(let i=0; i<15; i++) {
                     let h = Math.min(100, Math.max(10, baseH + (Math.random() * variance - variance/2) + (data.spend/2000)));
@@ -653,7 +644,6 @@
             const forecastEl = document.getElementById('fin-forecast');
             if (forecastEl) forecastEl.innerText = `Forecast: ${formatCurrency(data.spend * 1.1)}`;
 
-            // SAFE CATEGORY UPDATE
             let cComp = 0, cStor = 0, cNet = 20;
             data.workloads.forEach(w => {
                 if(w.type === 'db' || w.type === 'arc') cStor += 15;

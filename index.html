@@ -87,20 +87,26 @@
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: var(--vz-navy);}
         .form-control { width: 100%; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 0.95rem; }
+        
+        .baas-box { background: var(--vz-navy); color: white; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px;}
+        .baas-box .val { font-size: 1.3rem; font-weight: bold; color: var(--success); }
+
+        /* TCO Embedded Style */
+        .tco-slider { width: 100%; accent-color: var(--vz-red); }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="logo-area"><i class="fa-solid fa-cube"></i>V/OS</div>
+        <div class="logo-area"><i class="fa-solid fa-cube"></i> V/OS</div>
         <ul class="nav-menu">
-            <li class="active" onclick="switchView('overview')"><i class="fa-solid fa-gauge"></i> Overview</li>
-            <li onclick="switchView('workloads')"><i class="fa-solid fa-layer-group"></i> Workloads</li>
-            <li onclick="switchView('templates')"><i class="fa-solid fa-book-open"></i> Template Catalogue</li>
-            <li onclick="switchView('services')"><i class="fa-solid fa-server"></i> Services</li>
-            <li onclick="switchView('infrastructure')"><i class="fa-solid fa-network-wired"></i> Infrastructure</li>
-            <li onclick="switchView('observability')"><i class="fa-solid fa-chart-line"></i> Observability</li>
-            <li onclick="switchView('finops')"><i class="fa-solid fa-file-invoice-dollar"></i> FinOps & Billing</li>
+            <li class="active" onclick="switchView('overview', this)"><i class="fa-solid fa-gauge"></i> Overview</li>
+            <li onclick="switchView('workloads', this)"><i class="fa-solid fa-layer-group"></i> Workloads</li>
+            <li onclick="switchView('templates', this)"><i class="fa-solid fa-book-open"></i> Template Catalogue</li>
+            <li onclick="switchView('services', this)"><i class="fa-solid fa-server"></i> Services</li>
+            <li onclick="switchView('infrastructure', this)"><i class="fa-solid fa-network-wired"></i> Infrastructure</li>
+            <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line"></i> Observability</li>
+            <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar"></i> FinOps & Billing</li>
         </ul>
     </nav>
 
@@ -214,6 +220,11 @@
                     <div><h1>Infrastructure & Topology</h1><p>Virtuozzo Admin level view of physical resources.</p></div>
                     <button class="btn btn-secondary" onclick="alert('Initiating Region Deployment Wizard...')"><i class="fa-solid fa-globe"></i> Deploy Region</button>
                 </div>
+                <div class="nav-pills" id="infra-pills">
+                    <span class="active" onclick="switchInfraTab('clusters')">VHI Clusters</span>
+                    <span onclick="switchInfraTab('storage')">S3 / Block Storage</span>
+                    <span onclick="switchInfraTab('network')">Gateways</span>
+                </div>
                 <div class="grid-2">
                     <div class="card">
                         <h3 style="margin-top:0; color: var(--vz-navy);">Resource Allocation (Active Region)</h3>
@@ -221,9 +232,9 @@
                             </div>
                     </div>
                     <div class="card">
-                        <h3 style="margin-top:0; color: var(--vz-navy);">Clusters & Storage</h3>
-                        <table style="margin-top: 15px;" id="infra-clusters">
-                            </table>
+                        <h3 style="margin-top:0; color: var(--vz-navy);" id="infra-card-title">Clusters & Storage</h3>
+                        <div id="infra-content" style="margin-top: 15px;">
+                            </div>
                     </div>
                 </div>
             </div>
@@ -266,7 +277,7 @@
                         <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> Wholesale TCO Estimator</h3>
                         <div class="form-group">
                             <label>Compute Nodes: <span id="tco-nodes-val">10</span></label>
-                            <input type="range" style="width: 100%; accent-color: var(--vz-red);" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
+                            <input type="range" class="tco-slider" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
                         </div>
                         <div style="display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid var(--vz-border); padding-top: 15px;">
                             <div><div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE COST</div><div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div></div>
@@ -281,7 +292,7 @@
 
     <div class="modal-overlay" id="deployModal">
         <div class="modal">
-            <div class="modal-header"><h2>Deploy Workload</h2><span style="cursor:pointer;" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="modal-header"><h2>Deploy Workload</h2><span class="modal-close" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
             <div class="form-group"><label>Target Tenant</label><input type="text" class="form-control" id="deploy-target" disabled></div>
             <div class="form-group">
                 <label>Select Template</label>
@@ -299,7 +310,7 @@
 
     <div class="modal-overlay" id="serviceModal">
         <div class="modal">
-            <div class="modal-header"><h2>Define New Service</h2><span style="cursor:pointer;" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="modal-header"><h2>Define New Service</h2><span class="modal-close" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
             <div class="form-group"><label>Service Name</label><input type="text" class="form-control" placeholder="e.g., Secure DBaaS"></div>
             <div class="form-group"><label>Retail Markup (%)</label><input type="number" class="form-control" value="30"></div>
             <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('serviceModal')">Save Service</button>
@@ -325,7 +336,7 @@
                 eu: { t2: {
                     eurocloud: { name: "EuroCloud Disti", t3: {
                         berlinIT: { name: "Berlin IT MSP", tenants: [
-                            { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [{id:'a1', msg: 'Approaching DB Quota', type: 'warning'}] },
+                            { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [{id:'a1', msg: 'Approaching DB Storage Quota', type: 'warning'}] },
                             { id: 't2', name: 'MedTech EU', spend: 2400, budget: 3000, margin: 32, users: 120, workloads: [{name: 'VDI Pool A', type: 'vdi'}, {name: 'VDI Pool B', type: 'vdi'}], alerts: [] }
                         ]},
                         parisTech: { name: "Paris Tech Cloud", tenants: [
@@ -336,7 +347,7 @@
                 us: { t2: {
                     amerihost: { name: "AmeriHost Wholesale", t3: {
                         nySolutions: { name: "NY Solutions", tenants: [
-                            { id: 't4', name: 'Wall St Data', spend: 14000, budget: 15000, margin: 18, users: 1200, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}], alerts: [{id:'a2', msg: 'Runaway AI Token Burn', type: 'danger'}] },
+                            { id: 't4', name: 'Wall St Data', spend: 14000, budget: 15000, margin: 18, users: 1200, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}], alerts: [{id:'a2', msg: 'Runaway AI Token Burn detected', type: 'danger'}] },
                             { id: 't5', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}], alerts: [] }
                         ]}
                     }}
@@ -354,7 +365,7 @@
             const rData = DB.hierarchy[AppState.region].t2;
             res.t2Count = Object.keys(rData).length;
 
-            let t2Keys = [AppState.t2]; // Assuming T2 is always specific for simplicity in UI topbar
+            let t2Keys = [AppState.t2]; 
             
             t2Keys.forEach(t2Key => {
                 const t3Data = rData[t2Key].t3;
@@ -416,6 +427,7 @@
                 const tenants = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
                 tenants.forEach(t => selT4.innerHTML += `<option value="${t.id}">${t.name}</option>`);
             }
+            selT4.value = 'all';
             AppState.t4 = 'all';
 
             renderApp();
@@ -426,16 +438,6 @@
             AppState.t3 = document.getElementById('selT3').value;
             AppState.t4 = document.getElementById('selT4').value;
             
-            // Re-populate T4 if T3 changes to specific
-            if(event && event.target.id === 'selT3') {
-                const selT4 = document.getElementById('selT4');
-                selT4.innerHTML = '<option value="all">-- ALL TENANTS --</option>';
-                if(AppState.t3 !== 'all') {
-                    DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants.forEach(t => selT4.innerHTML += `<option value="${t.id}">${t.name}</option>`);
-                }
-                AppState.t4 = 'all';
-            }
-
             const data = getAggregatedData();
 
             // 1. Overview
@@ -445,12 +447,10 @@
             document.getElementById('ov-margin').innerText = data.margin + '%';
             document.getElementById('ov-users').innerText = data.users.toLocaleString();
             
-            // Core Utilization ring (mock random variation based on spend)
             let corePct = Math.min(95, Math.max(40, Math.floor(data.spend / 150)));
             document.getElementById('ov-core-pct').innerText = corePct + '%';
             document.getElementById('ov-core-deg').innerText = (corePct * 3.6) + 'deg';
 
-            // Overview Alerts
             const alertCont = document.getElementById('ov-alerts-container');
             if(data.alerts.length > 0) {
                 alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--vz-red);"><i class="fa-solid fa-triangle-exclamation"></i> Active Alerts (${data.alerts.length})</h3>`;
@@ -472,7 +472,6 @@
             const regData = DB.regions[AppState.region];
             const tplContainer = document.getElementById('template-grid');
             tplContainer.innerHTML = '';
-            
             let availTemplates = DB.templates.filter(t => !t.reqGPU || regData.hasGPU);
             if(!regData.hasArchive) availTemplates = availTemplates.filter(t => t.id !== 'arc');
 
@@ -494,7 +493,7 @@
                 <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 4 Tenants</span><strong>${data.tenantCount}</strong></div>
                 <div style="display:flex; justify-content:space-between; color:var(--info);"><span>Global S3 Fabric</span><strong>${regData.storage}</strong></div>
             `;
-            document.getElementById('infra-clusters').innerHTML = `<tr><th>Cluster ID</th><th>Type</th><th>Utilization</th></tr><tr><td>VHI-CL-01</td><td>Hyperconverged</td><td><span class="badge green">62%</span></td></tr><tr><td>VHI-CL-02</td><td>Hyperconverged</td><td><span class="badge yellow">85%</span></td></tr>`;
+            switchInfraTab('clusters'); // refresh content
 
             // 6. Observability
             const obsContainer = document.getElementById('obs-alerts-container');
@@ -508,12 +507,11 @@
                 obsContainer.innerHTML = `<div style="padding:15px; background:var(--vz-gray-bg); border-radius:6px; color:var(--text-muted);">No active remediations required for selected scope.</div>`;
             }
 
-            // Dynamic Charts (CSS Mock)
             const cCpu = document.getElementById('chart-cpu');
             const cIops = document.getElementById('chart-iops');
             cCpu.innerHTML = ''; cIops.innerHTML = '';
             for(let i=0; i<10; i++) {
-                let h1 = Math.floor(Math.random() * 80) + 10 + (data.spend/1000); // scale bars based on spend roughly
+                let h1 = Math.floor(Math.random() * 80) + 10 + (data.spend/1000); 
                 let h2 = Math.floor(Math.random() * 60) + 20 + (data.users/200);
                 cCpu.innerHTML += `<div style="width: 8%; background: var(--vz-red); height: ${Math.min(h1, 100)}%;"></div>`;
                 cIops.innerHTML += `<div style="width: 8%; background: var(--vz-navy); height: ${Math.min(h2, 100)}%;"></div>`;
@@ -527,16 +525,12 @@
             bar.style.width = Math.min(pct, 100) + '%';
             bar.style.background = pct > 90 ? 'var(--vz-red)' : 'var(--success)';
 
-            // Top Spenders Table
             const finTable = document.getElementById('fin-spenders');
             finTable.innerHTML = `<tr><th>Tenant</th><th>Spend</th><th>Margin</th></tr>`;
             if(AppState.t4 === 'all') {
-                // Collect all tenants in scope and sort
                 let allT = [];
                 let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
-                t3Keys.forEach(t3Key => {
-                    allT = allT.concat(DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants);
-                });
+                t3Keys.forEach(t3Key => { allT = allT.concat(DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants); });
                 allT.sort((a,b) => b.spend - a.spend).slice(0,3).forEach(t => {
                     finTable.innerHTML += `<tr><td>${t.name}</td><td>${formatCurrency(t.spend)}</td><td>${t.margin}%</td></tr>`;
                 });
@@ -548,11 +542,28 @@
         }
 
         // --- 5. VIEW NAVIGATION ---
-        function switchView(viewId) {
+        function switchView(viewId, el) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(el) el.classList.add('active');
+            else document.querySelector('.nav-menu li').classList.add('active');
+            
             document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
+        }
+
+        function switchInfraTab(tab) {
+            const pills = document.getElementById('infra-pills').children;
+            for(let i=0; i<pills.length; i++) pills[i].classList.remove('active');
+            
+            if(tab === 'clusters') pills[0].classList.add('active');
+            if(tab === 'storage') pills[1].classList.add('active');
+            if(tab === 'network') pills[2].classList.add('active');
+
+            const content = document.getElementById('infra-content');
+            const reg = DB.regions[AppState.region];
+            if(tab === 'clusters') content.innerHTML = `<table style="width:100%; border-collapse:collapse; margin-top:10px;"><tr><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Cluster ID</th><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Type</th><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Utilization</th></tr><tr><td style="padding:8px;">VHI-CL-01</td><td style="padding:8px;">Hyperconverged</td><td style="padding:8px;"><span class="badge green">62%</span></td></tr><tr><td style="padding:8px;">VHI-CL-02</td><td style="padding:8px;">Compute-Heavy</td><td style="padding:8px;"><span class="badge yellow">85%</span></td></tr></table>`;
+            if(tab === 'storage') content.innerHTML = `<div style="padding: 10px 0;"><h4 style="margin:0 0 5px 0;">S3 Object Fabric</h4><p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Capacity: ${reg.storage}</p></div>`;
+            if(tab === 'network') content.innerHTML = `<div style="padding: 10px 0;"><h4 style="margin:0 0 5px 0;">Envoy Mesh</h4><p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Active. Cross-region routing enabled.</p></div>`;
         }
 
         // --- 6. TEMPLATE BUILDER LOGIC ---
@@ -631,7 +642,6 @@
                 const tplId = document.getElementById('deploy-template').value;
                 const tpl = DB.templates.find(t => t.id === tplId);
                 
-                // Find and update specific tenant in DB
                 const tList = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
                 const targetTenant = tList.find(t => t.id === AppState.t4);
                 
@@ -646,7 +656,6 @@
 
         // --- 8. REMEDIATION FLOW ---
         function resolveAlert(tId, alertId) {
-            // Find tenant and remove alert
             let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
             t3Keys.forEach(t3Key => {
                 let tenants = DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants;
@@ -655,7 +664,6 @@
                     target.alerts = target.alerts.filter(a => a.id !== alertId);
                 }
             });
-            alert('Remediation Policy Executed via CPMS. Quota/Rate limit adjusted.');
             renderApp();
         }
 

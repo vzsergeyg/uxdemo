@@ -148,7 +148,7 @@
                     <div class="card">
                         <h3 style="margin-top:0;">Compute Core Utilization</h3>
                         <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
-                            <div style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--vz-red) <span id="ov-core-deg">250deg</span>, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center;">
+                            <div id="ov-core-ring" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--vz-red) 250deg, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center;">
                                 <div style="width: 90px; height: 90px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: var(--vz-navy);" id="ov-core-pct">70%</div>
                             </div>
                             <div>
@@ -438,6 +438,16 @@
             AppState.t3 = document.getElementById('selT3').value;
             AppState.t4 = document.getElementById('selT4').value;
             
+            // If user changes T3 specifically, repopulate T4
+            if(document.activeElement.id === 'selT3') {
+                const selT4 = document.getElementById('selT4');
+                selT4.innerHTML = '<option value="all">-- ALL TENANTS --</option>';
+                if(AppState.t3 !== 'all') {
+                    DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants.forEach(t => selT4.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+                }
+                AppState.t4 = 'all';
+            }
+
             const data = getAggregatedData();
 
             // 1. Overview
@@ -449,7 +459,10 @@
             
             let corePct = Math.min(95, Math.max(40, Math.floor(data.spend / 150)));
             document.getElementById('ov-core-pct').innerText = corePct + '%';
-            document.getElementById('ov-core-deg').innerText = (corePct * 3.6) + 'deg';
+            
+            // Fixed the inner HTML style string tag injection error here
+            let deg = corePct * 3.6;
+            document.getElementById('ov-core-ring').style.background = `conic-gradient(var(--vz-red) ${deg}deg, var(--vz-gray-bg) 0)`;
 
             const alertCont = document.getElementById('ov-alerts-container');
             if(data.alerts.length > 0) {
@@ -493,7 +506,15 @@
                 <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 4 Tenants</span><strong>${data.tenantCount}</strong></div>
                 <div style="display:flex; justify-content:space-between; color:var(--info);"><span>Global S3 Fabric</span><strong>${regData.storage}</strong></div>
             `;
-            switchInfraTab('clusters'); // refresh content
+            // Trigger visual refresh of active tab
+            const activeTab = document.querySelector('#infra-pills span.active');
+            if (activeTab) {
+                if (activeTab.innerText.includes('Clusters')) switchInfraTab('clusters', activeTab);
+                if (activeTab.innerText.includes('Storage')) switchInfraTab('storage', activeTab);
+                if (activeTab.innerText.includes('Gateways')) switchInfraTab('network', activeTab);
+            } else {
+                switchInfraTab('clusters');
+            }
 
             // 6. Observability
             const obsContainer = document.getElementById('obs-alerts-container');
@@ -551,14 +572,13 @@
             document.getElementById('view-' + viewId).classList.add('active');
         }
 
-        function switchInfraTab(tab) {
+        function switchInfraTab(tab, el) {
             const pills = document.getElementById('infra-pills').children;
             for(let i=0; i<pills.length; i++) pills[i].classList.remove('active');
             
-            if(tab === 'clusters') pills[0].classList.add('active');
-            if(tab === 'storage') pills[1].classList.add('active');
-            if(tab === 'network') pills[2].classList.add('active');
-
+            if (el) el.classList.add('active');
+            else if(tab === 'clusters') pills[0].classList.add('active');
+            
             const content = document.getElementById('infra-content');
             const reg = DB.regions[AppState.region];
             if(tab === 'clusters') content.innerHTML = `<table style="width:100%; border-collapse:collapse; margin-top:10px;"><tr><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Cluster ID</th><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Type</th><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Utilization</th></tr><tr><td style="padding:8px;">VHI-CL-01</td><td style="padding:8px;">Hyperconverged</td><td style="padding:8px;"><span class="badge green">62%</span></td></tr><tr><td style="padding:8px;">VHI-CL-02</td><td style="padding:8px;">Compute-Heavy</td><td style="padding:8px;"><span class="badge yellow">85%</span></td></tr></table>`;

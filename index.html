@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VOS</title>
+    <title>V/OS - Virtuozzo Operating System</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -12,123 +12,142 @@
             --vz-gray-bg: #F3F4F6; --vz-border: #E5E7EB;
             --text-dark: #111827; --text-muted: #6B7280;
             --success: #10B981; --warning: #F59E0B; --danger: #EF4444; --info: #3B82F6;
+            --purple: #8B5CF6;
         }
 
         * { box-sizing: border-box; }
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--vz-gray-bg); color: var(--text-dark); display: flex; height: 100vh; overflow: hidden; }
 
         /* --- Layout --- */
-        .sidebar { width: 260px; background-color: var(--vz-navy); color: white; display: flex; flex-direction: column; z-index: 10;}
-        .logo-area { padding: 20px; font-size: 1.5rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); color: white;}
-        .logo-area i { color: var(--vz-red); margin-right: 8px;}
+        .sidebar { width: 260px; background-color: var(--vz-navy); color: white; display: flex; flex-direction: column; z-index: 10; box-shadow: 2px 0 10px rgba(0,0,0,0.1);}
+        .logo-area { padding: 22px 20px; font-size: 1.5rem; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); color: white; display: flex; align-items: center; gap: 12px;}
+        .logo-area i { color: var(--vz-red); font-size: 1.8rem;}
         .nav-menu { list-style: none; padding: 15px 0; margin: 0; flex: 1; overflow-y: auto;}
-        .nav-menu li { padding: 12px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: #9CA3AF; transition: 0.2s; font-size: 0.95rem;}
+        .nav-menu li { padding: 14px 25px; cursor: pointer; display: flex; align-items: center; gap: 15px; color: #9CA3AF; transition: 0.2s; font-size: 0.95rem; font-weight: 500;}
         .nav-menu li:hover { background-color: rgba(255,255,255,0.05); color: white; }
         .nav-menu li.active { background-color: var(--vz-navy-light); color: white; border-left: 4px solid var(--vz-red); }
 
         .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
         
-        .topbar { height: 75px; background-color: white; border-bottom: 1px solid var(--vz-border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; flex-shrink: 0; }
-        .context-chain { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-muted); }
-        .context-chain select { background: var(--vz-gray-bg); padding: 6px 8px; border-radius: 4px; border: 1px solid var(--vz-border); font-weight: 600; color: var(--vz-navy); cursor: pointer; outline: none; font-size: 0.85rem; max-width: 180px;}
-        .context-chain select:focus { border-color: var(--vz-red); }
-        .tier-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; display: block; margin-bottom: 2px; color: var(--vz-navy);}
+        .topbar { height: 75px; background-color: white; border-bottom: 1px solid var(--vz-border); display: flex; align-items: center; padding: 0 25px; justify-content: space-between; flex-shrink: 0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);}
+        .context-chain { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: var(--text-muted); }
+        .context-chain select { background: var(--vz-gray-bg); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--vz-border); font-weight: 600; color: var(--vz-navy); cursor: pointer; outline: none; font-size: 0.85rem; max-width: 190px; transition: border 0.2s;}
+        .context-chain select:focus { border-color: var(--vz-red); background: white;}
+        .tier-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; display: block; margin-bottom: 3px; color: var(--vz-navy); font-weight: 600;}
 
-        .content-area { padding: 30px; overflow-y: auto; flex: 1; position: relative; }
+        .content-area { padding: 35px; overflow-y: auto; flex: 1; position: relative; }
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
         
-        .page-header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; }
-        .page-header h1 { margin: 0 0 5px 0; font-size: 1.8rem; color: var(--vz-navy); }
-        .page-header p { margin: 0; color: var(--text-muted); }
+        .page-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .page-header h1 { margin: 0 0 8px 0; font-size: 1.9rem; color: var(--vz-navy); letter-spacing: -0.5px;}
+        .page-header p { margin: 0; color: var(--text-muted); font-size: 0.95rem;}
 
         /* --- UI Components --- */
-        .card { background: white; border-radius: 8px; border: 1px solid var(--vz-border); padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);}
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .card { background: white; border-radius: 10px; border: 1px solid var(--vz-border); padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);}
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
         
-        .metric-card h3 { margin: 0 0 10px 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; }
-        .metric-card .val { font-size: 1.8rem; font-weight: 800; color: var(--vz-navy); }
+        .metric-card { display: flex; flex-direction: column; gap: 8px;}
+        .metric-card .header-row { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .metric-card .header-row i { font-size: 1.1rem; color: var(--vz-navy); opacity: 0.5;}
+        .metric-card .val { font-size: 2rem; font-weight: 800; color: var(--vz-navy); letter-spacing: -0.5px;}
         
-        .btn { padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;}
-        .btn-primary { background: var(--vz-red); color: white; }
-        .btn-primary:hover { background: var(--vz-red-hover); }
-        .btn-secondary { background: var(--vz-gray-bg); color: var(--vz-navy); border: 1px solid var(--vz-border); }
-        .btn-secondary:hover { background: #E5E7EB; }
+        .btn { padding: 10px 18px; border-radius: 6px; font-weight: 600; cursor: pointer; border: none; font-size: 0.9rem; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-primary { background: var(--vz-red); color: white; box-shadow: 0 2px 4px rgba(234, 0, 41, 0.2);}
+        .btn-primary:hover { background: var(--vz-red-hover); transform: translateY(-1px);}
+        .btn-secondary { background: white; color: var(--vz-navy); border: 1px solid var(--vz-border); box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
+        .btn-secondary:hover { background: var(--vz-gray-bg); border-color: #D1D5DB;}
 
-        .badge { padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; }
+        .action-bar { display: flex; gap: 10px; background: #F8FAFC; padding: 15px; border-radius: 8px; border: 1px solid var(--vz-border); margin-bottom: 20px;}
+
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.3px;}
         .badge.green { background: #D1FAE5; color: #065F46; }
         .badge.yellow { background: #FEF3C7; color: #92400E; }
         .badge.red { background: #FEE2E2; color: #991B1B; }
+        .badge.blue { background: #DBEAFE; color: #1E40AF; }
+        .badge.purple { background: #EDE9FE; color: #5B21B6; }
 
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--vz-border); font-size: 0.9rem;}
-        th { color: var(--text-muted); font-weight: 600; background: #F9FAFB; }
+        th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--vz-border); font-size: 0.9rem;}
+        th { color: var(--text-muted); font-weight: 600; background: #F9FAFB; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;}
+        td { color: var(--vz-navy); font-weight: 500;}
 
         /* Builder Layout */
-        .builder-layout { display: flex; gap: 20px; height: 500px; }
-        .builder-palette { width: 250px; border-right: 1px solid var(--vz-border); padding-right: 20px; overflow-y: auto;}
+        .builder-layout { display: flex; gap: 20px; height: 550px; }
+        .builder-palette { width: 260px; border-right: 1px solid var(--vz-border); padding-right: 20px; overflow-y: auto;}
         .builder-canvas { flex: 1; background: #F8FAFC; border-radius: 8px; padding: 20px; border: 2px dashed #CBD5E1; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;}
-        .builder-item { background: white; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center;}
-        .builder-item:hover { border-color: var(--vz-navy); }
+        .builder-item { background: white; padding: 12px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: pointer; font-size: 0.85rem; font-weight: bold; display: flex; justify-content: space-between; align-items: center; transition: 0.2s;}
+        .builder-item:hover { border-color: var(--vz-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
         .canvas-node { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid var(--vz-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; position: relative;}
         .canvas-connector { text-align: center; color: var(--vz-red); font-size: 1.2rem; margin: -5px 0;}
 
         /* Alert Box */
-        .alert-box { background: #FFF1F2; border: 1px solid #FECDD3; border-left: 4px solid var(--vz-red); padding: 15px; border-radius: 6px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
+        .alert-box { background: #FFF1F2; border: 1px solid #FECDD3; border-left: 4px solid var(--vz-red); padding: 18px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
 
         /* Modals */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 17, 32, 0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(2px);}
-        .modal { background: white; border-radius: 8px; width: 600px; max-width: 90%; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--vz-border); padding-bottom: 15px;}
-        .modal-header h2 { margin: 0; font-size: 1.3rem; color: var(--vz-navy); }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.9rem; color: var(--vz-navy);}
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 0.95rem; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 17, 32, 0.7); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(3px);}
+        .modal { background: white; border-radius: 12px; width: 600px; max-width: 90%; padding: 30px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--vz-border); padding-bottom: 15px;}
+        .modal-header h2 { margin: 0; font-size: 1.4rem; color: var(--vz-navy); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--vz-navy);}
+        .form-control { width: 100%; padding: 12px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 0.95rem; outline: none; transition: border 0.2s;}
+        .form-control:focus { border-color: var(--vz-navy);}
         
-        .baas-box { background: var(--vz-navy); color: white; padding: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; margin-top: 15px;}
-        .baas-box .val { font-size: 1.3rem; font-weight: bold; color: var(--success); }
-
-        /* TCO Embedded Style */
-        .tco-slider { width: 100%; accent-color: var(--vz-red); }
+        /* Bar Charts */
+        .chart-container { height: 160px; display: flex; align-items: flex-end; gap: 8px; border-bottom: 2px solid var(--vz-border); padding-bottom: 5px; margin-top: 15px;}
+        .chart-bar { width: 10%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative;}
+        .chart-bar:hover::after { content: attr(data-val); position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: var(--vz-navy); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;}
+        
+        .progress-bg { background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px;}
+        .progress-fill { height: 100%; transition: width 0.5s ease; }
     </style>
 </head>
 <body>
 
     <nav class="sidebar">
-        <div class="logo-area"><i class="fa-solid fa-cube"></i> VOS</div>
+        <div class="logo-area"><i class="fa-solid fa-cube"></i> V/OS</div>
         <ul class="nav-menu">
-            <li class="active" onclick="switchView('overview', this)"><i class="fa-solid fa-gauge"></i> Overview</li>
-            <li onclick="switchView('workloads', this)"><i class="fa-solid fa-layer-group"></i> Workloads</li>
-            <li onclick="switchView('templates', this)"><i class="fa-solid fa-book-open"></i> Template Catalogue</li>
-            <li onclick="switchView('services', this)"><i class="fa-solid fa-server"></i> Services</li>
-            <li onclick="switchView('infrastructure', this)"><i class="fa-solid fa-network-wired"></i> Infrastructure</li>
-            <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line"></i> Observability</li>
-            <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar"></i> FinOps & Billing</li>
+            <li class="active" onclick="switchView('overview', this)"><i class="fa-solid fa-gauge" style="width:20px;"></i> Overview</li>
+            <li onclick="switchView('workloads', this)"><i class="fa-solid fa-layer-group" style="width:20px;"></i> Workloads</li>
+            <li onclick="switchView('templates', this)"><i class="fa-solid fa-book-open" style="width:20px;"></i> Template Catalog</li>
+            <li onclick="switchView('services', this)"><i class="fa-solid fa-server" style="width:20px;"></i> Services</li>
+            <li onclick="switchView('infrastructure', this)"><i class="fa-solid fa-network-wired" style="width:20px;"></i> Infrastructure</li>
+            <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line" style="width:20px;"></i> Observability</li>
+            <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar" style="width:20px;"></i> FinOps & Billing</li>
         </ul>
+        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05);">Virtuozzo Operating System v8.1</div>
     </nav>
 
     <div class="main-wrapper">
         <header class="topbar">
             <div class="context-chain">
-                <div><span class="tier-label">Tier 1</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px;">Virtuozzo Admin</div></div>
-                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
+                <div><span class="tier-label">Platform Control</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px; font-size:0.95rem;">V/OS Admin</div></div>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px; opacity: 0.5;"></i>
                 
                 <div><span class="tier-label">Region</span><select id="selRegion" onchange="cascadeContext('region')">
-                    <option value="eu">EU (Frankfurt) - No GPU</option>
+                    <option value="eu">EU (Frankfurt) - Standard</option>
                     <option value="us">US (Virginia) - Full Stack</option>
+                    <option value="apj">APJ (Singapore) - Edge</option>
                 </select></div>
-                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px; opacity: 0.5;"></i>
                 
                 <div><span class="tier-label">Tier 2 (Distributor)</span><select id="selT2" onchange="cascadeContext('t2')"></select></div>
-                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px; opacity: 0.5;"></i>
 
                 <div><span class="tier-label">Tier 3 (MSP)</span><select id="selT3" onchange="cascadeContext('t3')"></select></div>
-                <i class="fa-solid fa-chevron-right" style="margin-top: 15px;"></i>
+                <i class="fa-solid fa-chevron-right" style="margin-top: 15px; opacity: 0.5;"></i>
 
                 <div><span class="tier-label">Tier 4 (Tenant)</span><select id="selT4" onchange="renderApp()"></select></div>
+            </div>
+            
+            <div style="display: flex; gap: 15px; align-items: center;">
+                <i class="fa-solid fa-circle-info" style="color: var(--text-muted); cursor:pointer;"></i>
+                <i class="fa-solid fa-bell" style="color: var(--text-muted); cursor:pointer;"></i>
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: var(--vz-navy-light); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem;">AD</div>
             </div>
         </header>
 
@@ -136,35 +155,40 @@
             
             <div id="view-overview" class="view-section active">
                 <div class="page-header">
-                    <div><h1><span id="ov-tenant-name">Tenant</span> Overview</h1><p>Aggregated telemetry and business metrics.</p></div>
+                    <div><h1><span id="ov-tenant-name">Tenant</span> Overview</h1><p>Aggregated telemetry and business metrics for the selected scope.</p></div>
+                    <button class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export Report</button>
                 </div>
-                <div class="grid-4" style="margin-bottom: 20px;">
-                    <div class="card metric-card"><h3>Monthly Spend</h3><div class="val" id="ov-spend">$0</div></div>
-                    <div class="card metric-card"><h3>Active Workloads</h3><div class="val" id="ov-workloads">0</div></div>
-                    <div class="card metric-card"><h3>Average Margin</h3><div class="val" id="ov-margin">0%</div></div>
-                    <div class="card metric-card"><h3>End Users</h3><div class="val" id="ov-users">0</div></div>
+                <div class="grid-4" style="margin-bottom: 24px;">
+                    <div class="card metric-card"><div class="header-row"><span>Monthly Spend</span><i class="fa-solid fa-dollar-sign"></i></div><div class="val" id="ov-spend">$0</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>Active Workloads</span><i class="fa-solid fa-layer-group"></i></div><div class="val" id="ov-workloads">0</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>Average Margin</span><i class="fa-solid fa-percent"></i></div><div class="val" id="ov-margin">0%</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>End Users</span><i class="fa-solid fa-users"></i></div><div class="val" id="ov-users">0</div></div>
                 </div>
                 <div class="grid-2">
                     <div class="card">
-                        <h3 style="margin-top:0;">Compute Core Utilization</h3>
-                        <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
-                            <div id="ov-core-ring" style="width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(var(--vz-red) 250deg, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center;">
-                                <div style="width: 90px; height: 90px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2rem; color: var(--vz-navy);" id="ov-core-pct">70%</div>
+                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem;">Compute Core Utilization</h3>
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 25px;">
+                            <div id="ov-core-ring" style="width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--vz-red) 250deg, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);">
+                                <div style="width: 100px; height: 100px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.5rem; color: var(--vz-navy);" id="ov-core-pct">70%</div>
                             </div>
-                            <div>
-                                <div style="font-weight: bold; color: var(--vz-navy);">Highly Optimized</div>
-                                <div style="font-size: 0.85rem; color: var(--text-muted);">Allocated cores are generating revenue. Minimal stranded capacity.</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 700; color: var(--vz-navy); font-size: 1.1rem; margin-bottom: 5px;">Highly Optimized</div>
+                                <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Allocated cores are actively generating revenue. Minimal stranded capacity detected in the current scope.</div>
+                                <div style="margin-top: 10px; font-size: 0.8rem; font-weight: 600; color: var(--success);"><i class="fa-solid fa-check-circle"></i> ROI Targets Met</div>
                             </div>
                         </div>
                     </div>
-                    <div class="card" id="ov-alerts-container">
-                        </div>
+                    <div class="card" style="display: flex; flex-direction: column;">
+                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem; margin-bottom: 15px;">Active Remediations</h3>
+                        <div id="ov-alerts-container" style="flex:1; overflow-y: auto; padding-right: 5px;">
+                            </div>
+                    </div>
                 </div>
             </div>
 
             <div id="view-workloads" class="view-section">
                 <div class="page-header">
-                    <div><h1>Workloads</h1><p>Running services across selected scope.</p></div>
+                    <div><h1>Workloads</h1><p>Running application services abstracted from infrastructure.</p></div>
                     <button class="btn btn-primary" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
                 </div>
                 <div id="workload-list" class="grid-3">
@@ -173,32 +197,35 @@
 
             <div id="view-templates" class="view-section">
                 <div class="page-header">
-                    <div><h1>Template Catalogue</h1><p>Hardware-aware blueprints available in this region.</p></div>
+                    <div><h1>Template Catalogue</h1><p>Hardware-aware blueprints available in the active region.</p></div>
                     <button class="btn btn-secondary" onclick="toggleBuilder()"><i class="fa-solid fa-hammer"></i> Template Builder</button>
                 </div>
                 <div id="template-grid" class="grid-3">
                     </div>
 
-                <div id="template-builder" class="card" style="display: none; margin-top: 20px; border: 2px solid var(--vz-navy);">
-                    <h3 style="margin-top:0; color:var(--vz-navy);"><i class="fa-solid fa-hammer"></i> Interactive API-First Builder</h3>
+                <div id="template-builder" class="card" style="display: none; margin-top: 0; border: 2px solid var(--vz-navy);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin:0; color:var(--vz-navy); font-size: 1.2rem;"><i class="fa-solid fa-hammer" style="color:var(--vz-red);"></i> Interactive API-First Builder</h3>
+                        <button class="btn btn-secondary" onclick="toggleBuilder()" style="padding: 5px 10px;"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                     <div class="builder-layout">
                         <div class="builder-palette">
-                            <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted);">Components</h4>
-                            <div class="builder-item" onclick="addBuilderNode('Compute Node (16 vCPU)', 120)">Compute Node <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderNode('NVMe Block (1TB)', 80)">NVMe Storage <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderNode('S3 Bucket (10TB)', 40)">S3 Storage <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderNode('Envoy API Gateway', 50)">API Gateway <i class="fa-solid fa-plus"></i></div>
-                            <div class="builder-item" onclick="addBuilderNode('AgentOps Mesh', 100)">Agent Mesh <i class="fa-solid fa-plus"></i></div>
+                            <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Components</h4>
+                            <div class="builder-item" onclick="addBuilderNode('Compute Node (16 vCPU)', 120)"><i class="fa-solid fa-microchip" style="color:var(--vz-navy);"></i> Compute Node <i class="fa-solid fa-plus" style="color:var(--success);"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('NVMe Block (1TB)', 80)"><i class="fa-solid fa-hard-drive" style="color:var(--vz-navy);"></i> NVMe Storage <i class="fa-solid fa-plus" style="color:var(--success);"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('S3 Bucket (10TB)', 40)"><i class="fa-solid fa-database" style="color:var(--vz-navy);"></i> S3 Storage <i class="fa-solid fa-plus" style="color:var(--success);"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('Envoy API Gateway', 50)"><i class="fa-solid fa-network-wired" style="color:var(--vz-navy);"></i> API Gateway <i class="fa-solid fa-plus" style="color:var(--success);"></i></div>
+                            <div class="builder-item" onclick="addBuilderNode('AgentOps Mesh', 100)"><i class="fa-solid fa-shield-halved" style="color:var(--vz-navy);"></i> Agent Mesh <i class="fa-solid fa-plus" style="color:var(--success);"></i></div>
                         </div>
                         <div class="builder-canvas" id="builder-canvas">
-                            <div style="text-align: center; color: var(--text-muted); margin-top: 100px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i><br>Click components to build architecture.</div>
+                            <div style="text-align: center; color: var(--text-muted); margin-top: 150px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i><br>Click components to build architecture.</div>
                         </div>
-                        <div style="width: 250px; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px;">
-                            <h4 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;">Template Economics</h4>
-                            <div style="margin-bottom: 15px;"><div style="font-size: 0.75rem; color: #9CA3AF;">WHOLESALE COST</div><div style="font-size: 1.5rem; font-weight: bold;" id="bld-cost">$0</div></div>
-                            <div style="margin-bottom: 15px;"><div style="font-size: 0.75rem; color: #9CA3AF;">SUGGESTED RETAIL (+30%)</div><div style="font-size: 1.5rem; font-weight: bold; color: var(--success);" id="bld-retail">$0</div></div>
+                        <div style="width: 260px; background: var(--vz-navy); color: white; padding: 25px; border-radius: 8px; display: flex; flex-direction: column;">
+                            <h4 style="margin-top:0; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; text-transform: uppercase; font-size: 0.85rem;">Template Economics</h4>
+                            <div style="margin-bottom: 20px;"><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">WHOLESALE COST</div><div style="font-size: 1.8rem; font-weight: 800;" id="bld-cost">$0</div></div>
+                            <div style="margin-bottom: auto;"><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">SUGGESTED RETAIL (+30%)</div><div style="font-size: 1.8rem; font-weight: 800; color: var(--success);" id="bld-retail">$0</div></div>
                             <button class="btn" style="background: white; color: var(--vz-navy); width: 100%; margin-top: 20px;" onclick="toggleBuilder()"><i class="fa-solid fa-save"></i> Save Template</button>
-                            <button class="btn" style="background: transparent; color: white; border: 1px solid white; width: 100%; margin-top: 10px;" onclick="clearBuilder()">Clear</button>
+                            <button class="btn" style="background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); width: 100%; margin-top: 10px;" onclick="clearBuilder()">Clear Canvas</button>
                         </div>
                     </div>
                 </div>
@@ -206,10 +233,10 @@
 
             <div id="view-services" class="view-section">
                 <div class="page-header">
-                    <div><h1>Services</h1><p>Published pricing and SLAs.</p></div>
+                    <div><h1>Services</h1><p>Published SLA definitions and pricing profiles.</p></div>
                     <button class="btn btn-primary" onclick="openModal('serviceModal')"><i class="fa-solid fa-plus"></i> Add Service</button>
                 </div>
-                <div class="card">
+                <div class="card" style="padding: 0; overflow: hidden;">
                     <table id="services-table">
                         </table>
                 </div>
@@ -217,73 +244,97 @@
 
             <div id="view-infrastructure" class="view-section">
                 <div class="page-header">
-                    <div><h1>Infrastructure & Topology</h1><p>Virtuozzo Admin level view of physical resources.</p></div>
-                    <button class="btn btn-secondary" onclick="alert('Initiating Region Deployment Wizard...')"><i class="fa-solid fa-globe"></i> Deploy Region</button>
+                    <div><h1>Global Infrastructure</h1><p>V/OS Physical resource management and cluster topology.</p></div>
                 </div>
-                <div class="nav-pills" id="infra-pills">
-                    <span class="active" onclick="switchInfraTab('clusters')">VHI Clusters</span>
-                    <span onclick="switchInfraTab('storage')">S3 / Block Storage</span>
-                    <span onclick="switchInfraTab('network')">Gateways</span>
+                
+                <div class="action-bar">
+                    <button class="btn btn-primary" onclick="alert('Wizard: Deploying New Region Control Plane...')"><i class="fa-solid fa-globe"></i> Deploy Region</button>
+                    <button class="btn btn-secondary" onclick="alert('Wizard: Provisioning New V/OS Cluster...')"><i class="fa-solid fa-server"></i> Add New Cluster</button>
+                    <button class="btn btn-secondary" onclick="alert('Wizard: Attaching existing legacy cluster via API Token...')"><i class="fa-solid fa-link"></i> Attach Cluster</button>
+                    <button class="btn btn-secondary" onclick="alert('Wizard: Attaching standalone storage nodes...')"><i class="fa-solid fa-database"></i> Attach Storage</button>
                 </div>
+
                 <div class="grid-2">
                     <div class="card">
-                        <h3 style="margin-top:0; color: var(--vz-navy);">Resource Allocation (Active Region)</h3>
-                        <div id="infra-stats" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem; border-bottom: 1px solid var(--vz-border); padding-bottom: 10px;"><i class="fa-solid fa-sitemap" style="color:var(--text-muted);"></i> Tenant Distribution (<span id="infra-reg-name"></span>)</h3>
+                        <div id="infra-stats" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
                             </div>
                     </div>
                     <div class="card">
-                        <h3 style="margin-top:0; color: var(--vz-navy);" id="infra-card-title">Clusters & Storage</h3>
-                        <div id="infra-content" style="margin-top: 15px;">
-                            </div>
+                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem; border-bottom: 1px solid var(--vz-border); padding-bottom: 10px;"><i class="fa-solid fa-network-wired" style="color:var(--text-muted);"></i> Active Gateways</h3>
+                        <table style="margin-top: 10px;">
+                            <tr><th>Type</th><th>Protocol</th><th>Status</th></tr>
+                            <tr><td>Envoy Mesh</td><td>mTLS / gRPC</td><td><span class="badge green">Healthy</span></td></tr>
+                            <tr><td>S3 Gateway</td><td>HTTPS</td><td><span class="badge green">Healthy</span></td></tr>
+                            <tr><td>Ingress Controller</td><td>TCP/UDP</td><td><span class="badge green">Healthy</span></td></tr>
+                        </table>
                     </div>
+                </div>
+                
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;">
+                        <h3 style="margin:0; color: var(--vz-navy); font-size: 1.1rem;"><i class="fa-solid fa-server" style="color:var(--vz-red);"></i> Physical Clusters & Storage</h3>
+                    </div>
+                    <table id="infra-clusters">
+                        </table>
                 </div>
             </div>
 
             <div id="view-observability" class="view-section">
-                <div class="page-header"><div><h1>Observability & Alerting</h1><p>Aggregated telemetry across selected scope.</p></div></div>
+                <div class="page-header"><div><h1>Observability & Telemetry</h1><p>Aggregated performance metrics across selected scope.</p></div></div>
                 
-                <h3 style="color: var(--vz-navy); margin-bottom: 10px;">Active Remediations & Alerts</h3>
-                <div id="obs-alerts-container" style="margin-bottom: 30px;">
-                    </div>
-
-                <div class="grid-2">
+                <div class="grid-2" style="margin-bottom: 24px;">
                     <div class="card">
-                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">Compute Usage (vCPU)</h3>
-                        <div style="height: 150px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--vz-navy); border-left: 2px solid var(--vz-navy); padding-left: 10px;" id="chart-cpu">
-                            </div>
+                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;"><i class="fa-solid fa-microchip" style="margin-right:5px;"></i> Compute (vCPU Allocation)</h3>
+                        <div class="chart-container" id="chart-cpu"></div>
                     </div>
                     <div class="card">
-                        <h3 style="margin-top:0; font-size:0.85rem; color:var(--text-muted);">Storage IOPS</h3>
-                        <div style="height: 150px; display: flex; align-items: flex-end; gap: 10px; border-bottom: 2px solid var(--vz-navy); border-left: 2px solid var(--vz-navy); padding-left: 10px;" id="chart-iops">
-                             </div>
+                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;"><i class="fa-solid fa-hard-drive" style="margin-right:5px;"></i> Storage (IOPS Demand)</h3>
+                        <div class="chart-container" id="chart-iops"></div>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;"><i class="fa-solid fa-network-wired" style="margin-right:5px;"></i> Network Egress (Gbps)</h3>
+                        <div class="chart-container" id="chart-net"></div>
+                    </div>
+                    <div class="card">
+                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;"><i class="fa-solid fa-stopwatch" style="margin-right:5px;"></i> API Latency (ms)</h3>
+                        <div class="chart-container" id="chart-lat"></div>
                     </div>
                 </div>
             </div>
 
             <div id="view-finops" class="view-section">
-                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Financial governance and quotas.</p></div></div>
-                <div class="grid-2">
+                <div class="page-header"><div><h1>FinOps & Billing</h1><p>Financial governance, quotas, and cost breakdowns.</p></div></div>
+                
+                <div class="grid-3" style="margin-bottom: 24px;">
+                    <div class="card" style="grid-column: span 2;">
+                        <h3 style="margin-top:0; font-size: 1.1rem; color: var(--vz-navy);">Budget Consumption vs Forecast</h3>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 8px; font-weight: 600;"><span id="fin-spend">$0 Spent</span><span id="fin-budget">$0 Ceiling</span></div>
+                        <div class="progress-bg"><div id="fin-bar" class="progress-fill" style="background: var(--success); width: 0%;"></div></div>
+                        <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+                            <span>Current Run-Rate is optimal.</span>
+                            <span id="fin-forecast" style="font-weight: 600;">Forecast: $0</span>
+                        </div>
+                    </div>
                     <div class="card">
-                        <h3 style="margin-top:0;">Budget vs Actual Spend</h3>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 5px;"><span id="fin-spend">$0</span><span id="fin-budget">$0</span></div>
-                        <div style="background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 20px;"><div id="fin-bar" style="background: var(--success); width: 0%; height: 100%;"></div></div>
+                        <h3 style="margin-top:0; font-size: 1.1rem; color: var(--vz-navy);">Cost by Category</h3>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px;"><span>Compute</span><span style="font-weight:bold;" id="cat-comp">45%</span></div>
+                        <div class="progress-bg" style="height: 6px; margin-top:0; margin-bottom: 12px;"><div class="progress-fill" style="background: var(--vz-red); width: 45%;"></div></div>
                         
-                        <h3 style="margin-top:20px; font-size: 0.85rem; color: var(--text-muted);">TOP SPENDERS</h3>
-                        <table id="fin-spenders" style="font-size: 0.8rem;">
-                            </table>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px;"><span>Storage</span><span style="font-weight:bold;" id="cat-stor">35%</span></div>
+                        <div class="progress-bg" style="height: 6px; margin-top:0; margin-bottom: 12px;"><div class="progress-fill" style="background: var(--vz-navy); width: 35%;"></div></div>
+                        
+                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px;"><span>Network/Licensing</span><span style="font-weight:bold;" id="cat-net">20%</span></div>
+                        <div class="progress-bg" style="height: 6px; margin-top:0;"><div class="progress-fill" style="background: var(--info); width: 20%;"></div></div>
                     </div>
-                    
-                    <div class="card" style="border: 2px solid var(--vz-navy);">
-                        <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> Wholesale TCO Estimator</h3>
-                        <div class="form-group">
-                            <label>Compute Nodes: <span id="tco-nodes-val">10</span></label>
-                            <input type="range" class="tco-slider" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
-                        </div>
-                        <div style="display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid var(--vz-border); padding-top: 15px;">
-                            <div><div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE COST</div><div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div></div>
-                            <div style="text-align: right;"><div style="font-size: 0.75rem; color: var(--text-muted);">RETAIL REVENUE (+30%)</div><div style="font-size: 1.2rem; font-weight: bold; color: var(--success);" id="tco-retail">$0</div></div>
-                        </div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;">
+                        <h3 style="margin:0; color: var(--vz-navy); font-size: 1.1rem;"><i class="fa-solid fa-trophy" style="color:var(--warning);"></i> Top Spending Tenants</h3>
                     </div>
+                    <table id="fin-spenders">
+                        </table>
                 </div>
             </div>
 
@@ -292,63 +343,89 @@
 
     <div class="modal-overlay" id="deployModal">
         <div class="modal">
-            <div class="modal-header"><h2>Deploy Workload</h2><span class="modal-close" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
-            <div class="form-group"><label>Target Tenant</label><input type="text" class="form-control" id="deploy-target" disabled></div>
+            <div class="modal-header"><h2>Deploy New Workload</h2><span class="modal-close" style="cursor:pointer;" onclick="closeModal('deployModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="form-group"><label>Target Tenant</label><input type="text" class="form-control" id="deploy-target" disabled style="background: var(--vz-gray-bg); font-weight: bold;"></div>
             <div class="form-group">
-                <label>Select Template</label>
+                <label>Select Pre-configured Template</label>
                 <select class="form-control" id="deploy-template" onchange="updateDeployInfo()"></select>
             </div>
-            <div id="deploy-info" style="display: none; background: var(--vz-navy); color: white; padding: 15px; border-radius: 6px; margin-top: 15px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <div><div style="font-size: 0.75rem; color: #9CA3AF;">BENCHMARK</div><div id="deploy-bench" style="font-weight: bold;">--</div></div>
-                    <div style="text-align: right;"><div style="font-size: 0.75rem; color: #9CA3AF;">COST</div><div id="deploy-cost" style="font-weight: bold; color: var(--success);">--</div></div>
+            <div id="deploy-info" style="display: none; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">GUARANTEED BENCHMARK</div><div id="deploy-bench" style="font-weight: 800; font-size: 1.1rem;">--</div></div>
+                    <div style="text-align: right;"><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">MONTHLY COST</div><div id="deploy-cost" style="font-weight: 800; font-size: 1.2rem; color: var(--success);">--</div></div>
                 </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="executeDeploy()" id="btn-execute-deploy">Deploy Now</button>
+                <button class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 12px;" onclick="executeDeploy()" id="btn-execute-deploy">Confirm & Deploy Workload</button>
             </div>
         </div>
     </div>
 
     <div class="modal-overlay" id="serviceModal">
         <div class="modal">
-            <div class="modal-header"><h2>Define New Service</h2><span class="modal-close" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
+            <div class="modal-header"><h2>Define Custom Service</h2><span class="modal-close" style="cursor:pointer;" onclick="closeModal('serviceModal')"><i class="fa-solid fa-xmark"></i></span></div>
             <div class="form-group"><label>Service Name</label><input type="text" class="form-control" placeholder="e.g., Secure DBaaS"></div>
             <div class="form-group"><label>Retail Markup (%)</label><input type="number" class="form-control" value="30"></div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('serviceModal')">Save Service</button>
+            <div class="form-group"><label>SLA Policy</label><select class="form-control"><option>Standard (99.9%)</option><option>Premium (99.99%)</option></select></div>
+            <button class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 10px;" onclick="closeModal('serviceModal')">Publish Service</button>
         </div>
     </div>
 
     <script>
         const formatCurrency = (num) => '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
 
-        // --- 1. MOCK DATA ENGINE ---
+        // --- 1. EXPANDED DATA ENGINE ---
         let DB = {
             regions: {
-                eu: { name: "EU (Frankfurt)", hasGPU: false, hasArchive: true, clusters: 4, storage: '12 PB' },
-                us: { name: "US (Virginia)", hasGPU: true, hasArchive: false, clusters: 9, storage: '28 PB' }
+                eu: { name: "EU (Frankfurt)", hasGPU: false, hasArchive: true, storage: '12 PB', clusters: [
+                    {id: 'V/OS-EU-01', type: 'Hyperconverged (Compute+Block)', nodes: 32, cpu: 74, mem: 68, status: 'Healthy'},
+                    {id: 'V/OS-EU-02', type: 'S3 Object Fabric', nodes: 48, cpu: 42, mem: 55, status: 'Healthy'}
+                ]},
+                us: { name: "US (Virginia)", hasGPU: true, hasArchive: false, storage: '28 PB', clusters: [
+                    {id: 'V/OS-US-01', type: 'Hyperconverged (Compute+Block)', nodes: 64, cpu: 88, mem: 82, status: 'Warning'},
+                    {id: 'V/OS-US-02', type: 'GPU Compute Pool', nodes: 16, cpu: 95, mem: 90, status: 'Warning'},
+                    {id: 'V/OS-US-03', type: 'S3 Object Fabric', nodes: 64, cpu: 50, mem: 60, status: 'Healthy'}
+                ]},
+                apj: { name: "APJ (Singapore)", hasGPU: true, hasArchive: true, storage: '8 PB', clusters: [
+                    {id: 'V/OS-APJ-01', type: 'Hyperconverged Edge', nodes: 12, cpu: 45, mem: 50, status: 'Healthy'}
+                ]}
             },
             templates: [
-                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 850, reqGPU: false, bench: '14,000 IOPS' },
-                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 1200, reqGPU: false, bench: '<15ms Latency' },
-                { id: 'ai', name: 'AI Reasoning Agent', cost: 2500, reqGPU: true, bench: '45 Tokens/sec' },
-                { id: 'arc', name: 'S3 Cold Archive', cost: 300, reqGPU: false, bench: '99.9999% Durability' }
+                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 850, reqGPU: false, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)' },
+                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 1200, reqGPU: false, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--info)' },
+                { id: 'ai', name: 'AI Reasoning Agent', cost: 2500, reqGPU: true, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)' },
+                { id: 'arc', name: 'S3 Cold Archive', cost: 300, reqGPU: false, bench: '99.9999% Durability', icon: 'fa-snowflake', color: 'var(--text-muted)' },
+                { id: 'k8s', name: 'Managed Kubernetes', cost: 1500, reqGPU: false, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)' },
+                { id: 'web', name: 'Web Server Farm', cost: 450, reqGPU: false, bench: '10Gbps Egress', icon: 'fa-server', color: 'var(--vz-navy)' }
             ],
             hierarchy: {
                 eu: { t2: {
                     eurocloud: { name: "EuroCloud Disti", t3: {
                         berlinIT: { name: "Berlin IT MSP", tenants: [
-                            { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [{id:'a1', msg: 'Approaching DB Storage Quota', type: 'warning'}] },
+                            { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, users: 450, workloads: [{name: 'Main DB', type: 'db'}, {name: 'K8s Prod', type: 'k8s'}], alerts: [{id:'a1', msg: 'Approaching DB Storage Quota', type: 'warning'}] },
                             { id: 't2', name: 'MedTech EU', spend: 2400, budget: 3000, margin: 32, users: 120, workloads: [{name: 'VDI Pool A', type: 'vdi'}, {name: 'VDI Pool B', type: 'vdi'}], alerts: [] }
                         ]},
                         parisTech: { name: "Paris Tech Cloud", tenants: [
-                            { id: 't3', name: 'Fashion SaaS', spend: 600, budget: 1500, margin: 40, users: 50, workloads: [{name: 'Archive', type: 'arc'}], alerts: [] }
+                            { id: 't3', name: 'Fashion SaaS', spend: 900, budget: 1500, margin: 40, users: 50, workloads: [{name: 'Archive Logs', type: 'arc'}, {name: 'Frontend', type: 'web'}], alerts: [] }
                         ]}
                     }}
                 }},
                 us: { t2: {
                     amerihost: { name: "AmeriHost Wholesale", t3: {
                         nySolutions: { name: "NY Solutions", tenants: [
-                            { id: 't4', name: 'Wall St Data', spend: 14000, budget: 15000, margin: 18, users: 1200, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}], alerts: [{id:'a2', msg: 'Runaway AI Token Burn detected', type: 'danger'}] },
-                            { id: 't5', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}], alerts: [] }
+                            { id: 't4', name: 'Wall St Data', spend: 16500, budget: 15000, margin: 18, users: 1200, workloads: [{name: 'Trading DB', type: 'db'}, {name: 'AI Analyst', type: 'ai'}, {name: 'Risk K8s', type: 'k8s'}], alerts: [{id:'a2', msg: 'Runaway AI Token Burn detected. Budget exceeded.', type: 'danger'}] },
+                            { id: 't5', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}, {name: 'Portal', type: 'web'}], alerts: [] }
+                        ]},
+                        texCloud: { name: "Texas Cloud Ops", tenants: [
+                            { id: 't6', name: 'Energy Logistics', spend: 5500, budget: 6000, margin: 26, users: 180, workloads: [{name: 'Sensor DB', type: 'db'}, {name: 'Predictive AI', type: 'ai'}], alerts: [] }
+                        ]}
+                    }}
+                }},
+                apj: { t2: {
+                    asiacloud: { name: "AsiaCloud Aggregator", t3: {
+                        tokyoIT: { name: "Tokyo IT Partners", tenants: [
+                            { id: 't7', name: 'GamingCo Japan', spend: 7500, budget: 10000, margin: 35, users: 2500, workloads: [{name: 'Player DB', type: 'db'}, {name: 'Game Servers', type: 'k8s'}], alerts: [] }
+                        ]},
+                        sydNet: { name: "Sydney Networks", tenants: [
+                            { id: 't8', name: 'Health APJ', spend: 1200, budget: 2000, margin: 30, users: 80, workloads: [{name: 'VDI Remote', type: 'vdi'}], alerts: [{id:'a3', msg: 'High Latency on VDI Gateway', type: 'warning'}] }
                         ]}
                     }}
                 }}
@@ -438,7 +515,6 @@
             AppState.t3 = document.getElementById('selT3').value;
             AppState.t4 = document.getElementById('selT4').value;
             
-            // If user changes T3 specifically, repopulate T4
             if(document.activeElement.id === 'selT3') {
                 const selT4 = document.getElementById('selT4');
                 selT4.innerHTML = '<option value="all">-- ALL TENANTS --</option>';
@@ -449,6 +525,7 @@
             }
 
             const data = getAggregatedData();
+            const regData = DB.regions[AppState.region];
 
             // 1. Overview
             document.getElementById('ov-tenant-name').innerText = data.name;
@@ -457,64 +534,65 @@
             document.getElementById('ov-margin').innerText = data.margin + '%';
             document.getElementById('ov-users').innerText = data.users.toLocaleString();
             
-            let corePct = Math.min(95, Math.max(40, Math.floor(data.spend / 150)));
+            let corePct = Math.min(98, Math.max(30, Math.floor((data.spend / 200) + 20)));
             document.getElementById('ov-core-pct').innerText = corePct + '%';
-            
-            // Fixed the inner HTML style string tag injection error here
             let deg = corePct * 3.6;
-            document.getElementById('ov-core-ring').style.background = `conic-gradient(var(--vz-red) ${deg}deg, var(--vz-gray-bg) 0)`;
+            let color = corePct > 85 ? 'var(--vz-red)' : 'var(--success)';
+            document.getElementById('ov-core-ring').style.background = `conic-gradient(${color} ${deg}deg, var(--vz-gray-bg) 0)`;
 
             const alertCont = document.getElementById('ov-alerts-container');
             if(data.alerts.length > 0) {
-                alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--vz-red);"><i class="fa-solid fa-triangle-exclamation"></i> Active Alerts (${data.alerts.length})</h3>`;
+                alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--vz-red); font-size:1.1rem; margin-bottom:15px;"><i class="fa-solid fa-triangle-exclamation"></i> Action Required (${data.alerts.length})</h3>`;
                 data.alerts.forEach(a => {
-                    alertCont.innerHTML += `<div style="font-size:0.85rem; padding: 10px; background: #FEF2F2; border-left: 3px solid var(--vz-red); margin-bottom:10px;"><strong>${a.tenantName}:</strong> ${a.msg}</div>`;
+                    let aColor = a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)';
+                    let bg = a.type === 'danger' ? '#FEF2F2' : '#FFFBEB';
+                    alertCont.innerHTML += `<div style="font-size:0.9rem; padding: 12px; background: ${bg}; border-left: 4px solid ${aColor}; margin-bottom:10px; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);"><strong>${a.tenantName}:</strong> ${a.msg}</div>`;
                 });
             } else {
-                alertCont.innerHTML = `<h3 style="margin-top:0; color: var(--success);"><i class="fa-solid fa-check-circle"></i> System Healthy</h3><p style="font-size:0.85rem; color:var(--text-muted);">No active alerts for selected scope.</p>`;
+                alertCont.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-muted);"><i class="fa-solid fa-check-circle" style="font-size:3rem; color:var(--success); margin-bottom:10px; opacity:0.8;"></i><h3 style="margin:0;">System Healthy</h3><p style="font-size:0.85rem; text-align:center;">No active alerts for selected scope.</p></div>`;
             }
 
             // 2. Workloads
             const wlContainer = document.getElementById('workload-list');
             wlContainer.innerHTML = '';
             data.workloads.forEach(w => {
-                wlContainer.innerHTML += `<div class="card"><h3 style="margin-top:0; color:var(--vz-navy);">${w.name}</h3><div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">Tenant: ${w.tenantName}</div><span class="badge green">Running</span><div style="margin-top:10px; font-size:0.75rem; color:var(--text-muted); padding-top:10px; border-top:1px solid var(--vz-border);">Template: ${DB.templates.find(t=>t.id===w.type).name}</div></div>`;
+                let tplInfo = DB.templates.find(t=>t.id===w.type);
+                wlContainer.innerHTML += `<div class="card" style="border-top: 4px solid ${tplInfo.color};"><h3 style="margin-top:0; color:var(--vz-navy); font-size:1.2rem;"><i class="fa-solid ${tplInfo.icon}" style="margin-right:8px; opacity:0.7;"></i>${w.name}</h3><div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Tenant: <strong>${w.tenantName}</strong></div><span class="badge green">Running</span><div style="margin-top:15px; font-size:0.8rem; color:var(--text-muted); padding-top:12px; border-top:1px solid var(--vz-border);">Blueprint: ${tplInfo.name}</div></div>`;
             });
 
             // 3. Templates (Hardware Filtered)
-            const regData = DB.regions[AppState.region];
             const tplContainer = document.getElementById('template-grid');
             tplContainer.innerHTML = '';
             let availTemplates = DB.templates.filter(t => !t.reqGPU || regData.hasGPU);
             if(!regData.hasArchive) availTemplates = availTemplates.filter(t => t.id !== 'arc');
 
             availTemplates.forEach(t => {
-                tplContainer.innerHTML += `<div class="card" style="border-top: 4px solid var(--vz-navy);"><h3 style="margin-top:0;">${t.name}</h3><p style="font-size:0.8rem; color:var(--text-muted);">Guaranteed: ${t.bench}</p><div style="font-weight:bold; margin-top:10px; color:var(--success);">${formatCurrency(t.cost)}/mo</div></div>`;
+                tplContainer.innerHTML += `<div class="card" style="display:flex; flex-direction:column;"><h3 style="margin-top:0; font-size:1.1rem;"><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i>${t.name}</h3><p style="font-size:0.85rem; color:var(--text-muted); flex:1;">SLA: ${t.bench}</p><div style="font-weight:800; font-size:1.2rem; margin-top:15px; color:var(--vz-navy); padding-top:15px; border-top:1px solid var(--vz-border);">${formatCurrency(t.cost)}<span style="font-size:0.7rem; font-weight:normal; color:var(--text-muted);"> /mo base</span></div></div>`;
             });
 
             // 4. Services
             const srvTable = document.getElementById('services-table');
-            srvTable.innerHTML = `<tr><th>Service Name</th><th>Base Cost</th><th>Retail Markup</th><th>BaaS Guarantee</th></tr>`;
+            srvTable.innerHTML = `<tr><th>Service Name</th><th>Base Wholesale</th><th>Retail Markup</th><th>BaaS Guarantee</th></tr>`;
             availTemplates.forEach(t => {
-                srvTable.innerHTML += `<tr><td>${t.name}</td><td>${formatCurrency(t.cost)}</td><td><span class="badge green">+30%</span></td><td>${t.bench}</td></tr>`;
+                srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px; width:20px; text-align:center;"></i> <strong>${t.name}</strong></td><td>${formatCurrency(t.cost)}</td><td><span class="badge green">+30% Default</span></td><td>${t.bench}</td></tr>`;
             });
 
             // 5. Infrastructure
+            document.getElementById('infra-reg-name').innerText = regData.name;
             document.getElementById('infra-stats').innerHTML = `
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 2 Distributors</span><strong>${data.t2Count}</strong></div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 3 MSPs</span><strong>${data.t3Count}</strong></div>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:5px;"><span>Tier 4 Tenants</span><strong>${data.tenantCount}</strong></div>
-                <div style="display:flex; justify-content:space-between; color:var(--info);"><span>Global S3 Fabric</span><strong>${regData.storage}</strong></div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:10px; font-size:0.95rem;"><span>Tier 2 Distributors</span><strong style="color:var(--vz-navy); font-size:1.1rem;">${data.t2Count}</strong></div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:10px; font-size:0.95rem;"><span>Tier 3 MSPs</span><strong style="color:var(--vz-navy); font-size:1.1rem;">${data.t3Count}</strong></div>
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--vz-border); padding-bottom:10px; font-size:0.95rem;"><span>Tier 4 Tenants</span><strong style="color:var(--vz-navy); font-size:1.1rem;">${data.tenantCount}</strong></div>
+                <div style="display:flex; justify-content:space-between; color:var(--info); font-size:0.95rem; font-weight:bold; margin-top:5px;"><span>Global S3 Fabric</span><span><i class="fa-solid fa-database"></i> ${regData.storage}</span></div>
             `;
-            // Trigger visual refresh of active tab
-            const activeTab = document.querySelector('#infra-pills span.active');
-            if (activeTab) {
-                if (activeTab.innerText.includes('Clusters')) switchInfraTab('clusters', activeTab);
-                if (activeTab.innerText.includes('Storage')) switchInfraTab('storage', activeTab);
-                if (activeTab.innerText.includes('Gateways')) switchInfraTab('network', activeTab);
-            } else {
-                switchInfraTab('clusters');
-            }
+            
+            const infraTable = document.getElementById('infra-clusters');
+            infraTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>CPU</th><th>RAM</th><th>Status</th></tr>`;
+            regData.clusters.forEach(c => {
+                let badge = c.status === 'Healthy' ? 'badge green' : 'badge yellow';
+                let cpuColor = c.cpu > 80 ? 'color:var(--vz-red); font-weight:bold;' : '';
+                infraTable.innerHTML += `<tr><td><strong>${c.id}</strong></td><td>${c.type}</td><td>${c.nodes}</td><td style="${cpuColor}">${c.cpu}%</td><td>${c.mem}%</td><td><span class="${badge}">${c.status}</span></td></tr>`;
+            });
 
             // 6. Observability
             const obsContainer = document.getElementById('obs-alerts-container');
@@ -522,44 +600,61 @@
             if(data.alerts.length > 0) {
                 data.alerts.forEach(a => {
                     const color = a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)';
-                    obsContainer.innerHTML += `<div class="alert-box" style="border-left-color: ${color};"><div style="flex:1;"><strong>Tenant: ${a.tenantName}</strong><br><span style="font-size:0.85rem;">${a.msg}</span></div><button class="btn btn-primary" onclick="resolveAlert('${a.tId}', '${a.id}')">Auto-Remediate</button></div>`;
+                    const icon = a.type === 'danger' ? 'fa-fire' : 'fa-triangle-exclamation';
+                    obsContainer.innerHTML += `<div class="alert-box" style="border-left-color: ${color};"><div style="flex:1;"><strong style="color:var(--vz-navy); font-size:1.1rem;"><i class="fa-solid ${icon}" style="color:${color}; margin-right:8px;"></i>Tenant: ${a.tenantName}</strong><br><span style="font-size:0.9rem; color:var(--text-muted); display:inline-block; margin-top:5px;">${a.msg}</span></div><button class="btn btn-primary" onclick="resolveAlert('${a.tId}', '${a.id}')"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Remediate</button></div>`;
                 });
             } else {
-                obsContainer.innerHTML = `<div style="padding:15px; background:var(--vz-gray-bg); border-radius:6px; color:var(--text-muted);">No active remediations required for selected scope.</div>`;
+                obsContainer.innerHTML = `<div style="padding:20px; background:white; border:1px solid var(--vz-border); border-radius:8px; color:var(--text-muted); text-align:center;"><i class="fa-solid fa-shield-check" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>No active remediations required for selected scope.</div>`;
             }
 
-            const cCpu = document.getElementById('chart-cpu');
-            const cIops = document.getElementById('chart-iops');
-            cCpu.innerHTML = ''; cIops.innerHTML = '';
-            for(let i=0; i<10; i++) {
-                let h1 = Math.floor(Math.random() * 80) + 10 + (data.spend/1000); 
-                let h2 = Math.floor(Math.random() * 60) + 20 + (data.users/200);
-                cCpu.innerHTML += `<div style="width: 8%; background: var(--vz-red); height: ${Math.min(h1, 100)}%;"></div>`;
-                cIops.innerHTML += `<div style="width: 8%; background: var(--vz-navy); height: ${Math.min(h2, 100)}%;"></div>`;
-            }
+            // Generate dynamic bar charts
+            const genChart = (id, baseH, variance, color) => {
+                const el = document.getElementById(id);
+                el.innerHTML = '';
+                for(let i=0; i<15; i++) {
+                    let h = Math.min(100, Math.max(10, baseH + (Math.random() * variance - variance/2) + (data.spend/2000)));
+                    el.innerHTML += `<div class="chart-bar" style="background: ${color}; height: ${h}%;" data-val="${Math.round(h)}"></div>`;
+                }
+            };
+            genChart('chart-cpu', 50, 40, 'var(--vz-navy)');
+            genChart('chart-iops', 40, 30, 'var(--vz-red)');
+            genChart('chart-net', 30, 20, 'var(--info)');
+            genChart('chart-lat', 15, 10, 'var(--warning)');
 
             // 7. FinOps
-            document.getElementById('fin-spend').innerText = formatCurrency(data.spend);
-            document.getElementById('fin-budget').innerText = formatCurrency(data.budget);
+            document.getElementById('fin-spend').innerText = formatCurrency(data.spend) + ' Spent';
+            document.getElementById('fin-budget').innerText = formatCurrency(data.budget) + ' Ceiling';
             const pct = data.budget > 0 ? (data.spend / data.budget) * 100 : 0;
             const bar = document.getElementById('fin-bar');
             bar.style.width = Math.min(pct, 100) + '%';
             bar.style.background = pct > 90 ? 'var(--vz-red)' : 'var(--success)';
+            document.getElementById('fin-forecast').innerText = `Forecast: ${formatCurrency(data.spend * 1.1)}`;
+
+            // Mock categories based on workloads
+            let cComp = 0, cStor = 0, cNet = 20;
+            data.workloads.forEach(w => {
+                if(w.type === 'db' || w.type === 'arc') cStor += 15;
+                if(w.type === 'vdi' || w.type === 'k8s' || w.type === 'ai') cComp += 15;
+            });
+            let tot = cComp + cStor + cNet || 100;
+            document.getElementById('cat-comp').innerText = Math.round((cComp/tot)*100) + '%';
+            document.getElementById('cat-stor').innerText = Math.round((cStor/tot)*100) + '%';
+            document.getElementById('cat-net').innerText = Math.round((cNet/tot)*100) + '%';
 
             const finTable = document.getElementById('fin-spenders');
-            finTable.innerHTML = `<tr><th>Tenant</th><th>Spend</th><th>Margin</th></tr>`;
+            finTable.innerHTML = `<tr><th>Tenant Name</th><th>Monthly Spend</th><th>Margin Health</th></tr>`;
             if(AppState.t4 === 'all') {
                 let allT = [];
                 let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
                 t3Keys.forEach(t3Key => { allT = allT.concat(DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants); });
-                allT.sort((a,b) => b.spend - a.spend).slice(0,3).forEach(t => {
-                    finTable.innerHTML += `<tr><td>${t.name}</td><td>${formatCurrency(t.spend)}</td><td>${t.margin}%</td></tr>`;
+                allT.sort((a,b) => b.spend - a.spend).slice(0,4).forEach(t => {
+                    let mBadge = t.margin < 20 ? 'badge red' : 'badge green';
+                    finTable.innerHTML += `<tr><td><strong>${t.name}</strong></td><td>${formatCurrency(t.spend)}</td><td><span class="${mBadge}">${t.margin}%</span></td></tr>`;
                 });
             } else {
-                finTable.innerHTML += `<tr><td>${data.name}</td><td>${formatCurrency(data.spend)}</td><td>${data.margin}%</td></tr>`;
+                let mBadge = data.margin < 20 ? 'badge red' : 'badge green';
+                finTable.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>${formatCurrency(data.spend)}</td><td><span class="${mBadge}">${data.margin}%</span></td></tr>`;
             }
-
-            runTCO();
         }
 
         // --- 5. VIEW NAVIGATION ---
@@ -572,27 +667,13 @@
             document.getElementById('view-' + viewId).classList.add('active');
         }
 
-        function switchInfraTab(tab, el) {
-            const pills = document.getElementById('infra-pills').children;
-            for(let i=0; i<pills.length; i++) pills[i].classList.remove('active');
-            
-            if (el) el.classList.add('active');
-            else if(tab === 'clusters') pills[0].classList.add('active');
-            
-            const content = document.getElementById('infra-content');
-            const reg = DB.regions[AppState.region];
-            if(tab === 'clusters') content.innerHTML = `<table style="width:100%; border-collapse:collapse; margin-top:10px;"><tr><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Cluster ID</th><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Type</th><th style="padding:8px; border-bottom:1px solid #ccc; text-align:left;">Utilization</th></tr><tr><td style="padding:8px;">VHI-CL-01</td><td style="padding:8px;">Hyperconverged</td><td style="padding:8px;"><span class="badge green">62%</span></td></tr><tr><td style="padding:8px;">VHI-CL-02</td><td style="padding:8px;">Compute-Heavy</td><td style="padding:8px;"><span class="badge yellow">85%</span></td></tr></table>`;
-            if(tab === 'storage') content.innerHTML = `<div style="padding: 10px 0;"><h4 style="margin:0 0 5px 0;">S3 Object Fabric</h4><p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Capacity: ${reg.storage}</p></div>`;
-            if(tab === 'network') content.innerHTML = `<div style="padding: 10px 0;"><h4 style="margin:0 0 5px 0;">Envoy Mesh</h4><p style="margin:0; font-size:0.85rem; color:var(--text-muted);">Active. Cross-region routing enabled.</p></div>`;
-        }
-
         // --- 6. TEMPLATE BUILDER LOGIC ---
         let builderNodes = [];
         function toggleBuilder() {
             const bld = document.getElementById('template-builder');
             const grid = document.getElementById('template-grid');
             if(bld.style.display === 'none') {
-                bld.style.display = 'flex'; grid.style.display = 'none';
+                bld.style.display = 'block'; grid.style.display = 'none';
                 clearBuilder();
             } else {
                 bld.style.display = 'none'; grid.style.display = 'grid';
@@ -611,13 +692,13 @@
             canvas.innerHTML = '';
             let total = 0;
             if(builderNodes.length === 0) {
-                canvas.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 100px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i><br>Click components to build architecture.</div>';
+                canvas.innerHTML = '<div style="text-align: center; color: var(--text-muted); margin-top: 150px;" id="canvas-empty"><i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i><br>Click components to build architecture.</div>';
             } else {
                 builderNodes.forEach((n, i) => {
                     total += n.cost;
-                    canvas.innerHTML += `<div class="canvas-node"><div><strong>${n.name}</strong></div><div>$${n.cost}/mo</div></div>`;
+                    canvas.innerHTML += `<div class="canvas-node"><div><strong>${n.name}</strong></div><div style="font-weight:bold; color:var(--vz-navy);">$${n.cost}/mo</div></div>`;
                     if(i < builderNodes.length - 1) {
-                        canvas.innerHTML += `<div class="canvas-connector"><i class="fa-solid fa-link"></i></div>`;
+                        canvas.innerHTML += `<div class="canvas-connector"><i class="fa-solid fa-arrow-down"></i></div>`;
                     }
                 });
             }
@@ -628,14 +709,14 @@
         // --- 7. DEPLOY WORKLOAD FLOW ---
         function openDeployModal() {
             if(AppState.t4 === 'all') {
-                alert("Please select a specific Tenant (Tier 4) from the top navigation before deploying a workload.");
+                alert("Selection Error: Please select a specific Tenant (Tier 4) from the top navigation before deploying a workload.");
                 return;
             }
             const data = getAggregatedData();
             document.getElementById('deploy-target').value = data.name;
             
             const sel = document.getElementById('deploy-template');
-            sel.innerHTML = '<option value="none">-- Select Template --</option>';
+            sel.innerHTML = '<option value="none">-- Select Architecture Template --</option>';
             const regData = DB.regions[AppState.region];
             DB.templates.forEach(t => {
                 if((!t.reqGPU || regData.hasGPU) && (t.id !== 'arc' || regData.hasArchive)) {
@@ -657,7 +738,7 @@
 
         function executeDeploy() {
             const btn = document.getElementById('btn-execute-deploy');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning via V/OS...';
             setTimeout(() => {
                 const tplId = document.getElementById('deploy-template').value;
                 const tpl = DB.templates.find(t => t.id === tplId);
@@ -668,10 +749,10 @@
                 targetTenant.workloads.push({name: 'New ' + tpl.name, type: tplId});
                 targetTenant.spend += tpl.cost;
                 
-                btn.innerHTML = 'Deploy Now';
+                btn.innerHTML = 'Confirm & Deploy Workload';
                 closeModal('deployModal');
                 renderApp(); 
-            }, 800);
+            }, 1000);
         }
 
         // --- 8. REMEDIATION FLOW ---
@@ -687,17 +768,9 @@
             renderApp();
         }
 
-        // --- 9. MODALS & TCO ---
+        // --- 9. MODALS ---
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        function runTCO() {
-            const nodes = parseInt(document.getElementById('tco-nodes').value);
-            document.getElementById('tco-nodes-val').innerText = nodes;
-            const wholesale = (nodes * 22000 / 36) + (nodes * 64 * 8) + (nodes * 230);
-            document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo';
-            document.getElementById('tco-retail').innerText = formatCurrency(wholesale * 1.30) + '/mo';
-        }
 
         // Boot
         cascadeContext('init');

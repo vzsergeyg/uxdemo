@@ -119,7 +119,7 @@
             <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line" style="width:20px;"></i> Observability</li>
             <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar" style="width:20px;"></i> FinOps & Billing</li>
         </ul>
-        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05);">Virtuozzo Operating System v8.1</div>
+        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Operating System v8.1</div>
     </nav>
 
     <div class="main-wrapper">
@@ -319,22 +319,36 @@
                     <div class="card">
                         <h3 style="margin-top:0; font-size: 1.1rem; color: var(--vz-navy);">Cost by Category</h3>
                         <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px;"><span>Compute</span><span style="font-weight:bold;" id="cat-comp">45%</span></div>
-                        <div class="progress-bg" style="height: 6px; margin-top:0; margin-bottom: 12px;"><div class="progress-fill" style="background: var(--vz-red); width: 45%;"></div></div>
+                        <div class="progress-bg" style="height: 6px; margin-top:0; margin-bottom: 12px;"><div class="progress-fill" style="background: var(--vz-red); width: 45%;" id="bar-comp"></div></div>
                         
                         <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px;"><span>Storage</span><span style="font-weight:bold;" id="cat-stor">35%</span></div>
-                        <div class="progress-bg" style="height: 6px; margin-top:0; margin-bottom: 12px;"><div class="progress-fill" style="background: var(--vz-navy); width: 35%;"></div></div>
+                        <div class="progress-bg" style="height: 6px; margin-top:0; margin-bottom: 12px;"><div class="progress-fill" style="background: var(--vz-navy); width: 35%;" id="bar-stor"></div></div>
                         
                         <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 8px;"><span>Network/Licensing</span><span style="font-weight:bold;" id="cat-net">20%</span></div>
-                        <div class="progress-bg" style="height: 6px; margin-top:0;"><div class="progress-fill" style="background: var(--info); width: 20%;"></div></div>
+                        <div class="progress-bg" style="height: 6px; margin-top:0;"><div class="progress-fill" style="background: var(--info); width: 20%;" id="bar-net"></div></div>
                     </div>
                 </div>
 
-                <div class="card" style="padding: 0; overflow: hidden;">
-                    <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;">
-                        <h3 style="margin:0; color: var(--vz-navy); font-size: 1.1rem;"><i class="fa-solid fa-trophy" style="color:var(--warning);"></i> Top Spending Tenants</h3>
+                <div class="grid-2">
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;">
+                            <h3 style="margin:0; color: var(--vz-navy); font-size: 1.1rem;"><i class="fa-solid fa-trophy" style="color:var(--warning);"></i> Top Spending Tenants</h3>
+                        </div>
+                        <table id="fin-spenders">
+                            </table>
                     </div>
-                    <table id="fin-spenders">
-                        </table>
+                    
+                    <div class="card" style="border: 2px solid var(--vz-navy);">
+                        <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> Wholesale TCO Estimator</h3>
+                        <div class="form-group">
+                            <label>Compute Nodes: <span id="tco-nodes-val">10</span></label>
+                            <input type="range" class="tco-slider" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 15px; border-top: 1px solid var(--vz-border); padding-top: 15px;">
+                            <div><div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE COST</div><div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div></div>
+                            <div style="text-align: right;"><div style="font-size: 0.75rem; color: var(--text-muted);">RETAIL REVENUE (+30%)</div><div style="font-size: 1.2rem; font-weight: bold; color: var(--success);" id="tco-retail">$0</div></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -560,7 +574,7 @@
                 wlContainer.innerHTML += `<div class="card" style="border-top: 4px solid ${tplInfo.color};"><h3 style="margin-top:0; color:var(--vz-navy); font-size:1.2rem;"><i class="fa-solid ${tplInfo.icon}" style="margin-right:8px; opacity:0.7;"></i>${w.name}</h3><div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:15px;">Tenant: <strong>${w.tenantName}</strong></div><span class="badge green">Running</span><div style="margin-top:15px; font-size:0.8rem; color:var(--text-muted); padding-top:12px; border-top:1px solid var(--vz-border);">Blueprint: ${tplInfo.name}</div></div>`;
             });
 
-            // 3. Templates (Hardware Filtered)
+            // 3. Templates
             const tplContainer = document.getElementById('template-grid');
             tplContainer.innerHTML = '';
             let availTemplates = DB.templates.filter(t => !t.reqGPU || regData.hasGPU);
@@ -607,9 +621,10 @@
                 obsContainer.innerHTML = `<div style="padding:20px; background:white; border:1px solid var(--vz-border); border-radius:8px; color:var(--text-muted); text-align:center;"><i class="fa-solid fa-shield-check" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>No active remediations required for selected scope.</div>`;
             }
 
-            // Generate dynamic bar charts
+            // SAFE CHART GENERATION
             const genChart = (id, baseH, variance, color) => {
                 const el = document.getElementById(id);
+                if(!el) return; // Strict safety check
                 el.innerHTML = '';
                 for(let i=0; i<15; i++) {
                     let h = Math.min(100, Math.max(10, baseH + (Math.random() * variance - variance/2) + (data.spend/2000)));
@@ -622,39 +637,59 @@
             genChart('chart-lat', 15, 10, 'var(--warning)');
 
             // 7. FinOps
-            document.getElementById('fin-spend').innerText = formatCurrency(data.spend) + ' Spent';
-            document.getElementById('fin-budget').innerText = formatCurrency(data.budget) + ' Ceiling';
+            const spendEl = document.getElementById('fin-spend');
+            if (spendEl) spendEl.innerText = formatCurrency(data.spend) + ' Spent';
+            
+            const budgetEl = document.getElementById('fin-budget');
+            if (budgetEl) budgetEl.innerText = formatCurrency(data.budget) + ' Ceiling';
+            
             const pct = data.budget > 0 ? (data.spend / data.budget) * 100 : 0;
             const bar = document.getElementById('fin-bar');
-            bar.style.width = Math.min(pct, 100) + '%';
-            bar.style.background = pct > 90 ? 'var(--vz-red)' : 'var(--success)';
-            document.getElementById('fin-forecast').innerText = `Forecast: ${formatCurrency(data.spend * 1.1)}`;
+            if (bar) {
+                bar.style.width = Math.min(pct, 100) + '%';
+                bar.style.background = pct > 90 ? 'var(--vz-red)' : 'var(--success)';
+            }
+            
+            const forecastEl = document.getElementById('fin-forecast');
+            if (forecastEl) forecastEl.innerText = `Forecast: ${formatCurrency(data.spend * 1.1)}`;
 
-            // Mock categories based on workloads
+            // SAFE CATEGORY UPDATE
             let cComp = 0, cStor = 0, cNet = 20;
             data.workloads.forEach(w => {
                 if(w.type === 'db' || w.type === 'arc') cStor += 15;
-                if(w.type === 'vdi' || w.type === 'k8s' || w.type === 'ai') cComp += 15;
+                if(w.type === 'vdi' || w.type === 'k8s' || w.type === 'ai' || w.type === 'web') cComp += 15;
             });
             let tot = cComp + cStor + cNet || 100;
-            document.getElementById('cat-comp').innerText = Math.round((cComp/tot)*100) + '%';
-            document.getElementById('cat-stor').innerText = Math.round((cStor/tot)*100) + '%';
-            document.getElementById('cat-net').innerText = Math.round((cNet/tot)*100) + '%';
+            let pComp = Math.round((cComp/tot)*100);
+            let pStor = Math.round((cStor/tot)*100);
+            let pNet = Math.round((cNet/tot)*100);
+
+            if(document.getElementById('cat-comp')) document.getElementById('cat-comp').innerText = pComp + '%';
+            if(document.getElementById('cat-stor')) document.getElementById('cat-stor').innerText = pStor + '%';
+            if(document.getElementById('cat-net')) document.getElementById('cat-net').innerText = pNet + '%';
+            
+            if(document.getElementById('bar-comp')) document.getElementById('bar-comp').style.width = pComp + '%';
+            if(document.getElementById('bar-stor')) document.getElementById('bar-stor').style.width = pStor + '%';
+            if(document.getElementById('bar-net')) document.getElementById('bar-net').style.width = pNet + '%';
 
             const finTable = document.getElementById('fin-spenders');
-            finTable.innerHTML = `<tr><th>Tenant Name</th><th>Monthly Spend</th><th>Margin Health</th></tr>`;
-            if(AppState.t4 === 'all') {
-                let allT = [];
-                let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
-                t3Keys.forEach(t3Key => { allT = allT.concat(DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants); });
-                allT.sort((a,b) => b.spend - a.spend).slice(0,4).forEach(t => {
-                    let mBadge = t.margin < 20 ? 'badge red' : 'badge green';
-                    finTable.innerHTML += `<tr><td><strong>${t.name}</strong></td><td>${formatCurrency(t.spend)}</td><td><span class="${mBadge}">${t.margin}%</span></td></tr>`;
-                });
-            } else {
-                let mBadge = data.margin < 20 ? 'badge red' : 'badge green';
-                finTable.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>${formatCurrency(data.spend)}</td><td><span class="${mBadge}">${data.margin}%</span></td></tr>`;
+            if(finTable) {
+                finTable.innerHTML = `<tr><th>Tenant Name</th><th>Monthly Spend</th><th>Margin Health</th></tr>`;
+                if(AppState.t4 === 'all') {
+                    let allT = [];
+                    let t3Keys = AppState.t3 === 'all' ? Object.keys(DB.hierarchy[AppState.region].t2[AppState.t2].t3) : [AppState.t3];
+                    t3Keys.forEach(t3Key => { allT = allT.concat(DB.hierarchy[AppState.region].t2[AppState.t2].t3[t3Key].tenants); });
+                    allT.sort((a,b) => b.spend - a.spend).slice(0,4).forEach(t => {
+                        let mBadge = t.margin < 20 ? 'badge red' : 'badge green';
+                        finTable.innerHTML += `<tr><td><strong>${t.name}</strong></td><td>${formatCurrency(t.spend)}</td><td><span class="${mBadge}">${t.margin}%</span></td></tr>`;
+                    });
+                } else {
+                    let mBadge = data.margin < 20 ? 'badge red' : 'badge green';
+                    finTable.innerHTML += `<tr><td><strong>${data.name}</strong></td><td>${formatCurrency(data.spend)}</td><td><span class="${mBadge}">${data.margin}%</span></td></tr>`;
+                }
             }
+
+            runTCO();
         }
 
         // --- 5. VIEW NAVIGATION ---
@@ -768,9 +803,20 @@
             renderApp();
         }
 
-        // --- 9. MODALS ---
+        // --- 9. MODALS & TCO ---
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function runTCO() {
+            const tcoNodesEl = document.getElementById('tco-nodes');
+            if(!tcoNodesEl) return;
+            
+            const nodes = parseInt(tcoNodesEl.value);
+            document.getElementById('tco-nodes-val').innerText = nodes;
+            const wholesale = (nodes * 22000 / 36) + (nodes * 64 * 8) + (nodes * 230);
+            document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo';
+            document.getElementById('tco-retail').innerText = formatCurrency(wholesale * 1.30) + '/mo';
+        }
 
         // Boot
         cascadeContext('init');

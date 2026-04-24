@@ -392,6 +392,44 @@
                 <label>Select Pre-configured Template</label>
                 <select class="form-control" id="deploy-template" onchange="updateDeployInfo()"></select>
             </div>
+            <div id="vps-config" style="display: none; border-top: 1px solid var(--vz-border); margin-top: 20px; padding-top: 20px;">
+                <h4 style="margin-top:0; color: var(--vz-navy);">VPS Configuration</h4>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Linux Distribution</label>
+                        <select class="form-control" id="vps-os" onchange="updateDeployInfo()">
+                            <option>Ubuntu 22.04</option>
+                            <option>CentOS Stream 9</option>
+                            <option>Debian 12</option>
+                            <option>AlmaLinux 9</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>CPU Cores</label>
+                        <select class="form-control" id="vps-cpu" onchange="updateDeployInfo()">
+                            <option value="2">2 vCPU</option>
+                            <option value="4">4 vCPU</option>
+                            <option value="8">8 vCPU</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>RAM</label>
+                        <select class="form-control" id="vps-ram" onchange="updateDeployInfo()">
+                            <option value="4">4 GB</option>
+                            <option value="8">8 GB</option>
+                            <option value="16">16 GB</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Disk</label>
+                        <select class="form-control" id="vps-disk" onchange="updateDeployInfo()">
+                            <option value="50">50 GB NVMe</option>
+                            <option value="100">100 GB NVMe</option>
+                            <option value="200">200 GB NVMe</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             <div id="deploy-info" style="display: none; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">GUARANTEED BENCHMARK</div><div id="deploy-bench" style="font-weight: 800; font-size: 1.1rem;">--</div></div>
@@ -437,7 +475,8 @@
                 { id: 'ai', name: 'AI Reasoning Agent', cost: 2500, reqGPU: true, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)' },
                 { id: 'arc', name: 'S3 Cold Archive', cost: 300, reqGPU: false, bench: '99.9999% Durability', icon: 'fa-snowflake', color: 'var(--text-muted)' },
                 { id: 'k8s', name: 'Managed Kubernetes', cost: 1500, reqGPU: false, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)' },
-                { id: 'web', name: 'Web Server Farm', cost: 450, reqGPU: false, bench: '10Gbps Egress', icon: 'fa-server', color: 'var(--vz-navy)' }
+                { id: 'web', name: 'Web Server Farm', cost: 450, reqGPU: false, bench: '10Gbps Egress', icon: 'fa-server', color: 'var(--vz-navy)' },
+                { id: 'vps', name: 'Linux Virtual Private Server', cost: 250, reqGPU: false, bench: '99.9% Uptime Guarantee', icon: 'fa-brands fa-linux', color: 'var(--vz-red)' }
             ],
             hierarchy: {
                 eu: { t2: {
@@ -802,15 +841,36 @@
                 }
             });
             document.getElementById('deploy-info').style.display = 'none';
+            document.getElementById('vps-config').style.display = 'none';
             document.getElementById('deployModal').style.display = 'flex';
         }
         
         function updateDeployInfo() {
             const id = document.getElementById('deploy-template').value;
-            if(id === 'none') { document.getElementById('deploy-info').style.display = 'none'; return; }
+            const vpsConfig = document.getElementById('vps-config');
+            
+            if(id === 'none') { 
+                document.getElementById('deploy-info').style.display = 'none'; 
+                vpsConfig.style.display = 'none';
+                return; 
+            }
+
             const tpl = DB.templates.find(t => t.id === id);
+            let finalCost = tpl.cost;
+
+            if (id === 'vps') {
+                vpsConfig.style.display = 'block';
+                // Simple cost calculation logic
+                const cpuCost = parseInt(document.getElementById('vps-cpu').value) * 25; // $25 per core
+                const ramCost = parseInt(document.getElementById('vps-ram').value) * 10; // $10 per GB
+                const diskCost = parseInt(document.getElementById('vps-disk').value) * 0.5; // $0.5 per GB
+                finalCost = cpuCost + ramCost + diskCost;
+            } else {
+                vpsConfig.style.display = 'none';
+            }
+
             document.getElementById('deploy-bench').innerText = tpl.bench;
-            document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost);
+            document.getElementById('deploy-cost').innerText = formatCurrency(finalCost);
             document.getElementById('deploy-info').style.display = 'block';
         }
 
@@ -824,8 +884,24 @@
                 const tList = DB.hierarchy[AppState.region].t2[AppState.t2].t3[AppState.t3].tenants;
                 const targetTenant = tList.find(t => t.id === AppState.t4);
                 
-                targetTenant.workloads.push({name: 'New ' + tpl.name, type: tplId});
-                targetTenant.spend += tpl.cost;
+                let cost = tpl.cost;
+                let workloadName = 'New ' + tpl.name;
+
+                if (tplId === 'vps') {
+                    const cpu = document.getElementById('vps-cpu').value;
+                    const ram = document.getElementById('vps-ram').value;
+                    const disk = document.getElementById('vps-disk').value;
+                    const os = document.getElementById('vps-os').options[document.getElementById('vps-os').selectedIndex].text;
+
+                    const cpuCost = parseInt(cpu) * 25;
+                    const ramCost = parseInt(ram) * 10;
+                    const diskCost = parseInt(disk) * 0.5;
+                    cost = cpuCost + ramCost + diskCost;
+                    workloadName = `${os} VPS (${cpu}c/${ram}GB/${disk}GB)`;
+                }
+
+                targetTenant.workloads.push({name: workloadName, type: tplId});
+                targetTenant.spend += cost;
                 
                 btn.innerHTML = 'Confirm & Deploy Workload';
                 closeModal('deployModal');

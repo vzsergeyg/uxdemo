@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V/OS - Virtuozzo Operating System</title>
+    <title>Virtuozzo</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -109,7 +109,7 @@
 <body>
 
     <nav class="sidebar">
-        <div class="logo-area"><i class="fa-solid fa-cube"></i> V/OS</div>
+        <div class="logo-area"><i class="fa-solid fa-cube"></i> Virtuozzo</div>
         <ul class="nav-menu">
             <li class="active" onclick="switchView('overview', this)"><i class="fa-solid fa-gauge" style="width:20px;"></i> Overview</li>
             <li onclick="switchView('workloads', this)"><i class="fa-solid fa-layer-group" style="width:20px;"></i> Workloads</li>
@@ -119,13 +119,13 @@
             <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line" style="width:20px;"></i> Observability</li>
             <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar" style="width:20px;"></i> FinOps & Billing</li>
         </ul>
-        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Operating System v8.1</div>
+        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo v8.1</div>
     </nav>
 
     <div class="main-wrapper">
         <header class="topbar">
             <div class="context-chain">
-                <div><span class="tier-label">Platform Control</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px; font-size:0.95rem;">V/OS Admin</div></div>
+                <div><span class="tier-label">Platform Control</span><div style="font-weight: 800; color: var(--vz-navy); padding-top: 4px; font-size:0.95rem;">Virtuozzo Admin</div></div>
                 <i class="fa-solid fa-chevron-right" style="margin-top: 15px; opacity: 0.5;"></i>
                 
                 <div><span class="tier-label">Region</span><select id="selRegion" onchange="cascadeContext('region')">
@@ -244,7 +244,7 @@
 
             <div id="view-infrastructure" class="view-section">
                 <div class="page-header">
-                    <div><h1>Global Infrastructure</h1><p>V/OS Physical resource management and cluster topology.</p></div>
+                    <div><h1>Global Infrastructure</h1><p>Virtuozzo Physical resource management and cluster topology.</p></div>
                 </div>
                 
                 <div class="action-bar">
@@ -763,7 +763,7 @@
 
         function executeDeploy() {
             const btn = document.getElementById('btn-execute-deploy');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning via V/OS...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning via Virtuozzo...';
             setTimeout(() => {
                 const tplId = document.getElementById('deploy-template').value;
                 const tpl = DB.templates.find(t => t.id === tplId);

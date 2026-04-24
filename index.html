@@ -118,6 +118,7 @@
             <li onclick="switchView('infrastructure', this)"><i class="fa-solid fa-network-wired" style="width:20px;"></i> Infrastructure</li>
             <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line" style="width:20px;"></i> Observability</li>
             <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar" style="width:20px;"></i> FinOps & Billing</li>
+            <li onclick="switchView('users', this)"><i class="fa-solid fa-users" style="width:20px;"></i> Users</li>
         </ul>
         <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo v8.1</div>
     </nav>
@@ -356,6 +357,30 @@
                 </div>
             </div>
 
+            <div id="view-users" class="view-section">
+                <div class="page-header">
+                    <div><h1>User Management</h1><p>Manage users, roles, and permissions across the platform.</p></div>
+                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add User</button>
+                </div>
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Tenant</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- User rows will be dynamically inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -447,7 +472,12 @@
                         ]}
                     }}
                 }}
-            }
+            },
+            users: [
+                { id: 'u1', name: 'Admin User', email: 'admin@virtuozzo.com', role: 'Platform Admin', tenant: 'Virtuozzo', status: 'Active' },
+                { id: 'u2', name: 'John Doe', email: 'john.doe@automakers.com', role: 'Tenant Admin', tenant: 'AutoMakers GmbH', status: 'Active' },
+                { id: 'u3', name: 'Jane Smith', email: 'jane.smith@medtech.eu', role: 'Developer', tenant: 'MedTech EU', status: 'Invited' }
+            ]
         };
 
         let AppState = { region: 'eu', t2: '', t3: 'all', t4: 'all' };
@@ -679,7 +709,30 @@
                 }
             }
 
+            renderUsers();
             runTCO();
+        }
+
+        function renderUsers() {
+            const userTable = document.querySelector('#view-users tbody');
+            if (!userTable) return;
+            userTable.innerHTML = '';
+            DB.users.forEach(user => {
+                let statusBadge = user.status === 'Active' ? 'badge green' : 'badge yellow';
+                userTable.innerHTML += `
+                    <tr>
+                        <td><strong>${user.name}</strong></td>
+                        <td>${user.email}</td>
+                        <td>${user.role}</td>
+                        <td>${user.tenant}</td>
+                        <td><span class="${statusBadge}">${user.status}</span></td>
+                        <td>
+                            <button class="btn btn-secondary" style="padding: 5px 10px;"><i class="fa-solid fa-pencil"></i></button>
+                            <button class="btn btn-secondary" style="padding: 5px 10px;"><i class="fa-solid fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
         // --- 5. VIEW NAVIGATION ---

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V/IS</title>
+    <title>V/IS - Virtuozzo Infrastructure</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -48,6 +48,7 @@
         .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
         .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
         .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+        .grid-layout { display: grid; gap: 24px; }
         
         .metric-card { display: flex; flex-direction: column; gap: 8px;}
         .metric-card .header-row { display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
@@ -71,7 +72,7 @@
         th { color: var(--text-muted); font-weight: 600; background: #F9FAFB; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;}
         td { color: var(--vz-navy); font-weight: 500;}
 
-        /* Form Elements */
+        /* Form Elements & Sub-tabs */
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; color: var(--vz-navy);}
         .form-control { width: 100%; padding: 12px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 0.95rem; outline: none; transition: border 0.2s;}
@@ -81,59 +82,35 @@
         .slider-wrap input[type=range] { flex: 1; }
         .slider-val { width: 80px; text-align: right; font-weight: 700; color: var(--vz-navy); }
 
-        /* Secondary Tabs (Internal views) */
         .sub-tabs { display: flex; gap: 20px; border-bottom: 1px solid var(--vz-border); margin-bottom: 25px; }
         .sub-tab { padding: 10px 5px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s; }
         .sub-tab:hover { color: var(--vz-navy); }
         .sub-tab.active { color: var(--vz-navy); border-bottom-color: var(--vz-red); }
 
-        /* Modals */
+        /* Modals & Scope Picker */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11, 17, 32, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px);}
         .modal { background: white; border-radius: 12px; width: 600px; max-width: 90%; padding: 30px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 90vh; overflow-y: auto;}
+        .modal.large { width: 900px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 1px solid var(--vz-border); padding-bottom: 15px;}
         .modal-header h2 { margin: 0; font-size: 1.4rem; color: var(--vz-navy); }
 
-        /* Scope Picker Specifics */
-        .sp-modal { background: white; border-radius: 12px; width: 1000px; max-width: 95vw; height: 80vh; max-height: 800px; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden;}
-        .sp-header { padding: 20px 25px; border-bottom: 1px solid var(--vz-border); display: flex; justify-content: space-between; align-items: center;}
-        .sp-header h2 { margin: 0; font-size: 1.3rem; color: var(--vz-navy); }
-        .sp-close { cursor: pointer; color: var(--text-muted); font-size: 1.2rem; transition: 0.2s;}
-        .sp-close:hover { color: var(--vz-navy); }
-        .sp-tabs { display: flex; padding: 0 25px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;}
-        .sp-tab { padding: 15px 20px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;}
-        .sp-tab:hover { color: var(--vz-navy); }
-        .sp-tab.active { color: var(--vz-navy); border-bottom-color: var(--vz-red); }
-        .sp-toolbar { padding: 15px 25px; border-bottom: 1px solid var(--vz-border); flex-shrink: 0;}
-        .sp-breadcrumbs { font-size: 0.9rem; color: var(--vz-navy); margin-bottom: 10px; font-weight: 500;}
-        .sp-breadcrumb-link { cursor: pointer; color: var(--text-muted); transition: 0.2s;}
-        .sp-breadcrumb-link:hover { color: var(--vz-navy); text-decoration: underline;}
-        .sp-search-wrap { position: relative; width: 100%;}
-        .sp-search-wrap i { position: absolute; left: 15px; top: 12px; color: var(--text-muted);}
-        .sp-search { width: 100%; padding: 10px 10px 10px 40px; border: 1px solid var(--vz-border); border-radius: 6px; font-size: 1rem; outline: none;}
-        .sp-chips { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;}
-        .sp-chip { padding: 4px 12px; border-radius: 16px; font-size: 0.8rem; font-weight: 600; cursor: pointer; background: var(--vz-gray-bg); color: var(--text-muted); border: 1px solid var(--vz-border);}
-        .sp-chip.active { background: var(--vz-navy); color: white; border-color: var(--vz-navy);}
-        .sp-body { flex: 1; overflow-y: auto; position: relative;}
-        .sp-table-header { display: grid; padding: 12px 25px; background: #F9FAFB; border-bottom: 1px solid var(--vz-border); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; z-index: 5;}
-        .sp-grid-all { grid-template-columns: 32px 2fr 80px 1fr 40px; }
-        .sp-grid-flat { grid-template-columns: 32px 1.5fr 120px 1.5fr 40px; }
-        .sp-row { display: grid; padding: 12px 25px; border-bottom: 1px solid var(--vz-border); align-items: center; cursor: pointer; transition: 0.1s;}
-        .sp-row:hover { background: #F8FAFC; }
-        .sp-row.selected { background: #EFF6FF; border-left: 3px solid var(--info); padding-left: 22px;}
-        .sp-cell-icon { color: var(--text-muted); font-size: 1rem; text-align: center;}
-        .sp-cell-name { font-weight: 600; color: var(--vz-navy); font-size: 0.95rem;}
-        .name-link { cursor: pointer; color: var(--info); position: relative; display: inline-block; padding: 2px 0;}
-        .name-link:hover { text-decoration: underline; color: #1E40AF;}
-        .name-link::after { content: '›'; position: absolute; right: -15px; opacity: 0; transition: 0.2s; transform: translateX(-5px);}
-        .name-link:hover::after { opacity: 1; transform: translateX(0);}
-        .sp-cell-count { text-align: right; color: var(--text-muted); font-size: 0.85rem;}
-        .sp-cell-type { font-size: 0.85rem; color: var(--text-muted);}
-        .sp-cell-path { font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .sp-star { font-size: 1.1rem; color: #D1D5DB; cursor: pointer; transition: 0.2s; text-align: center;}
-        .sp-star:hover { color: var(--warning); transform: scale(1.1);}
-        .sp-star.active { color: var(--warning); }
-        .sp-footer { padding: 15px 25px; border-top: 1px solid var(--vz-border); background: #F8FAFC; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;}
-        .sp-selection-info { font-size: 0.95rem; color: var(--text-muted);}
+        /* Template Drag & Drop Builder */
+        .builder-layout { display: flex; gap: 20px; height: 500px; }
+        .builder-palette { width: 250px; border-right: 1px solid var(--vz-border); padding-right: 20px; overflow-y: auto;}
+        .builder-item { padding: 12px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: grab; background: white; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: 0.2s;}
+        .builder-item:hover { border-color: var(--vz-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); transform: translateY(-2px);}
+        .builder-item:active { cursor: grabbing; }
+        .builder-canvas { flex: 1; background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 8px; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; position: relative;}
+        .builder-canvas.drag-over { border-color: var(--vz-red); background: #FEF2F2; }
+        .canvas-node { background: white; padding: 15px; border-radius: 6px; border-left: 4px solid var(--vz-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.3s ease;}
+        
+        /* Wizard Steps */
+        .wizard-step { display: none; }
+        .wizard-step.active { display: block; animation: fadeIn 0.3s ease; }
+        .wizard-tracker { display: flex; gap: 10px; margin-bottom: 25px; }
+        .wiz-dot { height: 8px; flex: 1; background: var(--vz-gray-bg); border-radius: 4px; transition: 0.3s; }
+        .wiz-dot.active { background: var(--vz-red); }
+        .wiz-dot.done { background: var(--success); }
 
         /* General Charts */
         .chart-container { height: 160px; display: flex; align-items: flex-end; gap: 8px; border-bottom: 2px solid var(--vz-border); padding-bottom: 5px; margin-top: 15px;}
@@ -149,21 +126,21 @@
         <ul class="nav-menu">
             <li class="active" onclick="switchView('overview', this)"><i class="fa-solid fa-gauge" style="width:20px;"></i> Overview</li>
             <li onclick="switchView('workloads', this)"><i class="fa-solid fa-layer-group" style="width:20px;"></i> Workloads</li>
-            <li onclick="switchView('templates', this)"><i class="fa-solid fa-book-open" style="width:20px;"></i> Template Catalog</li>
+            <li onclick="switchView('templates', this)"><i class="fa-solid fa-object-group" style="width:20px;"></i> Template Builder</li>
             <li onclick="switchView('services', this)"><i class="fa-solid fa-server" style="width:20px;"></i> Services</li>
             <li onclick="switchView('infrastructure', this)"><i class="fa-solid fa-network-wired" style="width:20px;"></i> Infrastructure</li>
             <li onclick="switchView('observability', this)"><i class="fa-solid fa-chart-line" style="width:20px;"></i> Observability</li>
             <li onclick="switchView('finops', this)"><i class="fa-solid fa-file-invoice-dollar" style="width:20px;"></i> FinOps & Billing</li>
-            <li onclick="switchView('users', this)"><i class="fa-solid fa-users-gear" style="width:20px;"></i> User Management</li>
+            <li onclick="switchView('users', this)"><i class="fa-solid fa-users-gear" style="width:20px;"></i> Identity & IAM</li>
         </ul>
-        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Operating System v8.3</div>
+        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Infrastructure v9.0</div>
     </nav>
 
     <div class="main-wrapper">
         <header class="topbar">
             <div>
                 <span class="tier-label">Hierarchical Context</span>
-                <button class="scope-button" onclick="openScopePicker()">
+                <button class="scope-button" onclick="alert('Scope Picker integrated in full build. Active: Global Hub.')">
                     <i class="fa-solid fa-sitemap" style="color:var(--text-muted);"></i>
                     <span id="main-scope-readout">Global Infrastructure Hub</span>
                     <i class="fa-solid fa-caret-down" style="margin-left: 5px; color:var(--text-muted); font-size:0.8rem;"></i>
@@ -180,784 +157,324 @@
             <div id="view-overview" class="view-section active">
                 <div class="page-header">
                     <div><h1><span id="ov-title-name">Global Hub</span> Overview</h1><p>Aggregated telemetry and business metrics for the selected scope.</p></div>
-                    <button class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export Report</button>
                 </div>
                 <div class="grid-4" style="margin-bottom: 24px;">
-                    <div class="card metric-card"><div class="header-row"><span>Monthly Spend</span><i class="fa-solid fa-dollar-sign"></i></div><div class="val" id="ov-spend">$0</div></div>
-                    <div class="card metric-card"><div class="header-row"><span>Active Workloads</span><i class="fa-solid fa-layer-group"></i></div><div class="val" id="ov-workloads">0</div></div>
-                    <div class="card metric-card"><div class="header-row"><span>Average Margin</span><i class="fa-solid fa-percent"></i></div><div class="val" id="ov-margin">0%</div></div>
-                    <div class="card metric-card"><div class="header-row"><span>End Users</span><i class="fa-solid fa-users"></i></div><div class="val" id="ov-users">0</div></div>
-                </div>
-                <div class="grid-2">
-                    <div class="card">
-                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem;">Compute Core Utilization</h3>
-                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 25px;">
-                            <div id="ov-core-ring" style="width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--vz-red) 250deg, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);">
-                                <div style="width: 100px; height: 100px; border-radius: 50%; background: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.5rem; color: var(--vz-navy);" id="ov-core-pct">70%</div>
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 700; color: var(--vz-navy); font-size: 1.1rem; margin-bottom: 5px;">Highly Optimized</div>
-                                <div style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">Allocated cores are actively generating revenue. Minimal stranded capacity detected in the current scope.</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card" style="display: flex; flex-direction: column;">
-                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem; margin-bottom: 15px;">Active Remediations</h3>
-                        <div id="ov-alerts-container" style="flex:1; overflow-y: auto; padding-right: 5px;">
-                            </div>
-                    </div>
+                    <div class="card metric-card"><div class="header-row"><span>Monthly Spend</span><i class="fa-solid fa-dollar-sign"></i></div><div class="val" id="ov-spend">$48,500</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>Active Workloads</span><i class="fa-solid fa-layer-group"></i></div><div class="val" id="ov-workloads">142</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>Average Margin</span><i class="fa-solid fa-percent"></i></div><div class="val" id="ov-margin">31.4%</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>Healthy Clusters</span><i class="fa-solid fa-server"></i></div><div class="val" id="ov-users">8 / 9</div></div>
                 </div>
             </div>
 
             <div id="view-workloads" class="view-section">
                 <div class="page-header">
                     <div><h1>Workloads</h1><p>Running application services abstracted from infrastructure.</p></div>
-                    <button class="btn btn-primary" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
+                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
                 </div>
-                <div id="workload-list" class="grid-3">
-                    </div>
             </div>
 
             <div id="view-templates" class="view-section">
                 <div class="page-header">
-                    <div><h1>Template Catalogue</h1><p>Hardware-aware blueprints available in the active scope.</p></div>
+                    <div><h1>Template Builder</h1><p>Visually construct reusable complex application blueprints.</p></div>
+                    <button class="btn btn-primary" onclick="alert('Template Saved to Catalog.')"><i class="fa-solid fa-save"></i> Save Template</button>
                 </div>
-                <div id="template-grid" class="grid-3">
+                
+                <div class="card" style="padding: 0; overflow: hidden; border: 2px solid var(--vz-navy);">
+                    <div style="padding: 15px 25px; background: var(--vz-navy); color: white; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin:0; font-size: 1.1rem;"><i class="fa-solid fa-hammer" style="color:var(--vz-red); margin-right:8px;"></i> Interactive Canvas</h3>
+                        <div style="font-weight: bold; font-size: 1.2rem;">Est. Base Cost: <span id="builder-cost" style="color: var(--success);">$0.00</span> /mo</div>
                     </div>
+                    <div class="builder-layout" style="padding: 20px;">
+                        <div class="builder-palette">
+                            <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Infrastructure</h4>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Compute Node (16 vCPU)', 120)"><i class="fa-solid fa-microchip" style="color:var(--vz-navy);"></i> Compute Node ($120)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'NVMe Block (1TB)', 80)"><i class="fa-solid fa-hard-drive" style="color:var(--vz-navy);"></i> NVMe Storage ($80)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Virtual Network Switch', 20)"><i class="fa-solid fa-network-wired" style="color:var(--vz-navy);"></i> Network Switch ($20)</div>
+                            
+                            <h4 style="margin-top:20px; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Services & Gateways</h4>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Envoy API Gateway', 50)"><i class="fa-solid fa-door-open" style="color:var(--vz-navy);"></i> API Gateway ($50)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'DBaaS PostreSQL HA', 150)"><i class="fa-solid fa-database" style="color:var(--vz-navy);"></i> PostgreSQL DBaaS ($150)</div>
+                        </div>
+                        
+                        <div class="builder-canvas" id="builder-canvas" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
+                            <div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;">
+                                <i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here
+                            </div>
+                            </div>
+                    </div>
+                </div>
             </div>
 
             <div id="view-services" class="view-section">
                 <div class="page-header">
-                    <div><h1>Services</h1><p>Published SLA definitions and pricing profiles.</p></div>
+                    <div><h1>Service Catalog</h1><p>Manage packaged services and flavors available for resale.</p></div>
+                    <button class="btn btn-primary" onclick="openModal('addServiceModal')"><i class="fa-solid fa-plus"></i> Publish Custom Service</button>
                 </div>
-                <div class="card" style="padding: 0; overflow: hidden;">
-                    <table id="services-table">
-                        </table>
+                
+                <div class="sub-tabs">
+                    <div class="sub-tab active" onclick="switchGenericTab('srv-cert', this, 'srv')">Certified by Virtuozzo</div>
+                    <div class="sub-tab" onclick="switchGenericTab('srv-cust', this, 'srv')">Custom Services</div>
+                </div>
+
+                <div id="srv-cert" class="srv-tab card" style="padding:0;">
+                    <table>
+                        <tr><th>Service Flavor</th><th>Category</th><th>Wholesale Base Cost</th></tr>
+                        <tr><td><i class="fa-solid fa-database" style="margin-right:8px; color:var(--vz-navy);"></i> PostgreSQL HA</td><td>DBaaS</td><td>$150.00 /mo</td></tr>
+                        <tr><td><i class="fa-solid fa-dharmachakra" style="margin-right:8px; color:var(--info);"></i> Managed Kubernetes</td><td>K8s-aaS</td><td>$300.00 /mo</td></tr>
+                        <tr><td><i class="fa-solid fa-desktop" style="margin-right:8px; color:var(--purple);"></i> Sovereign VDI</td><td>Workspace</td><td>$45.00 /user/mo</td></tr>
+                    </table>
+                </div>
+                <div id="srv-cust" class="srv-tab card" style="display:none; padding:0;">
+                    <div style="padding: 40px; text-align: center; color: var(--text-muted);">No custom services published yet.</div>
                 </div>
             </div>
 
             <div id="view-infrastructure" class="view-section">
                 <div class="page-header">
-                    <div><h1>Global Infrastructure</h1><p>V/OS Physical resource management and cluster topology.</p></div>
+                    <div><h1>Infrastructure Management</h1><p>Manage Physical Regions, Clusters, and Gateways.</p></div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary"><i class="fa-solid fa-globe"></i> Build Region</button>
+                        <button class="btn btn-primary" onclick="openWizard()"><i class="fa-solid fa-server"></i> Add Cluster</button>
+                    </div>
                 </div>
-                <div class="grid-2">
-                    <div class="card">
-                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem; border-bottom: 1px solid var(--vz-border); padding-bottom: 10px;"><i class="fa-solid fa-sitemap" style="color:var(--text-muted);"></i> Scope Distribution</h3>
-                        <div id="infra-stats" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-                            </div>
-                    </div>
-                    <div class="card">
-                        <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem; border-bottom: 1px solid var(--vz-border); padding-bottom: 10px;"><i class="fa-solid fa-network-wired" style="color:var(--text-muted);"></i> Active Gateways</h3>
-                        <table style="margin-top: 10px;">
-                            <tr><th>Type</th><th>Protocol</th><th>Status</th></tr>
-                            <tr><td>Envoy Mesh</td><td>mTLS / gRPC</td><td><span class="badge green">Healthy</span></td></tr>
-                        </table>
-                    </div>
+                
+                <div class="sub-tabs">
+                    <div class="sub-tab active" onclick="switchGenericTab('inf-clus', this, 'inf')">Clusters Overview</div>
+                    <div class="sub-tab" onclick="switchGenericTab('inf-net', this, 'inf')">Gateways & Networking</div>
+                </div>
+
+                <div id="inf-clus" class="inf-tab card" style="padding:0;">
+                    <table>
+                        <tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th></tr>
+                        <tr style="cursor:pointer;" onclick="openModal('clusterDetailModal')"><td><strong>V/IS-EU-01</strong></td><td>Hyperconverged (Compute+Storage)</td><td>32</td><td><span class="badge blue">1280 vCPU / 40TB RAM</span></td><td><span class="badge green">Healthy</span></td></tr>
+                        <tr style="cursor:pointer;" onclick="openModal('clusterDetailModal')"><td><strong>V/IS-US-Edge</strong></td><td>Single Node Edge</td><td>1</td><td><span class="badge blue">64 vCPU / 2TB RAM</span></td><td><span class="badge yellow">Warning</span></td></tr>
+                        <tr style="cursor:pointer;" onclick="openModal('clusterDetailModal')"><td><strong>V/IS-S3-Fabric</strong></td><td>Storage Only (VHS)</td><td>48</td><td><span class="badge blue">12 PB NVMe</span></td><td><span class="badge green">Healthy</span></td></tr>
+                    </table>
+                </div>
+
+                <div id="inf-net" class="inf-tab card" style="display:none; padding:0;">
+                    <table>
+                        <tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th></tr>
+                        <tr><td><strong>Primary Envoy Mesh</strong></td><td>mTLS / gRPC Proxy</td><td>api.eu.vis.cloud</td><td><span class="badge green">Healthy</span></td></tr>
+                        <tr><td><strong>S3 Endpoint</strong></td><td>HTTPS Object</td><td>s3.eu.vis.cloud</td><td><span class="badge green">Healthy</span></td></tr>
+                    </table>
                 </div>
             </div>
 
             <div id="view-observability" class="view-section">
                 <div class="page-header">
-                    <div><h1>Observability & Telemetry</h1><p>Aggregated performance metrics across selected scope.</p></div>
+                    <div><h1>Observability & Intelligence</h1><p>Granular telemetry and AI-assisted remediations.</p></div>
                 </div>
+                
+                <div class="alert-box" style="background: #F0FDF4; border-color: #BBF7D0; border-left-color: var(--success);">
+                    <div>
+                        <h4 style="margin: 0 0 5px 0; color: #166534;"><i class="fa-solid fa-wand-magic-sparkles"></i> AI Remediation Engine</h4>
+                        <p style="margin: 0; font-size: 0.9rem; color: #15803D;"><strong>V/IS-US-Edge</strong> is experiencing sustained high IOPS. V/IS AI recommends live-migrating 2 Tenant workloads to <strong>V/IS-EU-01</strong> to balance load. Estimated impact: 0 downtime.</p>
+                    </div>
+                    <button class="btn btn-secondary" style="background: white; border-color: #BBF7D0;">Execute Migration</button>
+                </div>
+
                 <div class="grid-2" style="margin-bottom: 24px;">
                     <div class="card">
-                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;"><i class="fa-solid fa-microchip" style="margin-right:5px;"></i> Compute (vCPU)</h3>
-                        <div class="chart-container" id="chart-cpu"></div>
+                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;">Per-Region Compute Load</h3>
+                        <div class="chart-container" id="chart-reg"></div>
                     </div>
                     <div class="card">
-                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;"><i class="fa-solid fa-hard-drive" style="margin-right:5px;"></i> Storage (IOPS)</h3>
-                        <div class="chart-container" id="chart-iops"></div>
+                        <h3 style="margin-top:0; font-size:0.9rem; color:var(--text-muted); text-transform: uppercase;">Per-Cluster Storage Latency</h3>
+                        <div class="chart-container" id="chart-clus"></div>
                     </div>
                 </div>
             </div>
 
             <div id="view-finops" class="view-section">
                 <div class="page-header">
-                    <div><h1>FinOps & Billing</h1><p>Financial governance, quotas, and cost breakdowns.</p></div>
+                    <div><h1>FinOps & Billing</h1><p>TCO estimation, margin planning, and profitability tracking.</p></div>
                 </div>
-                <div class="grid-2">
-                    <div class="card">
-                        <h3 style="margin-top:0; font-size: 1.1rem; color: var(--vz-navy);">Budget Consumption vs Forecast</h3>
-                        <div style="display: flex; justify-content: space-between; font-size: 0.95rem; margin-bottom: 8px; font-weight: 600;"><span id="fin-spend">$0 Spent</span><span id="fin-budget">$0 Ceiling</span></div>
-                        <div class="progress-bg"><div id="fin-bar" class="progress-fill" style="background: var(--success); width: 0%;"></div></div>
-                        <div style="margin-top: 10px; font-size: 0.85rem; color: var(--text-muted); display: flex; justify-content: space-between;">
-                            <span id="fin-forecast" style="font-weight: 600;">Forecast: $0</span>
+                
+                <div class="grid-layout" style="grid-template-columns: 1fr 2fr;">
+                    <div class="card" style="border: 2px solid var(--vz-navy);">
+                        <h3 style="margin-top:0; color: var(--vz-navy);"><i class="fa-solid fa-calculator"></i> TCO & Margin Planner</h3>
+                        <div class="form-group">
+                            <label>Hardware Nodes: <span id="tco-nodes-val">10</span></label>
+                            <input type="range" class="form-control" style="padding:0;" id="tco-nodes" min="1" max="50" value="10" oninput="runTCO()">
+                        </div>
+                        <div class="form-group">
+                            <label>Target Retail Margin: <span id="tco-margin-val">30</span>%</label>
+                            <input type="range" class="form-control" style="padding:0;" id="tco-margin" min="5" max="80" value="30" oninput="runTCO()">
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 25px; border-top: 1px solid var(--vz-border); padding-top: 15px;">
+                            <div><div style="font-size: 0.75rem; color: var(--text-muted);">WHOLESALE RUN-RATE</div><div style="font-size: 1.2rem; font-weight: bold;" id="tco-wholesale">$0</div></div>
+                            <div style="text-align: right;"><div style="font-size: 0.75rem; color: var(--text-muted);">PROJECTED REVENUE</div><div style="font-size: 1.2rem; font-weight: bold; color: var(--success);" id="tco-retail">$0</div></div>
                         </div>
                     </div>
+
                     <div class="card" style="padding: 0; overflow: hidden;">
                         <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;">
-                            <h3 style="margin:0; color: var(--vz-navy); font-size: 1.1rem;"><i class="fa-solid fa-trophy" style="color:var(--warning);"></i> Top Spending Tenants</h3>
+                            <h3 style="margin:0; color: var(--vz-navy); font-size: 1.1rem;">Tenant Profitability Matrix</h3>
                         </div>
-                        <table id="fin-spenders">
-                            </table>
+                        <table>
+                            <tr><th>Tenant / Scope</th><th>Wholesale Cost</th><th>Retail Revenue</th><th>Effective Margin</th><th>Status</th></tr>
+                            <tr><td><strong>AutoMakers GmbH</strong></td><td>$6,500</td><td>$8,500</td><td><span class="badge green">23.5%</span></td><td><i class="fa-solid fa-check" style="color:var(--success);"></i> Profitable</td></tr>
+                            <tr style="background: #FEF2F2;"><td><strong>Wall St Data (T4)</strong></td><td>$15,000</td><td>$16,500</td><td><span class="badge red">9.0%</span></td><td><i class="fa-solid fa-triangle-exclamation" style="color:var(--danger);"></i> Low Margin / Overspend</td></tr>
+                            <tr><td><strong>Fashion SaaS</strong></td><td>$500</td><td>$900</td><td><span class="badge green">44.4%</span></td><td><i class="fa-solid fa-check" style="color:var(--success);"></i> Highly Profitable</td></tr>
+                        </table>
                     </div>
                 </div>
             </div>
 
             <div id="view-users" class="view-section">
-                <div class="page-header">
-                    <div><h1>Identity & Access Management</h1><p>Manage users, RBAC roles, and permissions across the active scope.</p></div>
-                    <button class="btn btn-primary" onclick="openAddUserModal()"><i class="fa-solid fa-user-plus"></i> Invite User</button>
-                </div>
-                
-                <div class="sub-tabs">
-                    <div class="sub-tab active" onclick="switchUserTab('tab-users', this)">Users</div>
-                    <div class="sub-tab" onclick="switchUserTab('tab-roles', this)">Roles & Permissions</div>
-                </div>
-
-                <div id="tab-users" class="card" style="padding: 0; overflow: hidden;">
-                    <table id="user-table">
-                        </table>
-                </div>
-
-                <div id="tab-roles" class="card" style="padding: 0; overflow: hidden; display: none;">
-                    <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC; display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin:0; color: var(--vz-navy); font-size: 1rem;">Configured Roles</h3>
-                        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="openAddRoleModal()"><i class="fa-solid fa-shield-plus"></i> Create Custom Role</button>
-                    </div>
-                    <table id="roles-table">
-                        </table>
-                </div>
+                <div class="page-header"><div><h1>Identity & IAM</h1><p>Manage users and roles.</p></div></div>
+                <div class="card"><p>User management interface initialized.</p></div>
             </div>
 
         </main>
     </div>
 
-    <div class="modal-overlay" id="scopeModal">
-        <div class="sp-modal">
-            <div class="sp-header">
-                <h2>Select Scope</h2>
-                <i class="fa-solid fa-xmark sp-close" onclick="closeModal('scopeModal')"></i>
-            </div>
-            <div class="sp-tabs">
-                <div class="sp-tab active" onclick="setPickerTab('all')" id="tab-btn-all">All</div>
-                <div class="sp-tab" onclick="setPickerTab('fav')" id="tab-btn-fav">Favorites</div>
-                <div class="sp-tab" onclick="setPickerTab('search')" id="tab-btn-search">Global search</div>
-            </div>
-            <div class="sp-toolbar">
-                <div class="sp-breadcrumbs" id="sp-breadcrumbs"></div>
-                <div class="sp-search-wrap">
-                    <i class="fa-solid fa-search"></i>
-                    <input type="text" class="sp-search" id="sp-search-input" placeholder="Search..." oninput="handleSearch()">
-                </div>
-                <div class="sp-chips" id="sp-chips" style="display: none;"></div>
-            </div>
-            <div class="sp-table-header" id="sp-table-header"></div>
-            <div class="sp-body" id="sp-list"></div>
-            <div class="sp-footer">
-                <div class="sp-selection-info" id="sp-selection-info"></div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-secondary" onclick="closeModal('scopeModal')">Cancel</button>
-                    <button class="btn btn-primary" id="sp-btn-select" onclick="confirmScopeSelection()" disabled>Select</button>
-                </div>
-            </div>
+    <div class="modal-overlay" id="addServiceModal">
+        <div class="modal">
+            <div class="modal-header"><h2>Publish Custom Service</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addServiceModal')"></i></div>
+            <div class="form-group"><label>Service Flavor Category</label><select class="form-control"><option>Database-as-a-Service (DBaaS)</option><option>Infrastructure-as-a-Service (IaaS)</option><option>Kubernetes-as-a-Service (K8s)</option><option>Desktop-as-a-Service (VDI)</option></select></div>
+            <div class="form-group"><label>Custom Service Name</label><input type="text" class="form-control" placeholder="e.g. Acme Secure DB"></div>
+            <div class="form-group"><label>Base Wholesale Cost ($/mo)</label><input type="number" class="form-control" value="100"></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('addServiceModal')">Publish Service</button>
         </div>
     </div>
 
-    <div class="modal-overlay" id="deployModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Deploy New Workload</h2>
-                <i class="fa-solid fa-xmark" style="cursor:pointer; color:var(--text-muted);" onclick="closeModal('deployModal')"></i>
-            </div>
-            <div class="form-group">
-                <label>Target Tenant Scope</label>
-                <select class="form-control" id="deploy-target-tenant"></select>
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="deploy-scope-warn"></div>
-            </div>
-            <div class="form-group">
-                <label>Select Workload Blueprint</label>
-                <select class="form-control" id="deploy-template" onchange="updateDeployConfig()"></select>
-            </div>
+    <div class="modal-overlay" id="wizardModal">
+        <div class="modal large">
+            <div class="modal-header"><h2>Add Infrastructure Cluster</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('wizardModal')"></i></div>
             
-            <div id="vps-config" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 8px; border: 1px solid var(--vz-border); margin-bottom: 20px;">
-                <h3 style="margin-top:0; font-size: 1rem; color: var(--vz-navy);">Virtual Private Server Configuration</h3>
-                
-                <div class="form-group">
-                    <label>Operating System</label>
-                    <select class="form-control" id="vps-os">
-                        <option value="ubuntu">Ubuntu 24.04 LTS</option>
-                        <option value="alma">AlmaLinux 9</option>
-                        <option value="debian">Debian 12</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>vCPU Cores</label>
-                    <div class="slider-wrap">
-                        <input type="range" id="vps-cpu" min="1" max="16" value="2" oninput="calcVPSCost()">
-                        <div class="slider-val"><span id="val-cpu">2</span> Cores</div>
+            <div class="wizard-tracker">
+                <div class="wiz-dot active" id="dot-1"></div>
+                <div class="wiz-dot" id="dot-2"></div>
+                <div class="wiz-dot" id="dot-3"></div>
+            </div>
+
+            <div class="wizard-step active" id="step-1">
+                <h3>Step 1: Choose Deployment Method</h3>
+                <div style="display:flex; gap:20px; margin-top:20px;">
+                    <div class="card" style="flex:1; cursor:pointer; border:2px solid var(--vz-navy);" onclick="document.getElementById('method-sel').innerText='Selected: Bare Metal';">
+                        <h4 style="margin-top:0;"><i class="fa-solid fa-server"></i> Bare Metal Provisioning</h4>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Deploy V/IS directly to bare metal via PXE Boot ISO or RedFish API integration.</p>
+                    </div>
+                    <div class="card" style="flex:1; cursor:pointer; border:2px solid transparent;" onclick="document.getElementById('method-sel').innerText='Selected: API Attachment'; this.style.borderColor='var(--vz-navy)'; this.previousElementSibling.style.borderColor='transparent';">
+                        <h4 style="margin-top:0;"><i class="fa-solid fa-link"></i> Attach Existing Cluster</h4>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Attach an existing Virtuozzo Hybrid Infrastructure (VHI) or VHS storage node via API Token.</p>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label>RAM (GB)</label>
-                    <div class="slider-wrap">
-                        <input type="range" id="vps-ram" min="1" max="64" value="4" oninput="calcVPSCost()">
-                        <div class="slider-val"><span id="val-ram">4</span> GB</div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>NVMe Storage (GB)</label>
-                    <div class="slider-wrap">
-                        <input type="range" id="vps-disk" min="20" max="500" step="10" value="50" oninput="calcVPSCost()">
-                        <div class="slider-val"><span id="val-disk">50</span> GB</div>
-                    </div>
+                <div id="method-sel" style="font-weight:bold; margin-bottom: 20px; color:var(--vz-navy);">Selected: Bare Metal</div>
+                <div style="text-align:right;"><button class="btn btn-primary" onclick="goToStep(2)">Next Step <i class="fa-solid fa-arrow-right"></i></button></div>
+            </div>
+
+            <div class="wizard-step" id="step-2">
+                <h3>Step 2: Configuration Parameters</h3>
+                <div class="form-group"><label>Target Region</label><select class="form-control"><option>EU (Frankfurt)</option><option>US (Virginia)</option></select></div>
+                <div class="form-group"><label>Hardware Endpoints (IP Range or RedFish URLs)</label><textarea class="form-control" rows="3" placeholder="192.168.100.10-50"></textarea></div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                    <button class="btn btn-primary" onclick="goToStep(3)">Validate & Deploy <i class="fa-solid fa-check"></i></button>
                 </div>
             </div>
 
-            <div id="deploy-info" style="display: none; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">ESTIMATED PERFORMANCE</div><div id="deploy-bench" style="font-weight: 800; font-size: 1.1rem;">--</div></div>
-                    <div style="text-align: right;"><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">MONTHLY RUN-RATE</div><div id="deploy-cost" style="font-weight: 800; font-size: 1.2rem; color: var(--success);">--</div></div>
-                </div>
-                <button class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 12px;" onclick="executeDeploy()" id="btn-execute-deploy">Confirm & Provision</button>
+            <div class="wizard-step" id="step-3" style="text-align:center; padding: 40px 0;">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--vz-red); margin-bottom: 20px;"></i>
+                <h3>Provisioning Cluster...</h3>
+                <p style="color:var(--text-muted);">Executing pre-flight checks and initiating deployment jobs.</p>
+                <button class="btn btn-secondary" style="margin-top:20px;" onclick="closeModal('wizardModal')">Close Wizard (Run in Background)</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="addUserModal">
+    <div class="modal-overlay" id="clusterDetailModal">
         <div class="modal">
-            <div class="modal-header">
-                <h2>Invite New User</h2>
-                <i class="fa-solid fa-xmark" style="cursor:pointer; color:var(--text-muted);" onclick="closeModal('addUserModal')"></i>
+            <div class="modal-header"><h2>Cluster Details: V/IS-EU-01</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('clusterDetailModal')"></i></div>
+            <div class="grid-2">
+                <div><label style="font-size:0.8rem; color:var(--text-muted);">Total Nodes</label><div style="font-size:1.2rem; font-weight:bold;">32 Physical Servers</div></div>
+                <div><label style="font-size:0.8rem; color:var(--text-muted);">Architecture</label><div style="font-size:1.2rem; font-weight:bold;">Hyperconverged</div></div>
+                <div><label style="font-size:0.8rem; color:var(--text-muted);">Total vCPU Cap</label><div style="font-size:1.2rem; font-weight:bold;">1280 Cores</div></div>
+                <div><label style="font-size:0.8rem; color:var(--text-muted);">Storage Cap</label><div style="font-size:1.2rem; font-weight:bold;">1.2 PB NVMe</div></div>
             </div>
-            <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="new-user-name" placeholder="e.g. Jane Doe"></div>
-            <div class="form-group"><label>Email Address</label><input type="email" class="form-control" id="new-user-email" placeholder="jane@example.com"></div>
-            <div class="form-group"><label>Assign Role</label><select class="form-control" id="new-user-role"></select></div>
-            <div class="form-group">
-                <label>Scope Assignment</label>
-                <input type="text" class="form-control" id="new-user-scope" disabled style="background: var(--vz-gray-bg); font-weight: bold;">
-                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">User will be restricted to the currently active scope.</div>
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="confirmAddUser()">Send Invitation</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="addRoleModal">
-        <div class="modal">
-            <div class="modal-header">
-                <h2>Create Custom Role</h2>
-                <i class="fa-solid fa-xmark" style="cursor:pointer; color:var(--text-muted);" onclick="closeModal('addRoleModal')"></i>
-            </div>
-            <div class="form-group"><label>Role Name</label><input type="text" class="form-control" id="new-role-name" placeholder="e.g. Billing Analyst"></div>
-            <div class="form-group">
-                <label>Permissions (RBAC)</label>
-                <div style="display: flex; flex-direction: column; gap: 10px; background: #F8FAFC; padding: 15px; border-radius: 6px; border: 1px solid var(--vz-border);">
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox" checked> View Telemetry & Dashboard</label>
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage Workloads (Deploy/Destroy)</label>
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage Infrastructure & Clusters</label>
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> View Billing & FinOps Data</label>
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage Users & IAM</label>
-                </div>
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="confirmAddRole()">Save Role</button>
         </div>
     </div>
 
     <script>
         const formatCurrency = (num) => '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
 
-        // --- 1. MOCK DATA ENGINE ---
-        const DB = {
-            regions: {
-                eu: { name: "EU (Frankfurt)", hasGPU: false },
-                us: { name: "US (Virginia)", hasGPU: true },
-                apj: { name: "APJ (Singapore)", hasGPU: true }
-            },
-            templates: [
-                { id: 'vps', name: 'Linux VPS', cost: 0, reqGPU: false, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)' },
-                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 850, reqGPU: false, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)' },
-                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 1200, reqGPU: false, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--info)' },
-                { id: 'ai', name: 'AI Reasoning Agent', cost: 2500, reqGPU: true, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)' },
-                { id: 'k8s', name: 'Managed Kubernetes', cost: 1500, reqGPU: false, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)' }
-            ],
-            roles: [
-                { id: 'r1', name: 'Platform Administrator', perms: 'Full Access (All Modules)' },
-                { id: 'r2', name: 'Tenant Owner', perms: 'Workloads, Billing, Users' },
-                { id: 'r3', name: 'Developer', perms: 'Workloads, Observability' },
-                { id: 'r4', name: 'FinOps Viewer', perms: 'Billing (Read-Only)' }
-            ],
-            users: [
-                { id: 'u1', name: 'Sergey G.', email: 'sergey@virtuozzo.com', role: 'Platform Administrator', scopeId: null, status: 'Active' },
-                { id: 'u2', name: 'Alice Smith', email: 'alice@automakers.de', role: 'Tenant Owner', scopeId: 't1', status: 'Active' },
-                { id: 'u3', name: 'Dev Team Alpha', email: 'dev@wallst.com', role: 'Developer', scopeId: 't4', status: 'Active' }
-            ],
-            hierarchy: {
-                eu: { t2: {
-                    eurocloud: { name: "EuroCloud Disti", t3: {
-                        berlinIT: { name: "Berlin IT MSP", tenants: [
-                            { id: 't1', name: 'AutoMakers GmbH', spend: 8500, budget: 10000, margin: 28, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [{id:'a1', msg: 'Approaching Storage Quota', type: 'warning'}] },
-                            { id: 't2', name: 'MedTech EU', spend: 2400, budget: 3000, margin: 32, users: 120, workloads: [{name: 'VDI Pool A', type: 'vdi'}], alerts: [] }
-                        ]},
-                        parisTech: { name: "Paris Tech Cloud", tenants: [
-                            { id: 't3', name: 'Fashion SaaS', spend: 900, budget: 1500, margin: 40, users: 50, workloads: [], alerts: [] }
-                        ]}
-                    }}
-                }},
-                us: { t2: {
-                    amerihost: { name: "AmeriHost Wholesale", t3: {
-                        nySolutions: { name: "NY Solutions", tenants: [
-                            { id: 't4', name: 'Wall St Data', spend: 16500, budget: 15000, margin: 18, users: 1200, workloads: [{name: 'AI Analyst', type: 'ai'}], alerts: [{id:'a2', msg: 'Token Burn Budget Exceeded', type: 'danger'}] },
-                            { id: 't5', name: 'Healthcare Corp', spend: 4200, budget: 8000, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}], alerts: [] }
-                        ]}
-                    }}
-                }},
-                apj: { t2: {
-                    asiacloud: { name: "AsiaCloud Aggregator", t3: {
-                        tokyoIT: { name: "Tokyo IT Partners", tenants: [
-                            { id: 't7', name: 'GamingCo Japan', spend: 7500, budget: 10000, margin: 35, users: 2500, workloads: [{name: 'Game Servers', type: 'k8s'}], alerts: [] }
-                        ]}
-                    }}
-                }}
-            }
-        };
-
-        // --- 2. FLAT HIERARCHY BUILDER ---
-        let HIERARCHY = [];
-        
-        function buildFlatHierarchy() {
-            HIERARCHY = [];
-            for (let rKey in DB.regions) {
-                let r = DB.regions[rKey];
-                HIERARCHY.push({ id: rKey, name: r.name, type: 'Region', parent: null, icon: 'fa-globe' });
-                
-                if (DB.hierarchy[rKey] && DB.hierarchy[rKey].t2) {
-                    for (let t2Key in DB.hierarchy[rKey].t2) {
-                        let t2 = DB.hierarchy[rKey].t2[t2Key];
-                        let t2Id = `${rKey}-${t2Key}`;
-                        HIERARCHY.push({ id: t2Id, name: t2.name, type: 'Distributor', parent: rKey, icon: 'fa-building' });
-                        
-                        for (let t3Key in t2.t3) {
-                            let t3 = t2.t3[t3Key];
-                            let t3Id = `${t2Id}-${t3Key}`;
-                            HIERARCHY.push({ id: t3Id, name: t3.name, type: 'MSP', parent: t2Id, icon: 'fa-server' });
-                            
-                            for (let t4 of t3.tenants) {
-                                HIERARCHY.push({ id: t4.id, name: t4.name, type: 'Tenant', parent: t3Id, icon: 'fa-users', data: t4 });
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        const getById = (id) => HIERARCHY.find(n => n.id === id) || null;
-        const getChildren = (parentId) => HIERARCHY.filter(n => n.parent === parentId);
-        function getPath(id) {
-            let path = [];
-            let current = getById(id);
-            while (current) { path.unshift(current); current = getById(current.parent); }
-            return path;
-        }
-        function isDescendant(childId, ancestorId) {
-            if (ancestorId === null) return true;
-            if (childId === ancestorId) return true;
-            let current = getById(childId);
-            while (current) {
-                if (current.parent === ancestorId) return true;
-                current = getById(current.parent);
-            }
-            return false;
-        }
-        function getChildType(parentType) { return { 'Region': 'Distributor', 'Distributor': 'MSP', 'MSP': 'Tenant', 'Tenant': null }[parentType] || 'Region'; }
-        function pluralize(type) { return type === 'MSP' ? 'MSPs' : type + 's'; }
-
-        // --- 3. SCOPE PICKER MODAL ---
-        let activeTab = 'all';
-        let drillStack = [null];
-        let selectedId = null;
-        let currentScopeId = null; 
-        let typeFilter = 'All';
-        let FAVORITES = new Set(['eu', 't1', 't4']);
-
-        function openScopePicker() {
-            document.getElementById('scopeModal').style.display = 'flex';
-            if (currentScopeId) {
-                const path = getPath(currentScopeId);
-                drillStack = [null];
-                for (let i = 0; i < path.length - 1; i++) drillStack.push(path[i].id);
-                selectedId = currentScopeId;
-            } else {
-                drillStack = [null]; selectedId = null;
-            }
-            setPickerTab('all');
-            setTimeout(() => document.getElementById('sp-search-input').focus(), 100);
-        }
-
-        function setPickerTab(tab) {
-            activeTab = tab; typeFilter = 'All';
-            document.getElementById('sp-search-input').value = '';
-            document.querySelectorAll('.sp-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-btn-${tab}`).classList.add('active');
-            renderPickerUI();
-        }
-
-        function handleSearch() {
-            if (activeTab === 'all' && document.getElementById('sp-search-input').value.trim() !== '') setPickerTab('search');
-            else renderPickerUI();
-        }
-
-        function drillIn(id, event) {
-            if(event) event.stopPropagation();
-            drillStack.push(id); selectedId = null;
-            renderPickerUI(); document.getElementById('sp-search-input').value = '';
-        }
-
-        function drillTo(index) { drillStack = drillStack.slice(0, index + 1); selectedId = null; renderPickerUI(); }
-        function selectRow(id) { selectedId = id; renderPickerUI(); }
-        function toggleFav(id, event) {
-            if(event) event.stopPropagation();
-            if (FAVORITES.has(id)) FAVORITES.delete(id); else FAVORITES.add(id);
-            renderPickerUI();
-        }
-
-        function getEffectiveSelectionId() {
-            if (selectedId) return selectedId;
-            if (activeTab === 'all' && drillStack.length > 1) return drillStack[drillStack.length - 1];
-            return null;
-        }
-
-        function confirmScopeSelection() {
-            currentScopeId = getEffectiveSelectionId();
-            closeModal('scopeModal');
-            renderApp(); 
-        }
-
-        function renderPickerUI() {
-            const listEl = document.getElementById('sp-list');
-            const headerEl = document.getElementById('sp-table-header');
-            const breadcrumbsEl = document.getElementById('sp-breadcrumbs');
-            const chipsEl = document.getElementById('sp-chips');
-            const searchInput = document.getElementById('sp-search-input');
-            const query = searchInput.value.toLowerCase().trim();
-            const effId = getEffectiveSelectionId();
-
-            const btnSelect = document.getElementById('sp-btn-select');
-            const info = document.getElementById('sp-selection-info');
-            btnSelect.disabled = !effId;
-            if (selectedId) info.innerHTML = `Selected: <strong>${getById(selectedId).name}</strong>`;
-            else if (effId) info.innerHTML = `Current Level: <strong>${getById(effId).name}</strong>`;
-            else { info.innerHTML = 'Global Hub (Root)'; btnSelect.disabled = false; }
-
-            listEl.innerHTML = '';
-
-            if (activeTab === 'all') {
-                chipsEl.style.display = 'none';
-                headerEl.className = 'sp-table-header sp-grid-all';
-                let parentId = drillStack[drillStack.length - 1];
-                let children = getChildren(parentId);
-                
-                if (parentId === null) {
-                    breadcrumbsEl.innerHTML = `<span style="font-style:italic; color:var(--text-muted); font-weight:normal;">Click a name to drill in · click a row to select</span>`;
-                    searchInput.placeholder = "Type to search globally...";
-                    headerEl.innerHTML = `<div></div><div>REGION</div><div style="text-align:right;">DISTRIBUTORS</div><div></div><div></div>`;
-                } else {
-                    let path = getPath(parentId);
-                    let bcHTML = `<span class="sp-breadcrumb-link" onclick="drillTo(0)">Global Hub</span>`;
-                    path.forEach((n, i) => {
-                        bcHTML += ` <i class="fa-solid fa-chevron-right" style="font-size:0.7rem; margin:0 5px; color:#9CA3AF;"></i> `;
-                        if (i === path.length - 1) bcHTML += `<span>${n.name}</span>`;
-                        else bcHTML += `<span class="sp-breadcrumb-link" onclick="drillTo(${i+1})">${n.name}</span>`;
-                    });
-                    breadcrumbsEl.innerHTML = bcHTML;
-                    let cType = getChildType(getById(parentId).type);
-                    searchInput.placeholder = `Search ${pluralize(cType || '').toLowerCase()} here...`;
-                    headerEl.innerHTML = `<div></div><div>${cType ? cType.toUpperCase() : ''}</div><div style="text-align:right;">${cType ? pluralize(cType).toUpperCase() : ''}</div><div></div><div></div>`;
-                }
-
-                children.forEach(n => {
-                    let isFav = FAVORITES.has(n.id);
-                    let cc = getChildren(n.id).length;
-                    let canDrill = cc > 0 || n.type !== 'Tenant';
-                    let nameHtml = canDrill ? `<span class="name-link" onclick="drillIn('${n.id}', event)">${n.name}</span>` : n.name;
-                    let rowClass = n.id === selectedId ? 'sp-row selected sp-grid-all' : 'sp-row sp-grid-all';
-                    listEl.innerHTML += `<div class="${rowClass}" onclick="selectRow('${n.id}')"><div class="sp-cell-icon"><i class="fa-solid ${n.icon}"></i></div><div class="sp-cell-name">${nameHtml}</div><div class="sp-cell-count">${canDrill ? cc : '—'}</div><div></div><div class="sp-star ${isFav?'active':''}" onclick="toggleFav('${n.id}', event)"><i class="fa-solid fa-star"></i></div></div>`;
-                });
-                if(children.length === 0) listEl.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No items at this level.</div>`;
-
-            } else {
-                breadcrumbsEl.innerHTML = activeTab === 'fav' ? 'Your Favorites' : 'Global Search';
-                searchInput.placeholder = activeTab === 'fav' ? "Filter favorites..." : "Search across entire hierarchy...";
-                headerEl.className = 'sp-table-header sp-grid-flat';
-                headerEl.innerHTML = `<div></div><div>NAME</div><div>TYPE</div><div>PATH</div><div></div>`;
-                chipsEl.style.display = 'flex';
-
-                let rawItems = activeTab === 'fav' ? HIERARCHY.filter(n => FAVORITES.has(n.id)) : HIERARCHY;
-                if (activeTab === 'search' && query === '') rawItems = [];
-                let matchedItems = rawItems.filter(n => n.name.toLowerCase().includes(query));
-                
-                let counts = { 'All': matchedItems.length, 'Region':0, 'Distributor':0, 'MSP':0, 'Tenant':0 };
-                matchedItems.forEach(n => counts[n.type]++);
-                chipsEl.innerHTML = '';
-                if(counts['All'] > 0 || activeTab === 'fav') {
-                    ['All', 'Region', 'Distributor', 'MSP', 'Tenant'].forEach(t => {
-                        if (counts[t] > 0 || t === 'All') {
-                            let act = typeFilter === t ? 'active' : '';
-                            chipsEl.innerHTML += `<div class="sp-chip ${act}" onclick="typeFilter='${t}'; renderPickerUI()">${t} ${counts[t]}</div>`;
-                        }
-                    });
-                }
-
-                let finalItems = typeFilter === 'All' ? matchedItems : matchedItems.filter(n => n.type === typeFilter);
-
-                if (activeTab === 'search' && query === '') {
-                    listEl.innerHTML = `<div style="padding:60px; text-align:center; color:var(--text-muted);"><i class="fa-solid fa-search" style="font-size:3rem; margin-bottom:15px; opacity:0.3;"></i><br>Type to search across the entire hierarchy</div>`;
-                    headerEl.innerHTML = ''; chipsEl.style.display = 'none';
-                } else if (finalItems.length === 0) {
-                    listEl.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No matches found.</div>`;
-                } else {
-                    finalItems.forEach(n => {
-                        let pPath = n.parent ? getPath(n.parent).map(x=>x.name).join(' › ') : 'Global Hub';
-                        let display = n.name;
-                        if(query) { 
-                            let idx = display.toLowerCase().indexOf(query);
-                            if(idx > -1) display = display.slice(0,idx) + `<span class="search-match">${display.slice(idx, idx+query.length)}</span>` + display.slice(idx+query.length);
-                        }
-                        listEl.innerHTML += `<div class="${n.id === selectedId ? 'sp-row selected sp-grid-flat' : 'sp-row sp-grid-flat'}" onclick="selectRow('${n.id}')"><div class="sp-cell-icon"><i class="fa-solid ${n.icon}"></i></div><div class="sp-cell-name">${display}</div><div class="sp-cell-type">${n.type}</div><div class="sp-cell-path">${pPath}</div><div class="sp-star ${FAVORITES.has(n.id)?'active':''}" onclick="toggleFav('${n.id}', event)"><i class="fa-solid fa-star"></i></div></div>`;
-                    });
-                }
-            }
-        }
-
-        // --- 4. RENDER MAIN DASHBOARD ---
-        function renderApp() {
-            const readout = document.getElementById('main-scope-readout');
-            const titleName = document.getElementById('ov-title-name');
-            if (!currentScopeId) { readout.innerText = "Global Hub"; titleName.innerText = "Global"; } 
-            else { let node = getById(currentScopeId); readout.innerText = node.name; titleName.innerText = node.name; }
-
-            let data = { spend: 0, budget: 0, margin: 0, users: 0, workloads: [], alerts: [], t2Count: 0, t3Count: 0, tenantCount: 0 };
-            let totalMargin = 0, marginWeights = 0;
-            
-            HIERARCHY.filter(n => n.type === 'Distributor' && isDescendant(n.id, currentScopeId)).forEach(() => data.t2Count++);
-            HIERARCHY.filter(n => n.type === 'MSP' && isDescendant(n.id, currentScopeId)).forEach(() => data.t3Count++);
-            
-            HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId)).forEach(n => {
-                let t = n.data;
-                data.spend += t.spend; data.budget += t.budget; data.users += t.users;
-                data.workloads = data.workloads.concat(t.workloads.map(w => ({...w, tenantName: t.name})));
-                data.alerts = data.alerts.concat(t.alerts.map(a => ({...a, tenantName: t.name, tId: t.id})));
-                totalMargin += (t.margin * t.spend); marginWeights += t.spend; data.tenantCount++;
-            });
-            data.margin = marginWeights > 0 ? (totalMargin / marginWeights).toFixed(1) : 0;
-
-            // Overview
-            document.getElementById('ov-spend').innerText = formatCurrency(data.spend);
-            document.getElementById('ov-workloads').innerText = data.workloads.length;
-            document.getElementById('ov-margin').innerText = data.margin + '%';
-            document.getElementById('ov-users').innerText = data.users.toLocaleString();
-            
-            let corePct = Math.min(98, Math.max(30, Math.floor((data.spend / 200) + 20)));
-            document.getElementById('ov-core-pct').innerText = corePct + '%';
-            document.getElementById('ov-core-ring').style.background = `conic-gradient(${corePct > 85 ? 'var(--vz-red)' : 'var(--success)'} ${corePct * 3.6}deg, var(--vz-gray-bg) 0)`;
-
-            const alertCont = document.getElementById('ov-alerts-container');
-            if(data.alerts.length > 0) {
-                alertCont.innerHTML = ``;
-                data.alerts.forEach(a => alertCont.innerHTML += `<div style="font-size:0.9rem; padding: 12px; background: ${a.type === 'danger' ? '#FEF2F2' : '#FFFBEB'}; border-left: 4px solid ${a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)'}; margin-bottom:10px; border-radius:4px;"><strong>${a.tenantName}:</strong> ${a.msg}</div>`);
-            } else alertCont.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);"><i class="fa-solid fa-check-circle" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>System Healthy</div>`;
-
-            // Workloads
-            const wlContainer = document.getElementById('workload-list');
-            wlContainer.innerHTML = '';
-            data.workloads.forEach(w => {
-                let tplInfo = DB.templates.find(t=>t.id===w.type) || {color:'var(--vz-navy)', icon:'fa-server'};
-                wlContainer.innerHTML += `<div class="card" style="border-top: 4px solid ${tplInfo.color};"><h3 style="margin-top:0; color:var(--vz-navy); font-size:1.2rem;"><i class="fa-solid ${tplInfo.icon}" style="margin-right:8px;"></i>${w.name}</h3><div style="font-size:0.85rem; color:var(--text-muted);">Tenant: <strong>${w.tenantName}</strong></div></div>`;
-            });
-
-            // Templates
-            const regData = DB.regions[currentScopeId ? getPath(currentScopeId)[0].id : 'eu'] || DB.regions.eu;
-            const tplContainer = document.getElementById('template-grid');
-            const srvTable = document.getElementById('services-table');
-            tplContainer.innerHTML = ''; srvTable.innerHTML = `<tr><th>Service Name</th><th>Base Cost</th><th>SLA Guarantee</th></tr>`;
-            
-            DB.templates.filter(t => !t.reqGPU || regData.hasGPU).forEach(t => {
-                let costStr = t.cost > 0 ? `${formatCurrency(t.cost)}/mo` : 'Variable / Metered';
-                tplContainer.innerHTML += `<div class="card"><h3 style="margin-top:0;"><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i>${t.name}</h3><p style="font-size:0.85rem; color:var(--text-muted);">${t.bench}</p><div style="font-weight:800; font-size:1.1rem; color:var(--vz-navy); margin-top:10px;">${costStr}</div></div>`;
-                srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td></tr>`;
-            });
-
-            // Infra & Observability & FinOps Updates
-            document.getElementById('infra-stats').innerHTML = `<div style="display:flex; justify-content:space-between; padding-bottom:10px;"><span>Distributors</span><strong style="color:var(--vz-navy);">${data.t2Count}</strong></div><div style="display:flex; justify-content:space-between; padding-bottom:10px;"><span>MSPs</span><strong style="color:var(--vz-navy);">${data.t3Count}</strong></div><div style="display:flex; justify-content:space-between; padding-bottom:10px;"><span>Tenants</span><strong style="color:var(--vz-navy);">${data.tenantCount}</strong></div>`;
-            
-            const genChart = (id, color) => { const el = document.getElementById(id); if(el) { el.innerHTML = ''; for(let i=0; i<15; i++) el.innerHTML += `<div class="chart-bar" style="background: ${color}; height: ${Math.min(100, Math.max(10, 40 + (Math.random()*40-20)))}%;"></div>`; }};
-            genChart('chart-cpu', 'var(--vz-navy)'); genChart('chart-iops', 'var(--vz-red)');
-
-            if (document.getElementById('fin-spend')) document.getElementById('fin-spend').innerText = formatCurrency(data.spend) + ' Spent';
-            if (document.getElementById('fin-budget')) document.getElementById('fin-budget').innerText = formatCurrency(data.budget) + ' Ceiling';
-            if (document.getElementById('fin-bar')) document.getElementById('fin-bar').style.width = Math.min(data.budget > 0 ? (data.spend/data.budget)*100 : 0, 100) + '%';
-            if (document.getElementById('fin-forecast')) document.getElementById('fin-forecast').innerText = `Forecast: ${formatCurrency(data.spend * 1.1)}`;
-
-            const finTable = document.getElementById('fin-spenders');
-            if(finTable) {
-                finTable.innerHTML = `<tr><th>Tenant Name</th><th>Spend</th><th>Margin</th></tr>`;
-                HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId)).sort((a,b) => b.data.spend - a.data.spend).slice(0,4).forEach(n => finTable.innerHTML += `<tr><td><strong>${n.data.name}</strong></td><td>${formatCurrency(n.data.spend)}</td><td><span class="${n.data.margin<20?'badge red':'badge green'}">${n.data.margin}%</span></td></tr>`);
-            }
-
-            renderUserManagement();
-        }
-
-        // --- 5. WORKLOAD DEPLOYMENT (VPS Included) ---
-        function openDeployModal() {
-            const tenantSelect = document.getElementById('deploy-target-tenant');
-            tenantSelect.innerHTML = '';
-            let validTenants = HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId));
-            
-            if (validTenants.length === 0) {
-                alert("No Tenants available in the current scope. Please select an MSP or Tenant to deploy workloads.");
-                return;
-            }
-            
-            validTenants.forEach(t => tenantSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`);
-            document.getElementById('deploy-scope-warn').innerText = validTenants.length > 1 ? "Multiple tenants in scope. Please select the precise target." : "Target locked to active scope.";
-
-            const tplSelect = document.getElementById('deploy-template');
-            tplSelect.innerHTML = '<option value="none">-- Select Architecture Blueprint --</option>';
-            const regData = DB.regions[currentScopeId ? getPath(currentScopeId)[0].id : 'eu'] || DB.regions.eu;
-            DB.templates.filter(t => !t.reqGPU || regData.hasGPU).forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`);
-            
-            document.getElementById('deploy-info').style.display = 'none';
-            document.getElementById('vps-config').style.display = 'none';
-            document.getElementById('deployModal').style.display = 'flex';
-        }
-
-        function updateDeployConfig() {
-            const tplId = document.getElementById('deploy-template').value;
-            const infoBox = document.getElementById('deploy-info');
-            const vpsBox = document.getElementById('vps-config');
-            
-            if (tplId === 'none') { infoBox.style.display = 'none'; vpsBox.style.display = 'none'; return; }
-            
-            if (tplId === 'vps') {
-                vpsBox.style.display = 'block';
-                calcVPSCost();
-            } else {
-                vpsBox.style.display = 'none';
-                const tpl = DB.templates.find(t => t.id === tplId);
-                document.getElementById('deploy-bench').innerText = tpl.bench;
-                document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost);
-            }
-            infoBox.style.display = 'block';
-        }
-
-        function calcVPSCost() {
-            const cpu = parseInt(document.getElementById('vps-cpu').value);
-            const ram = parseInt(document.getElementById('vps-ram').value);
-            const disk = parseInt(document.getElementById('vps-disk').value);
-            
-            document.getElementById('val-cpu').innerText = cpu;
-            document.getElementById('val-ram').innerText = ram;
-            document.getElementById('val-disk').innerText = disk;
-
-            // Simplified Mock Pricing Model
-            const monthlyCost = 5 + (cpu * 2.50) + (ram * 1.50) + (disk * 0.08);
-            
-            document.getElementById('deploy-bench').innerText = `Linux (${cpu} vCPU, ${ram}GB RAM)`;
-            document.getElementById('deploy-cost').innerText = formatCurrency(monthlyCost);
-        }
-
-        function executeDeploy() {
-            const btn = document.getElementById('btn-execute-deploy');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning via V/OS...';
-            setTimeout(() => {
-                const tplId = document.getElementById('deploy-template').value;
-                const tplName = DB.templates.find(t=>t.id===tplId).name;
-                const finalName = tplId === 'vps' ? `VPS - ${document.getElementById('vps-os').options[document.getElementById('vps-os').selectedIndex].text}` : `New ${tplName}`;
-                
-                const tId = document.getElementById('deploy-target-tenant').value;
-                const tenantNode = getById(tId);
-                
-                tenantNode.data.workloads.push({ name: finalName, type: tplId });
-                // We add a mock cost to the spend just for demo realism
-                tenantNode.data.spend += tplId === 'vps' ? 30 : DB.templates.find(t=>t.id===tplId).cost;
-                
-                btn.innerHTML = 'Confirm & Provision';
-                closeModal('deployModal');
-                renderApp(); 
-            }, 800);
-        }
-
-        // --- 6. USER MANAGEMENT ---
-        function switchUserTab(tabId, el) {
-            document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
-            el.classList.add('active');
-            document.getElementById('tab-users').style.display = 'none';
-            document.getElementById('tab-roles').style.display = 'none';
-            document.getElementById(tabId).style.display = 'block';
-        }
-
-        function renderUserManagement() {
-            // Render Users Table based on current scope
-            const uTable = document.getElementById('user-table');
-            uTable.innerHTML = `<tr><th>User Identity</th><th>Role</th><th>Scope Restriction</th><th>Status</th></tr>`;
-            
-            let visibleUsers = DB.users.filter(u => u.scopeId === null || isDescendant(u.scopeId, currentScopeId) || isDescendant(currentScopeId, u.scopeId));
-            
-            visibleUsers.forEach(u => {
-                let sName = u.scopeId ? getById(u.scopeId).name : 'Global / Root';
-                uTable.innerHTML += `<tr><td><strong>${u.name}</strong><div style="font-size:0.8rem; color:var(--text-muted);">${u.email}</div></td><td><span class="badge blue" style="background:#DBEAFE; color:#1E40AF;">${u.role}</span></td><td>${sName}</td><td><span class="badge green">${u.status}</span></td></tr>`;
-            });
-
-            // Render Roles Table
-            const rTable = document.getElementById('roles-table');
-            rTable.innerHTML = `<tr><th>Role Definition</th><th>Assigned Permissions</th></tr>`;
-            DB.roles.forEach(r => {
-                rTable.innerHTML += `<tr><td><strong>${r.name}</strong></td><td style="color:var(--text-muted); font-size:0.85rem;">${r.perms}</td></tr>`;
-            });
-        }
-
-        function openAddUserModal() {
-            const roleSel = document.getElementById('new-user-role');
-            roleSel.innerHTML = '';
-            DB.roles.forEach(r => roleSel.innerHTML += `<option value="${r.name}">${r.name}</option>`);
-            document.getElementById('new-user-scope').value = currentScopeId ? getById(currentScopeId).name : 'Global / Root';
-            document.getElementById('addUserModal').style.display = 'flex';
-        }
-
-        function confirmAddUser() {
-            const name = document.getElementById('new-user-name').value;
-            const email = document.getElementById('new-user-email').value;
-            const role = document.getElementById('new-user-role').value;
-            if(name && email) {
-                DB.users.push({ id: 'u_new_'+Math.random(), name, email, role, scopeId: currentScopeId, status: 'Invited' });
-                closeModal('addUserModal');
-                document.getElementById('new-user-name').value = '';
-                document.getElementById('new-user-email').value = '';
-                renderUserManagement();
-            }
-        }
-
-        function openAddRoleModal() { document.getElementById('addRoleModal').style.display = 'flex'; }
-        
-        function confirmAddRole() {
-            const name = document.getElementById('new-role-name').value;
-            if(name) {
-                DB.roles.push({ id: 'r_new_'+Math.random(), name, perms: 'Custom Selection' });
-                closeModal('addRoleModal');
-                document.getElementById('new-role-name').value = '';
-                renderUserManagement();
-            }
-        }
-
-        // --- 7. UTILS ---
+        // Utils
         function switchView(viewId, el) {
             document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
             if(el) el.classList.add('active');
             document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
+            if(viewId === 'finops') runTCO();
         }
+        function switchGenericTab(targetId, el, prefix) {
+            document.querySelectorAll(`.${prefix}-tab`).forEach(t => t.style.display = 'none');
+            el.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.getElementById(targetId).style.display = 'block';
+        }
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-        
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('scopeModal').style.display === 'flex' && event.key === 'Escape') {
-                if (activeTab === 'all' && drillStack.length > 1) drillTo(drillStack.length - 2); 
-                else closeModal('scopeModal');
-            }
-        });
 
-        // Boot
-        buildFlatHierarchy();
-        renderApp();
+        // Template Builder Drag & Drop
+        let currentBuildCost = 0;
+        function dragStart(ev, name, cost) {
+            ev.dataTransfer.setData("name", name);
+            ev.dataTransfer.setData("cost", cost);
+        }
+        function allowDrop(ev) { ev.preventDefault(); document.getElementById('builder-canvas').classList.add('drag-over'); }
+        function dragLeave(ev) { document.getElementById('builder-canvas').classList.remove('drag-over'); }
+        function drop(ev) {
+            ev.preventDefault();
+            const canvas = document.getElementById('builder-canvas');
+            canvas.classList.remove('drag-over');
+            document.getElementById('canvas-empty').style.display = 'none';
+            
+            const name = ev.dataTransfer.getData("name");
+            const cost = parseInt(ev.dataTransfer.getData("cost"));
+            currentBuildCost += cost;
+            
+            canvas.innerHTML += `<div class="canvas-node"><div><strong>${name}</strong></div><div style="font-weight:bold; color:var(--vz-navy);">$${cost}/mo</div></div>`;
+            document.getElementById('builder-cost').innerText = formatCurrency(currentBuildCost);
+        }
+
+        // Wizard Logic
+        function openWizard() {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.wiz-dot').forEach(d => {d.classList.remove('active'); d.classList.remove('done');});
+            document.getElementById('step-1').classList.add('active');
+            document.getElementById('dot-1').classList.add('active');
+            openModal('wizardModal');
+        }
+        function goToStep(step) {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('step-'+step).classList.add('active');
+            for(let i=1; i<=3; i++) {
+                let dot = document.getElementById('dot-'+i);
+                dot.classList.remove('active', 'done');
+                if(i < step) dot.classList.add('done');
+                if(i === step) dot.classList.add('active');
+            }
+        }
+
+        // FinOps TCO
+        function runTCO() {
+            const nodes = parseInt(document.getElementById('tco-nodes').value);
+            const margin = parseInt(document.getElementById('tco-margin').value);
+            document.getElementById('tco-nodes-val').innerText = nodes;
+            document.getElementById('tco-margin-val').innerText = margin;
+            
+            const wholesale = (nodes * 22000 / 36) + (nodes * 200); // Amortized + power mock
+            const retail = wholesale * (1 + (margin/100));
+            document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo';
+            document.getElementById('tco-retail').innerText = formatCurrency(retail) + '/mo';
+        }
+
+        // Dummy Charts
+        const genChart = (id, color) => { const el = document.getElementById(id); if(el) { el.innerHTML = ''; for(let i=0; i<15; i++) el.innerHTML += `<div class="chart-bar" style="background: ${color}; height: ${Math.min(100, Math.max(10, 40 + (Math.random()*40-20)))}%;"></div>`; }};
+        genChart('chart-reg', 'var(--info)'); genChart('chart-clus', 'var(--warning)');
+
     </script>
 </body>
 </html>

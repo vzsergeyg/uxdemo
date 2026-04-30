@@ -452,6 +452,17 @@
                 </div>
             </div>
 
+            <!-- 5C. ADAPTERS (Ops Only) -->
+            <div id="view-adapters" class="view-section">
+                <div class="page-header">
+                    <div><h1>Pluggable Adapters</h1><p>External infrastructure components attached to V/IS control plane.</p></div>
+                    <button class="btn btn-primary" onclick="alert('Opening Adapter Connection Wizard...')"><i class="fa-solid fa-plug"></i> Connect Adapter</button>
+                </div>
+                <div class="card" style="padding:0; overflow:hidden;" id="ops-adapters-list">
+                    <!-- Populated via JS exactly matching the Biz View -->
+                </div>
+            </div>
+
             <!-- 6. OBSERVABILITY -->
             <div id="view-observability" class="view-section">
                 <div class="page-header">
@@ -1070,13 +1081,13 @@
             
             const clusTable = document.getElementById('infra-clusters-table');
             const netTable = document.getElementById('infra-gateways-table');
-            const adaptList = document.getElementById('infra-adapters-list');
+            const adaptListBiz = document.getElementById('infra-adapters-list');
+            const adaptListOps = document.getElementById('ops-adapters-list');
             
             clusTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th><th>Actions</th></tr>`;
             netTable.innerHTML = `<tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th></tr>`;
-            adaptList.innerHTML = ``;
             
-            // Gather applicable regions based on scope (Global shows all, otherwise just the specific region)
+            // Gather applicable regions based on scope
             let scopeRegions = [];
             if (!currentScopeId) {
                 for(let r in DB.regions) scopeRegions.push({id: r, data: DB.regions[r]});
@@ -1098,14 +1109,17 @@
                 }
             });
 
-            // Adapters
+            // Adapters Sync (Biz & Ops View)
             let scopeAdapters = DB.adapters.filter(a => !currentScopeId || a.region === regNodeId);
+            let adaptHTML = '';
             if(scopeAdapters.length > 0) {
                 scopeAdapters.forEach(a => {
-                    adaptList.innerHTML += `<div class="dense-list-item"><div class="dense-list-title"><i class="fa-brands ${a.icon}" style="font-size:1.5rem; color:${a.color};"></i> ${a.name}</div><div class="dense-list-meta">${a.meta} <span class="badge ${a.badge}" style="margin-left:10px;">${a.status}</span></div></div>`;
+                    adaptHTML += `<div class="dense-list-item"><div class="dense-list-title"><i class="fa-brands ${a.icon}" style="font-size:1.5rem; color:${a.color};"></i> ${a.name}</div><div class="dense-list-meta">${a.meta} <span class="badge ${a.badge}" style="margin-left:10px;">${a.status}</span></div></div>`;
                 });
-            } else adaptList.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No external adapters connected in this scope.</div>`;
-
+            } else adaptHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No external adapters connected in this scope.</div>`;
+            
+            if (adaptListBiz) adaptListBiz.innerHTML = adaptHTML;
+            if (adaptListOps) adaptListOps.innerHTML = adaptHTML;
 
             // NEW: Granular FinOps Matrix with AI Markup
             const finTable = document.getElementById('fin-spenders');
@@ -1284,7 +1298,7 @@
         
         function openClusterDetail(clusterName, nodes, cpu, ram) { 
             document.getElementById('cd-title').innerText = clusterName; 
-            document.getElementById('cd-stats-grid').innerHTML = `<div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Nodes</label><div style="font-size:1.5rem; font-weight:bold;">${nodes}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total vCPU</label><div style="font-size:1.5rem; font-weight:bold;">${cpu}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total RAM</label><div style="font-size:1.5rem; font-weight:bold;">${ram}</div></div>`;
+            document.getElementById('cd-stats-grid').innerHTML = `<div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Nodes</label><div style="font-size:1.5rem; font-weight:bold;">${nodes}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total vCPU</label><div style="font-size:1.5rem; font-weight:bold;">${cpu}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total RAM</label><div style="font-size:1.5rem; font-weight:bold;">${ram}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Storage Cap</label><div style="font-size:1.5rem; font-weight:bold;">1.2 PB</div></div>`;
             document.getElementById('cd-used-cpu').innerText = Math.floor(cpu * 0.7);
             openModal('clusterDetailModal'); 
         }

@@ -1071,22 +1071,20 @@
         // --- FILTERING & RENDERING (Workloads) ---
         function renderWorkloads() {
             const wlTable = document.getElementById('workload-table'); 
+            if(!wlTable) return;
             const filterText = document.getElementById('wl-filter-input').value.toLowerCase();
             const groupMode = document.getElementById('wl-group-select').value;
             
-            // Gather workloads in scope
             let wls = []; SCOPE_CAPACITY.usedCpu = 0;
             HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId)).forEach(n => {
-                n.data.workloads.forEach(w => { wls.push({...w, tenantName: n.data.name}); });
+                if(n.data.workloads) n.data.workloads.forEach(w => { wls.push({...w, tenantName: n.data.name}); });
             });
 
-            // Filter
             if (filterText) wls = wls.filter(w => w.name.toLowerCase().includes(filterText) || w.type.toLowerCase().includes(filterText) || w.tenantName.toLowerCase().includes(filterText));
 
             wlTable.innerHTML = `<tr><th>Workload Name</th><th>Type / Template</th><th>Tenant Scope</th><th>Status</th><th>Actions</th></tr>`;
             if (wls.length === 0) { wlTable.innerHTML += `<tr><td colspan="5" style="text-align:center; padding: 40px; color:gray;">No workloads found.</td></tr>`; return; }
 
-            // Grouping Logic
             if (groupMode === 'none') {
                 wls.forEach(w => {
                     let tpl = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'gray', icon:'fa-server', baseCpu: 2};
@@ -1113,24 +1111,65 @@
 
         // --- RENDER MAIN APP ---
         function renderApp() {
-            buildFlatHierarchy(); // Ensure hierarchy is fresh if DB changes
+            buildFlatHierarchy(); 
             
             const readout = document.getElementById('main-scope-readout');
-            if (!currentScopeId) { readout.innerText = "Global Hub"; } 
-            else { let node = getById(currentScopeId); readout.innerText = node.name; }
+            if(readout) {
+                if (!currentScopeId) { readout.innerText = "Global Hub"; } 
+                else { let node = getById(currentScopeId); readout.innerText = node.name; }
+            }
 
-            let data = { spend: 0, users: 0, workloads: 0, t2Count: 0, t3Count: 0, tenantCount: 0 };
+            let data = { spend: 0, users: 0, workloads: [], alerts: [], incidents: [], t2Count: 0, t3Count: 0, tenantCount: 0 };
+            let totalMargin = 0, marginWeights = 0; SCOPE_CAPACITY.usedCpu = 0;
             
             HIERARCHY.filter(n => n.type === 'Distributor' && isDescendant(n.id, currentScopeId)).forEach(() => data.t2Count++);
             HIERARCHY.filter(n => n.type === 'MSP' && isDescendant(n.id, currentScopeId)).forEach(() => data.t3Count++);
             
             let activeTenants = HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId));
             activeTenants.forEach(n => {
-                let t = n.data; data.spend += t.spend; data.users += t.users; data.workloads += t.workloads.length;
+                let t = n.data; data.spend += t.spend || 0; data.users += t.users || 0;
+                if(t.workloads) data.workloads = data.workloads.concat(t.workloads.map(w => ({...w, tenantName: t.name})));
+                if(t.alerts) data.alerts = data.alerts.concat(t.alerts.map(a => ({...a, tenantName: t.name})));
+                if(t.incidents) data.incidents = data.incidents.concat(t.incidents.map(i => ({...i, tenantName: t.name})));
+                if(t.margin && t.spend) { totalMargin += (t.margin * t.spend); marginWeights += t.spend; }
                 data.tenantCount++;
             });
+            data.margin = marginWeights > 0 ? (totalMargin / marginWeights).toFixed(1) : 0;
 
-            // Update Workloads specific tab
+            // Overview Update (T1 and T3)
+            if (currentUser && currentUser.role !== 't4') {
+                let eSpend = document.getElementById('ov-spend'); if(eSpend) eSpend.innerText = formatCurrency(data.spend);
+                let eWl = document.getElementById('ov-workloads'); if(eWl) eWl.innerText = data.workloads.length;
+                let eMar = document.getElementById('ov-margin'); if(eMar) eMar.innerText = data.margin + '%';
+                let eUsr = document.getElementById('ov-users'); if(eUsr) eUsr.innerText = data.users.toLocaleString();
+                
+                let corePct = Math.min(98, Math.max(30, Math.floor((data.spend / 200) + 20))); 
+                let eCore = document.getElementById('ov-core-pct'); if(eCore) eCore.innerText = corePct + '%';
+                let eRing = document.getElementById('ov-core-ring'); if(eRing) eRing.style.background = `conic-gradient(${corePct > 85 ? 'var(--vz-red)' : 'var(--success)'} ${corePct * 3.6}deg, var(--vz-gray-bg) 0)`;
+
+                const alertCont = document.getElementById('ov-alerts-container');
+                if (alertCont) {
+                    alertCont.innerHTML = '';
+                    if(data.alerts.length > 0) {
+                        data.alerts.forEach(a => {
+                            alertCont.innerHTML += `<div style="font-size:0.9rem; padding: 12px; background: ${a.type === 'danger' ? '#FEF2F2' : '#FFFBEB'}; border-left: 4px solid ${a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)'}; margin-bottom:10px; border-radius:4px;"><strong>${a.tenantName}:</strong> ${a.msg}</div>`;
+                        });
+                    } else alertCont.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);"><i class="fa-solid fa-check-circle" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>System Healthy</div>`;
+                }
+            }
+
+            // Incidents (Ops) Update
+            const incCont = document.getElementById('ops-incident-log');
+            if (incCont) {
+                incCont.innerHTML = '';
+                if(data.incidents.length > 0) {
+                    data.incidents.forEach(i => {
+                        let bg = i.type === 'danger' ? 'background:#FEF2F2;' : '';
+                        incCont.innerHTML += `<div class="dense-list-item" style="${bg} border-left: 4px solid var(--${i.type});"><div class="dense-list-title"><i class="fa-solid ${i.icon}" style="color:var(--${i.type});"></i> [${i.tenantName}] Event Log</div><div class="dense-list-meta">${i.msg} <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-left:15px;">Investigate</button></div></div>`;
+                    });
+                } else incCont.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No active incidents in this scope.</div>`;
+            }
+
             renderWorkloads();
 
             // Populate Templates & Services Tabs
@@ -1160,23 +1199,29 @@
                 }
             });
 
-            if (document.getElementById('cust-srv-empty')) {
+            if (document.getElementById('cust-srv-empty') && custSrvTable) {
                 document.getElementById('cust-srv-empty').style.display = hasCustomSrv ? 'none' : 'block';
                 custSrvTable.style.display = hasCustomSrv ? 'table' : 'none';
             }
 
-            // Infrastructure Tab (T1/T3)
+            // Infrastructure Tab (T1 Only)
             const regNodeId = currentScopeId && getPath(currentScopeId).length > 0 ? getPath(currentScopeId)[0].id : 'eu';
             
-            if (currentUser.role !== 't4') {
+            if (currentUser && currentUser.role === 't1') {
+                let eInfra = document.getElementById('infra-stats');
+                if(eInfra) eInfra.innerHTML = `<div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--vz-border);"><span>Distributors</span><strong style="color:var(--vz-navy);">${data.t2Count}</strong></div><div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--vz-border);"><span>MSPs</span><strong style="color:var(--vz-navy);">${data.t3Count}</strong></div><div style="display:flex; justify-content:space-between; padding-bottom:10px;"><span>Tenants</span><strong style="color:var(--vz-navy);">${data.tenantCount}</strong></div>`;
+                
                 const clusTable = document.getElementById('infra-clusters-table');
+                const netTable = document.getElementById('infra-gateways-table');
+                
                 if(clusTable) clusTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th><th>Actions</th></tr>`;
+                if(netTable) netTable.innerHTML = `<tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th></tr>`;
                 
                 let scopeRegions = [];
                 if (!currentScopeId || currentScopeId === 'admin') {
                     for(let r in DB.regions) scopeRegions.push({id: r, data: DB.regions[r]});
                 } else {
-                    scopeRegions.push({id: regNodeId, data: DB.regions[regNodeId]});
+                    if(DB.regions[regNodeId]) scopeRegions.push({id: regNodeId, data: DB.regions[regNodeId]});
                 }
 
                 scopeRegions.forEach(reg => {
@@ -1186,9 +1231,29 @@
                             clusTable.innerHTML += `<tr style="cursor:pointer;" onclick="openClusterDetail('${c.id}', ${c.nodes}, ${c.cpu}, '${c.ram}')"><td><strong>${c.id}</strong></td><td>${c.type}</td><td>${c.nodes}</td><td><span class="badge blue">${c.cpu} vCPU / ${c.ram}</span></td><td><span class="badge ${badgeColor}">${c.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Manage</button></td></tr>`;
                         });
                     }
+                    if(reg.data.gateways && netTable) {
+                        reg.data.gateways.forEach(g => {
+                            netTable.innerHTML += `<tr><td><strong>${g.name}</strong></td><td>API Proxy</td><td>${g.route}</td><td><span class="badge green">${g.status}</span></td></tr>`;
+                        });
+                    }
                 });
             }
-            
+
+            // FinOps Matrix
+            const finTable = document.getElementById('fin-spenders');
+            if(finTable && currentUser && currentUser.role !== 't4') {
+                finTable.innerHTML = `<tr><th>Tenant / Scope</th><th>Workloads</th><th>Wholesale Cost</th><th>Retail Revenue</th><th>Effective Margin</th><th>AI Markup Proposal</th></tr>`;
+                activeTenants.sort((a,b) => (b.data.spend||0) - (a.data.spend||0)).slice(0,6).forEach(n => {
+                    let t = n.data; let spend = t.spend || 0; let margin = t.margin || 0;
+                    let rev = spend * (1 + (margin/100));
+                    let mBadge = margin < 20 ? 'badge red' : 'badge green'; 
+                    let aiProp = margin < 20 ? `<span style="color:var(--info); cursor:pointer; font-weight:bold;"><i class="fa-solid fa-wand-magic-sparkles"></i> Increase DBaaS by +12%</span>` : `<span style="color:var(--text-muted);">Optimal</span>`;
+                    let rowBg = margin < 20 ? 'background: #FEF2F2;' : '';
+                    finTable.innerHTML += `<tr style="${rowBg}"><td><strong>${t.name}</strong></td><td>${(t.workloads||[]).length} Active</td><td>${formatCurrency(spend)}</td><td>${formatCurrency(rev)}</td><td><span class="${mBadge}">${margin}%</span></td><td>${aiProp}</td></tr>`;
+                });
+                if(activeTenants.length === 0) finTable.innerHTML += `<tr><td colspan="6" style="text-align:center; padding: 20px; color:gray;">No tenants in scope to display billing data.</td></tr>`;
+            }
+
             runTCO();
         }
 
@@ -1212,7 +1277,6 @@
             const name = document.getElementById('wiz-name').value || 'V/IS-NEW-CLUSTER';
             const reg = document.getElementById('wiz-region').value;
             
-            // Push to DB
             if (!DB.regions[reg].clusters) DB.regions[reg].clusters = [];
             DB.regions[reg].clusters.push({ id: name, nodes: 5, cpu: 320, ram: '2 TB', type: 'Bare Metal', status: 'Healthy' });
             
@@ -1263,10 +1327,9 @@
             if (validTenants.length === 0) { alert("No Tenants available in the current scope."); return; }
             validTenants.forEach(t => tenantSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`);
             
-            document.getElementById('deploy-target-wrap').style.display = currentUser.role === 't4' ? 'none' : 'block'; // Hide from T4
+            document.getElementById('deploy-target-wrap').style.display = currentUser.role === 't4' ? 'none' : 'block'; 
 
             const tplSelect = document.getElementById('deploy-template'); tplSelect.innerHTML = '<option value="none">-- Select Architecture Blueprint --</option>';
-            // Show base templates and blueprints
             DB.templates.filter(t => !t.isCustom).forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name} ${t.isBlueprint ? '(Blueprint)' : ''}</option>`);
             
             document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none';
@@ -1306,7 +1369,7 @@
                 const instances = parseInt(document.getElementById('deploy-instances').value) || 1;
                 const finalName = tplId === 'vps' ? `VPS Fleet (${instances}x)` : `${tplName} (${instances}x)`;
                 
-                let targetTenantId = currentUser.role === 't4' ? 't1' : document.getElementById('deploy-target-tenant').value; // Hardcode T4 to t1 for demo
+                let targetTenantId = currentUser.role === 't4' ? 't1' : document.getElementById('deploy-target-tenant').value;
                 const tenantNode = getById(targetTenantId);
                 
                 tenantNode.data.workloads.push({ name: finalName, type: tplId }); 
@@ -1341,7 +1404,7 @@
 
         document.addEventListener('keydown', function(event) { if (document.getElementById('scopeModal').style.display === 'flex' && event.key === 'Escape') { if (activeTab === 'all' && drillStack.length > 1) drillTo(drillStack.length - 2); else closeModal('scopeModal'); } });
 
-        // Boot
+        // Boot Data structure
         buildFlatHierarchy();
     </script>
 </body>

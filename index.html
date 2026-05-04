@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V/IS - Virtuozzo Infrastructure BETAv1</title>
+    <title>V/IS - Virtuozzo Infrastructure BETAv2</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -94,6 +94,7 @@
         .badge.red { background: #FEE2E2; color: #991B1B; }
         .badge.purple { background: #EDE9FE; color: #5B21B6; }
         .badge.blue { background: #DBEAFE; color: #1E40AF; }
+        .badge.gray { background: #F3F4F6; color: #4B5563; }
 
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--vz-border); font-size: 0.9rem;}
@@ -187,7 +188,8 @@
 
         /* General Charts & Layouts */
         .chart-container { height: 160px; display: flex; align-items: flex-end; gap: 8px; border-bottom: 2px solid var(--vz-border); padding-bottom: 5px; margin-top: 15px;}
-        .chart-bar { width: 10%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative;}
+        .chart-bar { flex: 1; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative; background: var(--vz-navy);}
+        .chart-bar.red { background: var(--vz-red); }
         .progress-bg { background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px;}
         .progress-fill { height: 100%; transition: width 0.5s ease; }
         .alert-box { background: #FFF1F2; border: 1px solid #FECDD3; border-left: 4px solid var(--vz-red); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
@@ -212,18 +214,18 @@
             <div class="login-logo"><i class="fa-solid fa-cube"></i> V/IS</div>
             <h3 style="color:var(--text-muted); font-size:1rem; margin-bottom: 30px; font-weight: 500;">Virtuozzo Infrastructure Platform</h3>
             <div style="background: #EFF6FF; border: 1px solid #BFDBFE; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 0.8rem; color: var(--vz-navy); text-align: left;">
-                <strong>BETAv1 Scenario Roles:</strong><br>
+                <strong>BETAv2 Scenario Roles:</strong><br>
                 Tier 1 (Global Admin): <code>admin</code> / <code>admin</code><br>
                 Tier 3 (MSP Admin): <code>msp</code> / <code>msp</code><br>
                 Tier 4 (End User): <code>user</code> / <code>user</code>
             </div>
             <div class="form-group" style="text-align: left;">
                 <label>Username</label>
-                <input type="text" class="form-control" id="login-user" placeholder="admin, msp, or user">
+                <input type="text" class="form-control" id="login-user" placeholder="admin, msp, or user" value="admin">
             </div>
             <div class="form-group" style="text-align: left;">
                 <label>Password</label>
-                <input type="password" class="form-control" id="login-pass" placeholder="Enter password">
+                <input type="password" class="form-control" id="login-pass" placeholder="Enter password" value="admin">
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; margin-top: 10px;" onclick="executeLogin()">Sign In <i class="fa-solid fa-arrow-right"></i></button>
             <div id="login-error" style="color: var(--vz-red); font-size: 0.85rem; margin-top: 15px; font-weight: 600; display: none;">Invalid credentials.</div>
@@ -258,7 +260,7 @@
             <li id="ops-iam" onclick="switchView('users', this, 'ops')"><i class="fa-solid fa-shield-halved" style="width:20px;"></i> Access & Quotas</li>
         </ul>
 
-        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Infrastructure BETAv1</div>
+        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Infrastructure BETAv2</div>
     </nav>
 
     <div class="main-wrapper" style="display: none;" id="main-wrapper">
@@ -512,7 +514,7 @@
             <div id="view-inventory" class="view-section">
                 <div class="page-header">
                     <div><h1>Hardware Inventory</h1><p>Low-level physical asset management and MAC/IP tracking.</p></div>
-                    <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Register Hardware</button>
+                    <button class="btn btn-primary" onclick="alert('Triggering auto-discovery probe...')"><i class="fa-solid fa-plus"></i> Register Hardware</button>
                 </div>
                 <div class="card" style="padding:0; overflow:hidden;">
                     <table>
@@ -521,6 +523,7 @@
                         <tr><td><strong>SRV-EU-01-B</strong></td><td>Compute Node</td><td>10.0.5.12</td><td>00:1A:2B:3C:4D:5F</td><td>v2.1.4 (Up to date)</td></tr>
                         <tr style="background:#FFFBEB;"><td><strong>SW-CORE-01</strong></td><td>Mellanox Switch</td><td>10.0.1.1</td><td>AA:BB:CC:DD:EE:FF</td><td>v1.8.0 (Update Req)</td></tr>
                         <tr><td><strong>SRV-US-02-A</strong></td><td>Storage Node</td><td>10.1.5.21</td><td>00:2A:2B:3C:4D:5A</td><td>v2.1.4 (Up to date)</td></tr>
+                        <tr><td><strong>SRV-US-02-B</strong></td><td>Compute Node</td><td>10.1.5.22</td><td>00:2A:2B:3C:4D:5B</td><td>v2.1.4 (Up to date)</td></tr>
                     </table>
                 </div>
             </div>
@@ -543,7 +546,7 @@
                 </div>
                 
                 <div class="sub-tabs">
-                    <div class="sub-tab active" onclick="switchGenericTab('obs-health', this, 'obs')">Health & Alerting</div>
+                    <div class="sub-tab active" onclick="switchGenericTab('obs-health', this, 'obs'); drawCharts();">Health & Alerting</div>
                     <div class="sub-tab" onclick="switchGenericTab('obs-drift', this, 'obs')">Drift Detection & AI</div>
                     <div class="sub-tab" onclick="switchGenericTab('obs-full', this, 'obs')">Full-Stack Reports</div>
                 </div>
@@ -625,6 +628,16 @@
                     <button class="btn btn-primary" onclick="openModal('addUserModal')"><i class="fa-solid fa-user-plus"></i> Invite User</button>
                 </div>
                 
+                <div class="filter-bar">
+                    <i class="fa-solid fa-filter" style="color:var(--text-muted);"></i>
+                    <input type="text" class="form-control" id="iam-filter-input" placeholder="Search users by name or email..." onkeyup="renderUserManagement()" style="max-width: 300px; padding: 8px;">
+                    <select class="form-control" id="iam-group-select" onchange="renderUserManagement()" style="max-width: 200px; padding: 8px;">
+                        <option value="none">No Grouping</option>
+                        <option value="role">Group by Role</option>
+                        <option value="scope">Group by Scope</option>
+                    </select>
+                </div>
+
                 <div class="sub-tabs">
                     <div class="sub-tab active" onclick="switchGenericTab('tab-users', this, 'iam')">Users</div>
                     <div class="sub-tab" onclick="switchGenericTab('tab-teams', this, 'iam')">Teams</div>
@@ -644,8 +657,8 @@
                     </div>
                     <table>
                         <tr><th>Team Name</th><th>Members</th><th>Assigned Scopes/Quotas</th><th>Actions</th></tr>
-                        <tr><td><strong>DevOps Alpha</strong></td><td>4 Users</td><td><span class="badge blue">EU-01 (Full)</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>
-                        <tr><td><strong>Billing Auditors</strong></td><td>2 Users</td><td><span class="badge blue">Global (Read-Only)</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>
+                        <tr><td><strong>DevOps Alpha</strong></td><td>4 Users</td><td><span class="badge blue">EU-01 (Full)</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>
+                        <tr><td><strong>Billing Auditors</strong></td><td>2 Users</td><td><span class="badge blue">Global (Read-Only)</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>
                     </table>
                 </div>
 
@@ -714,7 +727,7 @@
                 <select class="form-control" id="deploy-template" onchange="updateDeployConfig()"></select>
             </div>
 
-            <!-- NEW: Flavor Selector for Multi-Disk Blueprints -->
+            <!-- Flavor Selector for Multi-Disk Blueprints -->
             <div class="form-group" id="deploy-flavor-wrap" style="display:none; padding: 15px; border: 1px solid var(--info); border-radius: 6px; background: #EFF6FF;">
                 <label style="color:var(--info);"><i class="fa-solid fa-code-branch"></i> Blueprint Options Detected</label>
                 <select class="form-control" id="deploy-flavor-select"></select>
@@ -807,7 +820,7 @@
             <div id="cd-perms" class="cd-tab" style="display:none;">
                 <table style="border: 1px solid var(--vz-border);">
                     <tr style="background:#F9FAFB;"><th>Entity (User/Team)</th><th>Cluster Role</th><th>Actions</th></tr>
-                    <tr><td><i class="fa-solid fa-users" style="color:var(--info); margin-right:5px;"></i> <strong>Team: DevOps Alpha</strong></td><td>Cluster Admin</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Revoke</button></td></tr>
+                    <tr><td><i class="fa-solid fa-users" style="color:var(--info); margin-right:5px;"></i> <strong>Team: DevOps Alpha</strong></td><td>Cluster Admin</td><td><button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Revoke</button></td></tr>
                 </table>
             </div>
         </div>
@@ -924,6 +937,33 @@
         </div>
     </div>
 
+    <!-- IAM Modals -->
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal">
+            <div class="modal-header"><h2>Invite New User</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addUserModal')"></i></div>
+            <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="new-user-name" placeholder="e.g. Jane Doe"></div>
+            <div class="form-group"><label>Email Address</label><input type="email" class="form-control" id="new-user-email" placeholder="jane@example.com"></div>
+            <div class="form-group"><label>Assign Role</label><select class="form-control" id="new-user-role"></select></div>
+            <div class="form-group"><label>Scope Assignment</label><input type="text" class="form-control" id="new-user-scope" disabled style="background: var(--vz-gray-bg); font-weight: bold;"><div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">User restricted to active scope.</div></div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="confirmAddUser()">Send Invitation</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="addRoleModal">
+        <div class="modal">
+            <div class="modal-header"><h2>Create Custom Role</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addRoleModal')"></i></div>
+            <div class="form-group"><label>Role Name</label><input type="text" class="form-control" id="new-role-name" placeholder="e.g. Billing Analyst"></div>
+            <div class="form-group"><label>Permissions (RBAC)</label>
+                <div style="display: flex; flex-direction: column; gap: 10px; background: #F8FAFC; padding: 15px; border-radius: 6px; border: 1px solid var(--vz-border);">
+                    <label style="font-weight:normal; margin:0;"><input type="checkbox" checked> View Telemetry</label>
+                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage Workloads</label>
+                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage FinOps</label>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="confirmAddRole()">Save Role</button>
+        </div>
+    </div>
+
     <!-- --- JAVASCRIPT APP LOGIC (DATA ENGINE & RBAC & SCENARIO) --- -->
     <script>
         const formatCurrency = (num) => '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
@@ -1013,32 +1053,41 @@
         // --- MOCK CAPACITIES ---
         const SCOPE_CAPACITY = { maxCpu: 500, usedCpu: 0 };
 
-        // --- HEAVILY SEEDED MOCK DATABASE ---
+        // --- HEAVILY SEEDED MOCK DATABASE (Stateful for Scenario) ---
         const DB = {
             regions: {
-                eu: { name: "EU (Frankfurt)", hasGPU: false, clusters: [{id: 'V/IS-EU-01', nodes: 32, cpu: 1280, ram: '40 TB', type: 'Hyperconverged', status: 'Healthy'}, {id: 'V/IS-S3-Fabric', nodes: 48, cpu: 960, ram: '24 PB NVMe', type: 'Storage Only', status: 'Healthy'}], gateways: [{name: 'Primary Envoy', route: 'api.eu.vis.cloud', status: 'Healthy'}] },
-                us: { name: "US (Virginia)", hasGPU: true, clusters: [{id: 'V/IS-US-Edge', nodes: 1, cpu: 64, ram: '2 TB', type: 'Edge', status: 'Warning'}, {id: 'V/IS-US-AI-01', nodes: 8, cpu: 512, ram: '8 TB', type: 'GPU Compute', status: 'Healthy'}], gateways: [{name: 'US API Mesh', route: 'api.us.vis.cloud', status: 'Healthy'}] },
-                apj: { name: "APJ (Singapore)", hasGPU: true, clusters: [{id: 'V/IS-APJ-01', nodes: 16, cpu: 512, ram: '16 TB', type: 'Hyperconverged', status: 'Healthy'}], gateways: [{name: 'APJ Gateway', route: 'api.apj.vis.cloud', status: 'Healthy'}] }
+                eu: { name: "EU (Frankfurt)", hasGPU: false, clusters: [{id: 'V/IS-EU-01', nodes: 32, cpu: 1280, ram: '40 TB', type: 'Hyperconverged', status: 'Healthy'}, {id: 'V/IS-S3-Fabric', nodes: 48, cpu: 960, ram: '24 PB NVMe', type: 'Storage Only', status: 'Healthy'}], gateways: [{name: 'Primary Envoy', route: 'api.eu.vis.cloud', status: 'Healthy'}], hng: [{name:'Tier-1-NVMe', cluster:'V/IS-EU-01', nodes:12, media:'NVMe', role:'Hot DB'}, {name:'Archive-Pool', cluster:'V/IS-EU-01', nodes:20, media:'HDD', role:'Backup'}] },
+                us: { name: "US (Virginia)", hasGPU: true, clusters: [{id: 'V/IS-US-Edge', nodes: 1, cpu: 64, ram: '2 TB', type: 'Edge', status: 'Warning'}, {id: 'V/IS-US-AI-01', nodes: 8, cpu: 512, ram: '8 TB', type: 'GPU Compute', status: 'Healthy'}], gateways: [{name: 'US API Mesh', route: 'api.us.vis.cloud', status: 'Healthy'}], hng: [{name:'GPU-Pool-01', cluster:'V/IS-US-AI-01', nodes:8, media:'NVMe', role:'AI Inferencing'}] },
+                apj: { name: "APJ (Singapore)", hasGPU: true, clusters: [{id: 'V/IS-APJ-01', nodes: 16, cpu: 512, ram: '16 TB', type: 'Hyperconverged', status: 'Healthy'}], gateways: [{name: 'APJ Gateway', route: 'api.apj.vis.cloud', status: 'Healthy'}], hng: [] }
             },
             templates: [
-                { id: 'vps', name: 'Linux VPS', cost: 0, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)', baseCpu: 2, isCustom: false, isBlueprint: false, flavors: [] },
-                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 150, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)', baseCpu: 8, isCustom: false, isBlueprint: false, flavors: [] },
-                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 45, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--purple)', baseCpu: 4, isCustom: false, isBlueprint: false, flavors: [] },
-                { id: 'ai', name: 'AI Reasoning Agent', cost: 1200, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)', baseCpu: 16, isCustom: false, isBlueprint: false, flavors: [] },
-                { id: 'k8s', name: 'Managed Kubernetes', cost: 300, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)', baseCpu: 12, isCustom: false, isBlueprint: false, flavors: [] }
+                { id: 'vps', name: 'Linux VPS', cost: 0, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)', baseCpu: 2, isCustom: false, isBlueprint: false, flavors: [], items: [] },
+                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 150, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)', baseCpu: 8, isCustom: false, isBlueprint: false, flavors: [], items: [] },
+                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 45, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--purple)', baseCpu: 4, isCustom: false, isBlueprint: false, flavors: [], items: [] },
+                { id: 'ai', name: 'AI Reasoning Agent', cost: 1200, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)', baseCpu: 16, isCustom: false, isBlueprint: false, flavors: [], items: [] },
+                { id: 'k8s', name: 'Managed Kubernetes', cost: 300, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)', baseCpu: 12, isCustom: false, isBlueprint: false, flavors: [], items: [] }
             ],
             roles: [
                 { id: 'r1', name: 'Platform Administrator', perms: 'Full Access (All Modules)' },
-                { id: 'r2', name: 'Tenant Owner', perms: 'Workloads, Billing, Users' }
+                { id: 'r2', name: 'Tenant Owner', perms: 'Workloads, Billing, Users' },
+                { id: 'r3', name: 'Developer', perms: 'Workloads, Observability' },
+                { id: 'r4', name: 'Financial Auditor', perms: 'FinOps (Read-Only)' }
             ],
             users: [
                 { id: 'u1', name: 'Sergey G.', email: 'admin@virtuozzo.com', role: 'Platform Administrator', scopeId: null, status: 'Active' },
-                { id: 'u2', name: 'Alice Smith', email: 'alice@automakers.de', role: 'Tenant Owner', scopeId: 't1', status: 'Active' }
+                { id: 'u2', name: 'Alice Smith', email: 'alice@automakers.de', role: 'Tenant Owner', scopeId: 't1', status: 'Active' },
+                { id: 'u3', name: 'Dev Team Alpha', email: 'dev@wallst.com', role: 'Developer', scopeId: 't4', status: 'Active' },
+                { id: 'u4', name: 'John Doe', email: 'john@medtech.eu', role: 'Developer', scopeId: 't2', status: 'Invited' },
+                { id: 'u5', name: 'MSP Admin', email: 'admin@berlinit.de', role: 'Platform Administrator', scopeId: 'eu-eurocloud-berlinIT', status: 'Active' }
             ],
             adapters: [
                 { region: 'eu', name: 'Amazon S3 Archive Target', icon: 'fa-aws', color: '#FF9900', meta: 'Attached to V/IS-EU-01.', status: 'Connected', badge: 'green' },
                 { region: 'eu', name: 'Legacy Ceph Cluster', icon: 'fa-server', color: 'var(--vz-navy)', meta: 'Migration target. 40% complete.', status: 'Syncing', badge: 'yellow' },
                 { region: 'us', name: 'Datadog Telemetry', icon: 'fa-chart-pie', color: 'var(--purple)', meta: 'Exporting cluster metrics.', status: 'Connected', badge: 'green' }
+            ],
+            drifts: [
+                { tenant: 'MedTech EU', msg: 'VDI Worker scaled outside of Terraform.', type: 'warning' },
+                { tenant: 'Wall St Data', msg: 'Security Group Port 22 opened manually.', type: 'danger' }
             ],
             hierarchy: {
                 eu: { t2: {
@@ -1098,7 +1147,6 @@
             let current = getById(childId); while (current) { if (current.parent === ancestorId) return true; current = getById(current.parent); } return false;
         }
         function getChildType(pType) { return { 'Region': 'Distributor', 'Distributor': 'MSP', 'MSP': 'Tenant', 'Tenant': null }[pType] || 'Region'; }
-        function pluralize(type) { return type === 'MSP' ? 'MSPs' : type + 's'; }
 
         // --- SCOPE PICKER MODAL (RBAC AWARE) ---
         let activeTab = 'all'; let drillStack = []; let selectedId = null; let typeFilter = 'All'; let FAVORITES = new Set(['eu', 't1']);
@@ -1167,7 +1215,7 @@
             }
         }
 
-        // --- FILTERING & RENDERING (Workloads) ---
+        // --- FILTERING & RENDERING (Workloads & Users) ---
         function renderWorkloads() {
             const wlTable = document.getElementById('workload-table'); 
             if(!wlTable) return;
@@ -1188,7 +1236,7 @@
                 wls.forEach(w => {
                     let tpl = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'gray', icon:'fa-server', baseCpu: 2};
                     SCOPE_CAPACITY.usedCpu += tpl.baseCpu;
-                    wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="alert('Workload Destroyed')">Destroy</button></td></tr>`;
+                    wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
                 });
             } else {
                 let grouped = {};
@@ -1202,10 +1250,59 @@
                     grouped[key].forEach(w => {
                         let tpl = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'gray', icon:'fa-server', baseCpu: 2};
                         SCOPE_CAPACITY.usedCpu += tpl.baseCpu;
-                        wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button></td></tr>`;
+                        wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
                     });
                 }
             }
+        }
+
+        function renderUserManagement() {
+            const uTable = document.getElementById('user-table'); 
+            if(!uTable) return;
+            const filterText = (document.getElementById('iam-filter-input') ? document.getElementById('iam-filter-input').value.toLowerCase() : "");
+            const groupMode = (document.getElementById('iam-group-select') ? document.getElementById('iam-group-select').value : "none");
+
+            let users = DB.users.filter(u => u.scopeId === null || isDescendant(u.scopeId, currentScopeId) || isDescendant(currentScopeId, u.scopeId));
+            if(filterText) users = users.filter(u => u.name.toLowerCase().includes(filterText) || u.email.toLowerCase().includes(filterText));
+
+            uTable.innerHTML = `<tr><th>User Identity</th><th>Role</th><th>Scope Restriction</th><th>Status</th><th>Actions</th></tr>`;
+            
+            if (users.length === 0) { uTable.innerHTML += `<tr><td colspan="5" style="text-align:center; padding: 40px; color:gray;">No users found in scope.</td></tr>`; }
+            else if (groupMode === 'none') {
+                users.forEach(u => {
+                    let sName = u.scopeId ? (getById(u.scopeId) ? getById(u.scopeId).name : u.scopeId) : 'Global / Root';
+                    let bCol = u.status === 'Active' ? 'green' : 'yellow';
+                    uTable.innerHTML += `<tr><td><strong>${u.name}</strong><div style="font-size:0.8rem; color:var(--text-muted);">${u.email}</div></td><td><span class="badge blue">${u.role}</span></td><td>${sName}</td><td><span class="badge ${bCol}">${u.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
+                });
+            } else {
+                let grouped = {};
+                users.forEach(u => {
+                    let key = groupMode === 'role' ? u.role : (u.scopeId ? (getById(u.scopeId) ? getById(u.scopeId).name : u.scopeId) : 'Global / Root');
+                    if(!grouped[key]) grouped[key] = [];
+                    grouped[key].push(u);
+                });
+                for (let key in grouped) {
+                    uTable.innerHTML += `<tr class="group-header"><td colspan="5">${key} (${grouped[key].length})</td></tr>`;
+                    grouped[key].forEach(u => {
+                        let sName = u.scopeId ? (getById(u.scopeId) ? getById(u.scopeId).name : u.scopeId) : 'Global / Root';
+                        let bCol = u.status === 'Active' ? 'green' : 'yellow';
+                        uTable.innerHTML += `<tr><td><strong>${u.name}</strong><div style="font-size:0.8rem; color:var(--text-muted);">${u.email}</div></td><td><span class="badge blue">${u.role}</span></td><td>${sName}</td><td><span class="badge ${bCol}">${u.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
+                    });
+                }
+            }
+
+            const rTable = document.getElementById('roles-table'); 
+            if(rTable) {
+                rTable.innerHTML = `<tr><th>Role Definition</th><th>Assigned Permissions</th><th>Actions</th></tr>`;
+                DB.roles.forEach(r => rTable.innerHTML += `<tr><td><strong>${r.name}</strong></td><td style="color:var(--text-muted); font-size:0.85rem;">${r.perms}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`);
+            }
+            
+            const roleSel = document.getElementById('new-user-role'); 
+            if(roleSel) {
+                roleSel.innerHTML = '';
+                DB.roles.forEach(r => roleSel.innerHTML += `<option value="${r.name}">${r.name}</option>`);
+            }
+            if(document.getElementById('new-user-scope')) document.getElementById('new-user-scope').value = currentScopeId ? getById(currentScopeId).name : 'Global / Root';
         }
 
         // --- RENDER MAIN APP ---
@@ -1218,7 +1315,7 @@
                 else { let node = getById(currentScopeId); readout.innerText = node.name; }
             }
 
-            let data = { spend: 0, users: 0, workloads: [], alerts: [], incidents: [], t2Count: 0, t3Count: 0, tenantCount: 0 };
+            let data = { spend: 0, users: 0, workloads: [], alerts: [], incidents: [], drifts: [], t2Count: 0, t3Count: 0, tenantCount: 0 };
             let totalMargin = 0, marginWeights = 0; SCOPE_CAPACITY.usedCpu = 0;
             
             HIERARCHY.filter(n => n.type === 'Distributor' && isDescendant(n.id, currentScopeId)).forEach(() => data.t2Count++);
@@ -1234,6 +1331,9 @@
                 data.tenantCount++;
             });
             data.margin = marginWeights > 0 ? (totalMargin / marginWeights).toFixed(1) : 0;
+            
+            // Collect Drifts
+            if(DB.drifts) data.drifts = DB.drifts.filter(d => activeTenants.find(t => t.data.name === d.tenant));
 
             // Overview Update (T1 and T3)
             if (currentUser && currentUser.role !== 't4') {
@@ -1278,7 +1378,7 @@
             const paletteSrv = document.getElementById('builder-palette-services');
             
             if(tplTable) tplTable.innerHTML = `<tr><th>Template Name</th><th>Spec / Bench</th><th>Base Cost</th><th>Actions</th></tr>`;
-            if(srvTable) srvTable.innerHTML = `<tr><th>Service Flavor</th><th>Wholesale Base Cost</th><th>SLA Guarantee</th></tr>`;
+            if(srvTable) srvTable.innerHTML = `<tr><th>Service Flavor</th><th>Wholesale Base Cost</th><th>SLA Guarantee</th><th>Actions</th></tr>`;
             if(custSrvTable) custSrvTable.innerHTML = `<tr><th>Custom Service</th><th>Category</th><th>Wholesale Cost</th><th>Actions</th></tr>`;
             if(paletteSrv) paletteSrv.innerHTML = '';
 
@@ -1287,13 +1387,13 @@
             DB.templates.forEach(t => {
                 let costStr = t.cost > 0 ? `${formatCurrency(t.cost)}/mo` : 'Variable / Metered';
                 if (t.isBlueprint && tplTable) {
-                    tplTable.innerHTML += `<tr><td><i class="fa-solid fa-cube" style="color:var(--vz-red); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>Custom Blueprint</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="loadTemplateToBuilder('${t.id}')">Edit</button></td></tr>`;
+                    tplTable.innerHTML += `<tr><td><i class="fa-solid fa-cube" style="color:var(--vz-red); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>Custom Blueprint</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="loadTemplateToBuilder('${t.id}')">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
                 } else if (t.isCustom) {
                     hasCustomSrv = true;
-                    if(custSrvTable) custSrvTable.innerHTML += `<tr><td><i class="fa-solid fa-server" style="color:var(--vz-purple); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${t.bench}</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
+                    if(custSrvTable) custSrvTable.innerHTML += `<tr><td><i class="fa-solid fa-server" style="color:var(--vz-purple); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${t.bench}</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
                     if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu}, 'service')"><div class="builder-item-main"><i class="fa-solid fa-server" style="color:var(--vz-purple);"></i> ${t.name}</div><span style="font-size:0.75rem; color:gray;">$${t.cost}</span></div>`;
                 } else {
-                    if(srvTable) srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td></tr>`;
+                    if(srvTable) srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
                     if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu}, 'service')"><div class="builder-item-main"><i class="fa-solid ${t.icon}" style="color:${t.color};"></i> ${t.name}</div><span style="font-size:0.75rem; color:gray;">$${t.cost}</span></div>`;
                 }
             });
@@ -1312,9 +1412,11 @@
                 
                 const clusTable = document.getElementById('infra-clusters-table');
                 const netTable = document.getElementById('infra-gateways-table');
+                const hngTable = document.getElementById('infra-hng-table');
                 
                 if(clusTable) clusTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th><th>Actions</th></tr>`;
-                if(netTable) netTable.innerHTML = `<tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th></tr>`;
+                if(netTable) netTable.innerHTML = `<tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th><th>Actions</th></tr>`;
+                if(hngTable) hngTable.innerHTML = `<tr><th>Group Name</th><th>Associated Cluster</th><th>Nodes</th><th>Media Type</th><th>Role</th><th>Actions</th></tr>`;
                 
                 // Refresh Region Dropdown in Wizard
                 const regWiz = document.getElementById('wiz-region');
@@ -1334,12 +1436,18 @@
                     if(reg.data.clusters && clusTable) {
                         reg.data.clusters.forEach(c => {
                             let badgeColor = c.status === 'Healthy' ? 'green' : 'yellow';
-                            clusTable.innerHTML += `<tr style="cursor:pointer;" onclick="openClusterDetail('${c.id}', ${c.nodes}, ${c.cpu}, '${c.ram}')"><td><strong>${c.id}</strong></td><td>${c.type}</td><td>${c.nodes}</td><td><span class="badge blue">${c.cpu} vCPU / ${c.ram}</span></td><td><span class="badge ${badgeColor}">${c.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Manage</button></td></tr>`;
+                            clusTable.innerHTML += `<tr style="cursor:pointer;" onclick="openClusterDetail('${c.id}', ${c.nodes}, ${c.cpu}, '${c.ram}')"><td><strong>${c.id}</strong></td><td>${c.type}</td><td>${c.nodes}</td><td><span class="badge blue">${c.cpu} vCPU / ${c.ram}</span></td><td><span class="badge ${badgeColor}">${c.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Manage</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
+                        });
+                    }
+                    if(reg.data.hng && hngTable) {
+                        reg.data.hng.forEach(h => {
+                            let bColor = h.media === 'NVMe' ? 'purple' : 'blue';
+                            hngTable.innerHTML += `<tr><td><strong>${h.name}</strong></td><td>${h.cluster}</td><td>${h.nodes}</td><td><span class="badge ${bColor}">${h.media}</span></td><td>${h.role}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button> <button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;">Destroy</button></td></tr>`;
                         });
                     }
                     if(reg.data.gateways && netTable) {
                         reg.data.gateways.forEach(g => {
-                            netTable.innerHTML += `<tr><td><strong>${g.name}</strong></td><td>API Proxy</td><td>${g.route}</td><td><span class="badge green">${g.status}</span></td></tr>`;
+                            netTable.innerHTML += `<tr><td><strong>${g.name}</strong></td><td>API Proxy</td><td>${g.route}</td><td><span class="badge green">${g.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
                         });
                     }
                 });
@@ -1360,7 +1468,20 @@
                 if(activeTenants.length === 0) finTable.innerHTML += `<tr><td colspan="6" style="text-align:center; padding: 20px; color:gray;">No tenants in scope to display billing data.</td></tr>`;
             }
 
+            // Obs Drift Log
+            const driftList = document.getElementById('obs-drift-list');
+            if(driftList && currentUser && currentUser.role !== 't4') {
+                driftList.innerHTML = '';
+                if(data.drifts.length > 0) {
+                    data.drifts.forEach(d => {
+                        driftList.innerHTML += `<div class="dense-list-item"><div class="dense-list-title"><i class="fa-solid fa-code-compare" style="color:var(--${d.type});"></i> Tenant '${d.tenant}' Drift</div><div class="dense-list-meta">${d.msg} <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-left:15px;">Force Sync</button></div></div>`;
+                    });
+                } else driftList.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No configuration drift detected in this scope.</div>`;
+            }
+
+            renderUserManagement();
             runTCO();
+            if(document.getElementById('view-observability').classList.contains('active')) drawCharts();
         }
 
         // --- Persona Switcher Logic ---
@@ -1391,7 +1512,7 @@
             document.getElementById('deploy-target-wrap').style.display = currentUser.role === 't4' ? 'none' : 'block'; 
 
             const tplSelect = document.getElementById('deploy-template'); tplSelect.innerHTML = '<option value="none">-- Select Architecture Blueprint --</option>';
-            DB.templates.filter(t => !t.isCustom).forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name} ${t.isBlueprint ? '(Blueprint)' : ''}</option>`);
+            DB.templates.forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name} ${t.isBlueprint ? '(Blueprint)' : ''}</option>`);
             
             document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none';
             document.getElementById('deploy-instances').value = 1; document.getElementById('btn-execute-deploy').disabled = true; document.getElementById('deploy-flavor-wrap').style.display = 'none';
@@ -1407,7 +1528,6 @@
                 const tpl = DB.templates.find(t => t.id === tplId); 
                 document.getElementById('deploy-bench').innerText = tpl.bench; document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost); 
                 
-                // Flavor Check for Blueprints
                 if(tpl.flavors && tpl.flavors.length > 0) {
                     const fWrap = document.getElementById('deploy-flavor-wrap');
                     const fSel = document.getElementById('deploy-flavor-select');
@@ -1481,11 +1601,11 @@
                 cost = parseInt(document.getElementById('cs-cost').value) || 0;
                 cpu = parseInt(document.getElementById('cs-cpu').value) || 2;
             } else {
-                cost = 250; // Mock parsing from JSON
+                cost = 250; 
                 cpu = 8;
             }
             
-            DB.templates.push({ id: 'cs_' + Date.now(), name: name, cost: cost, reqGPU: false, bench: cat, icon: 'fa-server', color: 'var(--vz-purple)', baseCpu: cpu, isCustom: true, isBlueprint: false, flavors: [] });
+            DB.templates.push({ id: 'cs_' + Date.now(), name: name, cost: cost, reqGPU: false, bench: cat, icon: 'fa-server', color: 'var(--vz-purple)', baseCpu: cpu, isCustom: true, isBlueprint: false, flavors: [], items: [] });
             
             closeModal('addServiceModal');
             document.getElementById('cs-name').value = '';
@@ -1508,11 +1628,16 @@
             const rGpu = document.getElementById('rw-gpu').checked;
             
             if(rId && rName) {
-                DB.regions[rId] = { name: rName, hasGPU: rGpu, clusters: [], gateways: [] };
+                DB.regions[rId] = { name: rName, hasGPU: rGpu, clusters: [], gateways: [], hng: [] };
                 closeModal('regionWizardModal');
                 renderApp();
                 alert(`Region ${rName} created successfully.`);
             }
+        }
+
+        function openClusterWizard() {
+            document.querySelectorAll('#wizardModal .wizard-step').forEach(s => s.classList.remove('active')); document.querySelectorAll('#wizardModal .wiz-dot').forEach(d => {d.classList.remove('active'); d.classList.remove('done');});
+            document.getElementById('step-1').classList.add('active'); document.getElementById('dot-1').classList.add('active'); openModal('wizardModal');
         }
 
         function executeWizard() {
@@ -1524,6 +1649,7 @@
             
             closeModal('wizardModal');
             renderApp();
+            switchGenericTab('inf-clus', document.querySelectorAll('#view-infrastructure .sub-tab')[0], 'inf');
             alert(`Cluster ${name} successfully provisioned in ${DB.regions[reg].name}.`);
         }
 
@@ -1549,6 +1675,7 @@
         function clearCanvas() {
             stagedTemplateItems = []; currentBuildCost = 0; currentBuildCpu = 0;
             document.getElementById('builder-cost').innerText = '$0';
+            document.getElementById('builder-name').value = '';
             document.getElementById('builder-canvas').innerHTML = `<div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;"><i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here<br><span style="font-size:0.8rem; opacity:0.7;">(Drag multiple disks to create Deployment Flavors)</span></div>`;
         }
 
@@ -1556,30 +1683,42 @@
             const name = document.getElementById('builder-name').value;
             if (!name || stagedTemplateItems.length === 0) { alert("Please name your template and drag items onto the canvas."); return; }
             
-            // Flavor Check
             let disks = stagedTemplateItems.filter(i => i.type === 'disk').map(i => i.name);
             let flavors = disks.length > 1 ? disks : [];
+            let itemsCopy = [...stagedTemplateItems];
 
-            DB.templates.push({ id: 'bp_' + Date.now(), name: name, cost: currentBuildCost, bench: 'Custom Composition', icon: 'fa-cube', color: 'var(--vz-red)', baseCpu: currentBuildCpu, isCustom: false, isBlueprint: true, flavors: flavors });
+            DB.templates.push({ id: 'bp_' + Date.now(), name: name, cost: currentBuildCost, bench: 'Custom Composition', icon: 'fa-cube', color: 'var(--vz-red)', baseCpu: currentBuildCpu, isCustom: false, isBlueprint: true, flavors: flavors, items: itemsCopy });
             
             clearCanvas();
-            document.getElementById('builder-name').value = '';
             renderApp();
             alert(`Blueprint '${name}' saved successfully. End Users can now deploy it from the Workloads tab.`);
-            switchGenericTab('tpl-list', document.querySelectorAll('.sub-tab')[1], 'tpl');
+            switchGenericTab('tpl-list', document.querySelectorAll('#view-templates .sub-tab')[1], 'tpl');
         }
 
         function loadTemplateToBuilder(id) {
             const tpl = DB.templates.find(t => t.id === id);
-            if(!tpl) return;
-            switchGenericTab('tpl-build', document.querySelectorAll('.sub-tab')[0], 'tpl');
+            if(!tpl || !tpl.isBlueprint) return;
+            switchGenericTab('tpl-build', document.querySelectorAll('#view-templates .sub-tab')[0], 'tpl');
             document.getElementById('builder-name').value = tpl.name;
-            // In a real app we'd save the specific dragged components, for prototype we mock restoration:
-            alert("Loading blueprint components into canvas for editing...");
+            
+            stagedTemplateItems = [...tpl.items];
+            currentBuildCost = tpl.cost;
+            currentBuildCpu = tpl.baseCpu;
+            document.getElementById('builder-cost').innerText = formatCurrency(currentBuildCost);
+            
+            const canvas = document.getElementById('builder-canvas');
+            canvas.innerHTML = '';
+            if(stagedTemplateItems.length === 0) {
+                 canvas.innerHTML = `<div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;"><i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here</div>`;
+            } else {
+                stagedTemplateItems.forEach(item => {
+                    canvas.innerHTML += `<div class="canvas-node"><div><strong>${item.name}</strong></div><div style="font-weight:bold; color:var(--vz-navy);">$${item.cost}/mo</div></div>`;
+                });
+            }
         }
 
         // --- UTILS & NEW UI LOGIC ---
-        function switchView(viewId, el, menuType) { document.querySelectorAll(`#nav-${menuType} li`).forEach(li => li.classList.remove('active')); if(el) el.classList.add('active'); document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active'); }
+        function switchView(viewId, el, menuType) { document.querySelectorAll(`#nav-${menuType} li`).forEach(li => li.classList.remove('active')); if(el) el.classList.add('active'); document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active'); if(viewId === 'observability') drawCharts(); }
         function switchGenericTab(targetId, el, prefix) { document.querySelectorAll(`.${prefix}-tab`).forEach(t => t.style.display = 'none'); el.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById(targetId).style.display = 'block'; }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -1599,6 +1738,11 @@
             document.getElementById('tco-nodes-val').innerText = nodes; document.getElementById('tco-margin-val').innerText = margin;
             const wholesale = (nodes * 22000 / 36) + (nodes * 200); const retail = wholesale * (1 + (margin/100));
             document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo'; document.getElementById('tco-retail').innerText = formatCurrency(retail) + '/mo';
+        }
+
+        function drawCharts() { 
+            const genChart = (id, color) => { const el = document.getElementById(id); if(el) { el.innerHTML = ''; for(let i=0; i<15; i++) el.innerHTML += `<div class="chart-bar" style="background: ${color}; height: ${Math.min(100, Math.max(10, 40 + (Math.random()*40-20)))}%;"></div>`; }}; 
+            genChart('chart-cpu', 'var(--vz-navy)'); genChart('chart-iops', 'var(--vz-red)'); 
         }
 
         document.addEventListener('keydown', function(event) { if (document.getElementById('scopeModal').style.display === 'flex' && event.key === 'Escape') { if (activeTab === 'all' && drillStack.length > 1) drillTo(drillStack.length - 2); else closeModal('scopeModal'); } });

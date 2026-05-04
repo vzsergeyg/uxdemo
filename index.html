@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V/IS - Virtuozzo Infrastructure</title>
+    <title>V/IS - Virtuozzo Infrastructure BETAv1</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -84,6 +84,8 @@
         .btn-primary:hover { background: var(--vz-red-hover); transform: translateY(-1px);}
         .btn-secondary { background: white; color: var(--vz-navy); border: 1px solid var(--vz-border); box-shadow: 0 1px 2px rgba(0,0,0,0.05);}
         .btn-secondary:hover { background: var(--vz-gray-bg); border-color: #D1D5DB;}
+        .btn-danger { background: #FEF2F2; color: var(--danger); border: 1px solid #FECDD3;}
+        .btn-danger:hover { background: #FEE2E2;}
         .btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; background: #D1D5DB; box-shadow: none; color: white;}
 
         .badge { padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.3px;}
@@ -167,7 +169,8 @@
         /* Template Drag & Drop Builder */
         .builder-layout { display: flex; gap: 20px; height: 500px; }
         .builder-palette { width: 250px; border-right: 1px solid var(--vz-border); padding-right: 20px; overflow-y: auto;}
-        .builder-item { padding: 12px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: grab; background: white; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; gap: 10px; transition: 0.2s;}
+        .builder-item { padding: 12px; border: 1px solid var(--vz-border); border-radius: 6px; margin-bottom: 10px; cursor: grab; background: white; font-size: 0.9rem; font-weight: 500; display: flex; align-items: center; justify-content: space-between; transition: 0.2s;}
+        .builder-item-main { display: flex; align-items: center; gap: 10px; }
         .builder-item:hover { border-color: var(--vz-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.05); transform: translateY(-2px);}
         .builder-item:active { cursor: grabbing; }
         .builder-canvas { flex: 1; background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: 8px; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; position: relative;}
@@ -189,13 +192,16 @@
         .progress-fill { height: 100%; transition: width 0.5s ease; }
         .alert-box { background: #FFF1F2; border: 1px solid #FECDD3; border-left: 4px solid var(--vz-red); padding: 15px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;}
 
-        /* Dense Lists for Ops View & Workloads */
+        /* Dense Lists */
         .dense-list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--vz-border); transition: 0.1s;}
         .dense-list-item:hover { background: #F8FAFC; cursor: pointer;}
         .dense-list-title { font-weight: 600; color: var(--vz-navy); font-size: 0.95rem; display: flex; align-items: center; gap: 10px;}
         .dense-list-meta { color: var(--text-muted); font-size: 0.85rem;}
         
         .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--vz-border);}
+
+        /* Code Editor Mock */
+        .code-editor { background: #1E1E1E; color: #D4D4D4; padding: 15px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; height: 150px; overflow-y: auto; outline: none; border: 1px solid var(--vz-navy);}
     </style>
 </head>
 <body>
@@ -206,10 +212,10 @@
             <div class="login-logo"><i class="fa-solid fa-cube"></i> V/IS</div>
             <h3 style="color:var(--text-muted); font-size:1rem; margin-bottom: 30px; font-weight: 500;">Virtuozzo Infrastructure Platform</h3>
             <div style="background: #EFF6FF; border: 1px solid #BFDBFE; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 0.8rem; color: var(--vz-navy); text-align: left;">
-                <strong>Scenario Roles:</strong><br>
-                Admin (Tier 1): <code>admin</code> / <code>admin</code><br>
-                MSP (Tier 3): <code>msp</code> / <code>msp</code><br>
-                End User (Tier 4): <code>user</code> / <code>user</code>
+                <strong>BETAv1 Scenario Roles:</strong><br>
+                Tier 1 (Global Admin): <code>admin</code> / <code>admin</code><br>
+                Tier 3 (MSP Admin): <code>msp</code> / <code>msp</code><br>
+                Tier 4 (End User): <code>user</code> / <code>user</code>
             </div>
             <div class="form-group" style="text-align: left;">
                 <label>Username</label>
@@ -252,7 +258,7 @@
             <li id="ops-iam" onclick="switchView('users', this, 'ops')"><i class="fa-solid fa-shield-halved" style="width:20px;"></i> Access & Quotas</li>
         </ul>
 
-        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Infrastructure v9.1</div>
+        <div style="padding: 20px; font-size: 0.75rem; color: #6B7280; border-top: 1px solid rgba(255,255,255,0.05); margin-top: auto;">Virtuozzo Infrastructure BETAv1</div>
     </nav>
 
     <div class="main-wrapper" style="display: none;" id="main-wrapper">
@@ -371,7 +377,10 @@
             <div id="view-templates" class="view-section">
                 <div class="page-header">
                     <div><h1>Template Builder & Catalog</h1><p>Construct reusable blueprints from infrastructure and services.</p></div>
-                    <button class="btn btn-primary" onclick="saveCustomTemplate()"><i class="fa-solid fa-save"></i> Save Custom Template</button>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="clearCanvas()"><i class="fa-solid fa-trash-can"></i> Clear Canvas</button>
+                        <button class="btn btn-primary" onclick="saveCustomTemplate()"><i class="fa-solid fa-save"></i> Save Custom Template</button>
+                    </div>
                 </div>
                 
                 <div class="sub-tabs">
@@ -390,9 +399,11 @@
                     <div class="builder-layout" style="padding: 20px;">
                         <div class="builder-palette">
                             <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Infrastructure</h4>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Compute Node (16 vCPU)', 120, 16)"><i class="fa-solid fa-microchip" style="color:var(--vz-navy);"></i> Compute Node ($120)</div>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'NVMe Block (1TB)', 80, 0)"><i class="fa-solid fa-hard-drive" style="color:var(--vz-navy);"></i> NVMe Storage ($80)</div>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Virtual Network Switch', 20, 0)"><i class="fa-solid fa-network-wired" style="color:var(--vz-navy);"></i> Network Switch ($20)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Compute Node (16 vCPU)', 120, 16, 'infra')"><div class="builder-item-main"><i class="fa-solid fa-microchip" style="color:var(--vz-navy);"></i> Compute Node</div><span style="font-size:0.75rem; color:gray;">$120</span></div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'GPU Node (NVIDIA)', 450, 8, 'infra')"><div class="builder-item-main"><i class="fa-solid fa-bolt" style="color:var(--vz-navy);"></i> GPU Node</div><span style="font-size:0.75rem; color:gray;">$450</span></div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'NVMe Block (1TB)', 80, 0, 'disk')"><div class="builder-item-main"><i class="fa-solid fa-hard-drive" style="color:var(--vz-navy);"></i> NVMe Storage</div><span style="font-size:0.75rem; color:gray;">$80</span></div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'HDD Archival (1TB)', 15, 0, 'disk')"><div class="builder-item-main"><i class="fa-solid fa-server" style="color:var(--vz-navy);"></i> HDD Archive</div><span style="font-size:0.75rem; color:gray;">$15</span></div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Virtual Network Switch', 20, 0, 'net')"><div class="builder-item-main"><i class="fa-solid fa-network-wired" style="color:var(--vz-navy);"></i> Network Switch</div><span style="font-size:0.75rem; color:gray;">$20</span></div>
                             
                             <h4 style="margin-top:20px; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Services & Gateways</h4>
                             <div id="builder-palette-services">
@@ -402,7 +413,8 @@
                         
                         <div class="builder-canvas" id="builder-canvas" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
                             <div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;">
-                                <i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here
+                                <i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here<br>
+                                <span style="font-size:0.8rem; opacity:0.7;">(Drag multiple disks to create Deployment Flavors)</span>
                             </div>
                         </div>
                     </div>
@@ -421,7 +433,7 @@
                     <div><h1>Service Catalog</h1><p>Manage packaged services and flavors available for resale.</p></div>
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-secondary" onclick="alert('Redirecting to Global Service Marketplace...')"><i class="fa-solid fa-store"></i> Visit Marketplace</button>
-                        <button class="btn btn-primary" onclick="openModal('addServiceModal')"><i class="fa-solid fa-plus"></i> Publish Custom Service</button>
+                        <button class="btn btn-primary" onclick="openPublishServiceModal()"><i class="fa-solid fa-plus"></i> Publish Custom Service</button>
                     </div>
                 </div>
                 
@@ -448,8 +460,8 @@
                 <div class="page-header">
                     <div><h1>Infrastructure Fabric</h1><p>Manage Physical Regions, Clusters, Adapters, and Gateways.</p></div>
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-secondary"><i class="fa-solid fa-globe"></i> Build Region</button>
-                        <button class="btn btn-primary" onclick="openWizard()"><i class="fa-solid fa-server"></i> Add Cluster</button>
+                        <button class="btn btn-secondary" onclick="openRegionWizard()"><i class="fa-solid fa-globe"></i> Build Region</button>
+                        <button class="btn btn-primary" onclick="openClusterWizard()"><i class="fa-solid fa-server"></i> Add Cluster</button>
                     </div>
                 </div>
                 
@@ -468,11 +480,8 @@
                 </div>
 
                 <div id="inf-hng" class="inf-tab card" style="display:none; padding:0; overflow:hidden;">
-                    <table>
-                        <tr><th>Group Name</th><th>Associated Cluster</th><th>Nodes</th><th>Media Type</th><th>Role</th></tr>
-                        <tr><td><strong>Tier-1-NVMe</strong></td><td>V/IS-EU-01</td><td>12</td><td><span class="badge purple">NVMe</span></td><td>Hot Data / DB</td></tr>
-                        <tr><td><strong>Tier-2-Archive</strong></td><td>V/IS-EU-01</td><td>20</td><td><span class="badge blue">HDD + SSD Cache</span></td><td>Cold Storage / Backup</td></tr>
-                        <tr><td><strong>S3-Scale-Out</strong></td><td>V/IS-S3-Fabric</td><td>48</td><td><span class="badge purple">NVMe</span></td><td>S3 Object Gateway</td></tr>
+                    <table id="infra-hng-table">
+                        <!-- Populated via JS dynamically -->
                     </table>
                 </div>
 
@@ -560,9 +569,8 @@
                         <div style="padding: 20px; border-bottom: 1px solid var(--vz-border); background: #F8FAFC;">
                             <h3 style="margin:0; font-size: 1rem;">Configuration Drift Log</h3>
                         </div>
-                        <div class="dense-list-item">
-                            <div class="dense-list-title"><i class="fa-solid fa-code-compare" style="color:var(--warning);"></i> Tenant 'MedTech EU' Workload Scaling Drift</div>
-                            <div class="dense-list-meta">Workload scaled outside of Terraform pipeline. <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-left:15px;">Force Sync</button></div>
+                        <div id="obs-drift-list">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
@@ -571,7 +579,7 @@
                     <div class="card" style="padding:40px; text-align:center; color:var(--text-muted);">
                         <i class="fa-solid fa-file-pdf" style="font-size:3rem; margin-bottom:15px; opacity:0.3;"></i><br>
                         Select date range to generate a comprehensive Full-Stack PDF report for the active scope.<br><br>
-                        <button class="btn btn-primary" style="margin-top:15px;">Generate Report</button>
+                        <button class="btn btn-primary" style="margin-top:15px;" onclick="alert('Generating Report...')">Generate Report</button>
                     </div>
                 </div>
             </div>
@@ -705,6 +713,13 @@
                 <label>Select Workload Blueprint</label>
                 <select class="form-control" id="deploy-template" onchange="updateDeployConfig()"></select>
             </div>
+
+            <!-- NEW: Flavor Selector for Multi-Disk Blueprints -->
+            <div class="form-group" id="deploy-flavor-wrap" style="display:none; padding: 15px; border: 1px solid var(--info); border-radius: 6px; background: #EFF6FF;">
+                <label style="color:var(--info);"><i class="fa-solid fa-code-branch"></i> Blueprint Options Detected</label>
+                <select class="form-control" id="deploy-flavor-select"></select>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">This template supports multiple hardware deployment tiers.</div>
+            </div>
             
             <div id="vps-config" style="display: none; background: #F8FAFC; padding: 20px; border-radius: 8px; border: 1px solid var(--vz-border); margin-bottom: 20px;">
                 <h3 style="margin-top:0; font-size: 1rem; color: var(--vz-navy);">Virtual Private Server Configuration</h3>
@@ -798,17 +813,82 @@
         </div>
     </div>
 
-    <!-- UI ONLY MODALS -->
+    <!-- Advanced Publish Service Modal -->
     <div class="modal-overlay" id="addServiceModal">
         <div class="modal">
             <div class="modal-header"><h2>Publish Custom Service</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addServiceModal')"></i></div>
-            <div class="form-group"><label>Service Flavor Category</label><select class="form-control" id="cs-cat"><option>Infrastructure-as-a-Service (IaaS)</option><option>Database-as-a-Service (DBaaS)</option></select></div>
-            <div class="form-group"><label>Custom Service Name</label><input type="text" id="cs-name" class="form-control" placeholder="e.g. My Custom VM"></div>
-            <div class="form-group"><label>Base Cost ($/mo)</label><input type="number" id="cs-cost" class="form-control" value="50"></div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="confirmAddService()">Publish Service</button>
+            
+            <div class="form-group">
+                <label>Service Creation Method</label>
+                <select class="form-control" id="cs-method" onchange="toggleServiceMethod()">
+                    <option value="basic">Standard Catalog Entry (Basic)</option>
+                    <option value="advanced">Custom JSON Definition (Advanced)</option>
+                </select>
+            </div>
+
+            <div class="form-group"><label>Service Category</label><select class="form-control" id="cs-cat"><option>Infrastructure-as-a-Service (IaaS)</option><option>Database-as-a-Service (DBaaS)</option><option>Container-as-a-Service (CaaS)</option></select></div>
+            <div class="form-group"><label>Service Name</label><input type="text" id="cs-name" class="form-control" placeholder="e.g. Acme Secure DB"></div>
+            
+            <div id="cs-basic-wrap">
+                <div class="form-group"><label>Base Wholesale Cost ($/mo)</label><input type="number" id="cs-cost" class="form-control" value="50"></div>
+                <div class="form-group"><label>Base vCPU Allocation</label><input type="number" id="cs-cpu" class="form-control" value="4"></div>
+            </div>
+
+            <div id="cs-adv-wrap" style="display: none;">
+                <div class="form-group">
+                    <label>Description / Marketing Text</label>
+                    <textarea class="form-control" id="cs-desc" rows="2" placeholder="Describe the service benefits..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Markup Model</label>
+                    <select class="form-control"><option>Fixed Monthly</option><option>Metered (Per API Request)</option><option>Tiered Capacity</option></select>
+                </div>
+                <div class="form-group">
+                    <label>Service Definition (JSON)</label>
+                    <textarea class="code-editor" id="cs-json">
+{
+  "apiVersion": "vhi/v1",
+  "kind": "CustomService",
+  "metadata": {
+    "labels": { "gpu_optimized": "false" }
+  },
+  "spec": {
+    "containers": []
+  }
+}</textarea>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;" onclick="confirmAddService()">Publish Service to Catalog</button>
         </div>
     </div>
 
+    <!-- Multi-step Region Wizard -->
+    <div class="modal-overlay" id="regionWizardModal">
+        <div class="modal large">
+            <div class="modal-header"><h2>Build New Infrastructure Region</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('regionWizardModal')"></i></div>
+            <div class="wizard-tracker"><div class="wiz-dot active" id="rdot-1"></div><div class="wiz-dot" id="rdot-2"></div></div>
+            
+            <div class="wizard-step active" id="rstep-1">
+                <h3>Step 1: Region Metadata</h3>
+                <div class="form-group"><label>Region ID (e.g., latam-br-01)</label><input type="text" class="form-control" id="rw-id" placeholder="latam-01"></div>
+                <div class="form-group"><label>Display Name</label><input type="text" class="form-control" id="rw-name" placeholder="LATAM (Brazil)"></div>
+                <div class="form-group"><label><input type="checkbox" id="rw-gpu"> Enable GPU Workload Targeting in this Region</label></div>
+                <div style="text-align:right;"><button class="btn btn-primary" onclick="goToRegionStep(2)">Next Step <i class="fa-solid fa-arrow-right"></i></button></div>
+            </div>
+            
+            <div class="wizard-step" id="rstep-2">
+                <h3>Step 2: Control Plane Endpoints</h3>
+                <div class="form-group"><label>API Gateway DNS</label><input type="text" class="form-control" value="api.latam.vis.cloud"></div>
+                <div style="display:flex; justify-content:space-between; margin-top:20px;">
+                    <button class="btn btn-secondary" onclick="goToRegionStep(1)">Back</button>
+                    <button class="btn btn-primary" onclick="executeRegionWizard()">Create Region <i class="fa-solid fa-check"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cluster Wizard -->
     <div class="modal-overlay" id="wizardModal">
         <div class="modal large">
             <div class="modal-header"><h2>Add Infrastructure Cluster</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('wizardModal')"></i></div>
@@ -823,16 +903,16 @@
                     </div>
                 </div>
                 <div id="method-sel" style="font-weight:bold; margin-bottom: 20px; color:var(--vz-navy);">Selected: Bare Metal</div>
-                <div style="text-align:right;"><button class="btn btn-primary" onclick="goToStep(2)">Next Step <i class="fa-solid fa-arrow-right"></i></button></div>
+                <div style="text-align:right;"><button class="btn btn-primary" onclick="goToClusterStep(2)">Next Step <i class="fa-solid fa-arrow-right"></i></button></div>
             </div>
             
             <div class="wizard-step" id="step-2">
                 <h3>Step 2: Configuration Parameters</h3>
-                <div class="form-group"><label>Target Region</label><select class="form-control" id="wiz-region"><option value="eu">EU (Frankfurt)</option><option value="us">US (Virginia)</option></select></div>
+                <div class="form-group"><label>Target Region</label><select class="form-control" id="wiz-region"></select></div>
                 <div class="form-group"><label>Cluster Name</label><input type="text" class="form-control" id="wiz-name" value="V/IS-NEW-CLUSTER"></div>
                 <div style="display:flex; justify-content:space-between; margin-top:20px;">
-                    <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
-                    <button class="btn btn-primary" onclick="goToStep(3)">Validate & Deploy <i class="fa-solid fa-check"></i></button>
+                    <button class="btn btn-secondary" onclick="goToClusterStep(1)">Back</button>
+                    <button class="btn btn-primary" onclick="goToClusterStep(3)">Validate & Deploy <i class="fa-solid fa-check"></i></button>
                 </div>
             </div>
             
@@ -859,13 +939,13 @@
 
             if (user === 'admin' && pass === 'admin') {
                 currentUser = { id: 'admin', role: 't1', rootScope: null, initials: 'AD', name: 'Global Admin' };
-                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 1 (Global Admin) Privileges Granted';
+                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 1 (Global Admin)';
             } else if (user === 'msp' && pass === 'msp') {
                 currentUser = { id: 'msp', role: 't3', rootScope: 'eu-eurocloud-berlinIT', initials: 'MS', name: 'Berlin IT MSP Admin' };
-                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 3 (MSP) Privileges Granted';
+                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 3 (MSP) Restricted';
             } else if (user === 'user' && pass === 'user') {
                 currentUser = { id: 'user', role: 't4', rootScope: 't1', initials: 'EU', name: 'End User (AutoMakers)' };
-                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 4 (End User) Restricted View';
+                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 4 (Consumer) View';
             } else {
                 document.getElementById('login-error').style.display = 'block';
                 return;
@@ -901,7 +981,6 @@
             document.getElementById('btn-scope-picker').style.display = isT4 ? 'none' : 'flex';
             document.getElementById('persona-toggle-wrap').style.display = isT4 ? 'none' : 'flex';
 
-            // Biz Menu Enforcements
             document.getElementById('biz-overview').style.display = !isT4 ? 'flex' : 'none';
             document.getElementById('biz-templates').style.display = !isT4 ? 'flex' : 'none';
             document.getElementById('biz-infrastructure').style.display = isT1 ? 'flex' : 'none';
@@ -910,7 +989,6 @@
             document.getElementById('biz-iam').style.display = !isT4 ? 'flex' : 'none';
             document.getElementById('biz-services').style.display = !isT4 ? 'flex' : 'none';
             
-            // Ops Menu Enforcements
             document.getElementById('ops-infrastructure').style.display = isT1 ? 'flex' : 'none';
             document.getElementById('ops-inventory').style.display = isT1 ? 'flex' : 'none';
             document.getElementById('ops-adapters').style.display = isT1 ? 'flex' : 'none';
@@ -935,19 +1013,19 @@
         // --- MOCK CAPACITIES ---
         const SCOPE_CAPACITY = { maxCpu: 500, usedCpu: 0 };
 
-        // --- MOCK DATABASE (Stateful for Scenario) ---
+        // --- HEAVILY SEEDED MOCK DATABASE ---
         const DB = {
             regions: {
                 eu: { name: "EU (Frankfurt)", hasGPU: false, clusters: [{id: 'V/IS-EU-01', nodes: 32, cpu: 1280, ram: '40 TB', type: 'Hyperconverged', status: 'Healthy'}, {id: 'V/IS-S3-Fabric', nodes: 48, cpu: 960, ram: '24 PB NVMe', type: 'Storage Only', status: 'Healthy'}], gateways: [{name: 'Primary Envoy', route: 'api.eu.vis.cloud', status: 'Healthy'}] },
-                us: { name: "US (Virginia)", hasGPU: true, clusters: [{id: 'V/IS-US-Edge', nodes: 1, cpu: 64, ram: '2 TB', type: 'Edge', status: 'Warning'}], gateways: [] },
-                apj: { name: "APJ (Singapore)", hasGPU: true, clusters: [{id: 'V/IS-APJ-01', nodes: 16, cpu: 512, ram: '16 TB', type: 'Hyperconverged', status: 'Healthy'}], gateways: [] }
+                us: { name: "US (Virginia)", hasGPU: true, clusters: [{id: 'V/IS-US-Edge', nodes: 1, cpu: 64, ram: '2 TB', type: 'Edge', status: 'Warning'}, {id: 'V/IS-US-AI-01', nodes: 8, cpu: 512, ram: '8 TB', type: 'GPU Compute', status: 'Healthy'}], gateways: [{name: 'US API Mesh', route: 'api.us.vis.cloud', status: 'Healthy'}] },
+                apj: { name: "APJ (Singapore)", hasGPU: true, clusters: [{id: 'V/IS-APJ-01', nodes: 16, cpu: 512, ram: '16 TB', type: 'Hyperconverged', status: 'Healthy'}], gateways: [{name: 'APJ Gateway', route: 'api.apj.vis.cloud', status: 'Healthy'}] }
             },
             templates: [
-                { id: 'vps', name: 'Linux VPS', cost: 0, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)', baseCpu: 2, isCustom: false, isBlueprint: false },
-                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 150, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)', baseCpu: 8, isCustom: false, isBlueprint: false },
-                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 45, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--purple)', baseCpu: 4, isCustom: false, isBlueprint: false },
-                { id: 'ai', name: 'AI Reasoning Agent', cost: 1200, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)', baseCpu: 16, isCustom: false, isBlueprint: false },
-                { id: 'k8s', name: 'Managed Kubernetes', cost: 300, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)', baseCpu: 12, isCustom: false, isBlueprint: false }
+                { id: 'vps', name: 'Linux VPS', cost: 0, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)', baseCpu: 2, isCustom: false, isBlueprint: false, flavors: [] },
+                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 150, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)', baseCpu: 8, isCustom: false, isBlueprint: false, flavors: [] },
+                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 45, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--purple)', baseCpu: 4, isCustom: false, isBlueprint: false, flavors: [] },
+                { id: 'ai', name: 'AI Reasoning Agent', cost: 1200, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)', baseCpu: 16, isCustom: false, isBlueprint: false, flavors: [] },
+                { id: 'k8s', name: 'Managed Kubernetes', cost: 300, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)', baseCpu: 12, isCustom: false, isBlueprint: false, flavors: [] }
             ],
             roles: [
                 { id: 'r1', name: 'Platform Administrator', perms: 'Full Access (All Modules)' },
@@ -958,14 +1036,34 @@
                 { id: 'u2', name: 'Alice Smith', email: 'alice@automakers.de', role: 'Tenant Owner', scopeId: 't1', status: 'Active' }
             ],
             adapters: [
-                { region: 'eu', name: 'Amazon S3 Archive Target', icon: 'fa-aws', color: '#FF9900', meta: 'Attached to V/IS-EU-01.', status: 'Connected', badge: 'green' }
+                { region: 'eu', name: 'Amazon S3 Archive Target', icon: 'fa-aws', color: '#FF9900', meta: 'Attached to V/IS-EU-01.', status: 'Connected', badge: 'green' },
+                { region: 'eu', name: 'Legacy Ceph Cluster', icon: 'fa-server', color: 'var(--vz-navy)', meta: 'Migration target. 40% complete.', status: 'Syncing', badge: 'yellow' },
+                { region: 'us', name: 'Datadog Telemetry', icon: 'fa-chart-pie', color: 'var(--purple)', meta: 'Exporting cluster metrics.', status: 'Connected', badge: 'green' }
             ],
             hierarchy: {
                 eu: { t2: {
                     eurocloud: { name: "EuroCloud Disti", t3: {
                         berlinIT: { name: "Berlin IT MSP", tenants: [
-                            { id: 't1', name: 'AutoMakers GmbH', spend: 6500, margin: 30.7, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [], incidents: [] },
-                            { id: 't2', name: 'MedTech EU', spend: 2400, margin: 32, users: 120, workloads: [{name: 'VDI Pool A (50x)', type: 'vdi'}], alerts: [], incidents: [] }
+                            { id: 't1', name: 'AutoMakers GmbH', spend: 6500, margin: 30.7, users: 450, workloads: [{name: 'Main DB', type: 'db'}, {name: 'Fleet Mgr (5x)', type: 'vps'}, {name: 'K8s Cluster Alpha', type: 'k8s'}], alerts: [{id:'a1', msg: 'Approaching Storage Quota', type: 'warning'}], incidents: [{msg: 'Storage Node Failure (EU-01) - Auto-healing active.', type: 'danger', icon: 'fa-triangle-exclamation'}] },
+                            { id: 't2', name: 'MedTech EU', spend: 2400, margin: 18, users: 120, workloads: [{name: 'VDI Pool A (50x)', type: 'vdi'}, {name: 'VDI Pool B (20x)', type: 'vdi'}], alerts: [{id:'a3', msg: 'VDI scaling drift detected.', type: 'warning'}], incidents: [{msg: 'Backup Job exported 4TB to S3.', type: 'success', icon: 'fa-check'}] }
+                        ]},
+                        parisTech: { name: "Paris Tech Cloud", tenants: [
+                            { id: 't3', name: 'Fashion SaaS', spend: 1500, margin: 44.4, users: 50, workloads: [{name: 'E-commerce DB', type: 'db'}], alerts: [], incidents: [] }
+                        ]}
+                    }}
+                }},
+                us: { t2: {
+                    amerihost: { name: "AmeriHost Wholesale", t3: {
+                        nySolutions: { name: "NY Solutions", tenants: [
+                            { id: 't4', name: 'Wall St Data', spend: 15000, margin: 9.0, users: 1200, workloads: [{name: 'AI Analyst Core', type: 'ai'}, {name: 'Data Lake DB', type: 'db'}], alerts: [{id:'a2', msg: 'High IOPS / Compute imbalance detected', type: 'danger'}], incidents: [{msg: 'High CPU Contention. Tenant exceeding soft limits.', type: 'warning', icon: 'fa-bolt'}] },
+                            { id: 't5', name: 'Healthcare Corp', spend: 4200, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}, {name: 'Portal App', type: 'vps'}], alerts: [], incidents: [] }
+                        ]}
+                    }}
+                }},
+                apj: { t2: {
+                    asiacloud: { name: "AsiaCloud Aggregator", t3: {
+                        tokyoIT: { name: "Tokyo IT Partners", tenants: [
+                            { id: 't7', name: 'GamingCo Japan', spend: 7500, margin: 35, users: 2500, workloads: [{name: 'Game Servers (10x)', type: 'k8s'}, {name: 'Player DB', type: 'db'}], alerts: [], incidents: [] }
                         ]}
                     }}
                 }}
@@ -1000,6 +1098,7 @@
             let current = getById(childId); while (current) { if (current.parent === ancestorId) return true; current = getById(current.parent); } return false;
         }
         function getChildType(pType) { return { 'Region': 'Distributor', 'Distributor': 'MSP', 'MSP': 'Tenant', 'Tenant': null }[pType] || 'Region'; }
+        function pluralize(type) { return type === 'MSP' ? 'MSPs' : type + 's'; }
 
         // --- SCOPE PICKER MODAL (RBAC AWARE) ---
         let activeTab = 'all'; let drillStack = []; let selectedId = null; let typeFilter = 'All'; let FAVORITES = new Set(['eu', 't1']);
@@ -1089,7 +1188,7 @@
                 wls.forEach(w => {
                     let tpl = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'gray', icon:'fa-server', baseCpu: 2};
                     SCOPE_CAPACITY.usedCpu += tpl.baseCpu;
-                    wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--danger); border-color:#FECDD3; background:#FFF1F2;">Destroy</button></td></tr>`;
+                    wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary btn-danger" style="padding:4px 8px; font-size:0.75rem;" onclick="alert('Workload Destroyed')">Destroy</button></td></tr>`;
                 });
             } else {
                 let grouped = {};
@@ -1178,8 +1277,8 @@
             const custSrvTable = document.getElementById('custom-services-table');
             const paletteSrv = document.getElementById('builder-palette-services');
             
-            if(tplTable) tplTable.innerHTML = `<tr><th>Template Name</th><th>Spec / Bench</th><th>Base Cost</th></tr>`;
-            if(srvTable) srvTable.innerHTML = `<tr><th>Service Flavor</th><th>Wholesale Base Cost</th><th>SLA Guarantee</th><th>Actions</th></tr>`;
+            if(tplTable) tplTable.innerHTML = `<tr><th>Template Name</th><th>Spec / Bench</th><th>Base Cost</th><th>Actions</th></tr>`;
+            if(srvTable) srvTable.innerHTML = `<tr><th>Service Flavor</th><th>Wholesale Base Cost</th><th>SLA Guarantee</th></tr>`;
             if(custSrvTable) custSrvTable.innerHTML = `<tr><th>Custom Service</th><th>Category</th><th>Wholesale Cost</th><th>Actions</th></tr>`;
             if(paletteSrv) paletteSrv.innerHTML = '';
 
@@ -1188,14 +1287,14 @@
             DB.templates.forEach(t => {
                 let costStr = t.cost > 0 ? `${formatCurrency(t.cost)}/mo` : 'Variable / Metered';
                 if (t.isBlueprint && tplTable) {
-                    tplTable.innerHTML += `<tr><td><i class="fa-solid fa-cube" style="color:var(--vz-red); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>Custom Blueprint</td><td>${costStr}</td></tr>`;
+                    tplTable.innerHTML += `<tr><td><i class="fa-solid fa-cube" style="color:var(--vz-red); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>Custom Blueprint</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;" onclick="loadTemplateToBuilder('${t.id}')">Edit</button></td></tr>`;
                 } else if (t.isCustom) {
                     hasCustomSrv = true;
                     if(custSrvTable) custSrvTable.innerHTML += `<tr><td><i class="fa-solid fa-server" style="color:var(--vz-purple); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${t.bench}</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
-                    if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu})"><i class="fa-solid fa-server" style="color:var(--vz-purple);"></i> ${t.name} ($${t.cost})</div>`;
+                    if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu}, 'service')"><div class="builder-item-main"><i class="fa-solid fa-server" style="color:var(--vz-purple);"></i> ${t.name}</div><span style="font-size:0.75rem; color:gray;">$${t.cost}</span></div>`;
                 } else {
-                    if(srvTable) srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
-                    if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu})"><i class="fa-solid ${t.icon}" style="color:${t.color};"></i> ${t.name} ($${t.cost})</div>`;
+                    if(srvTable) srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td></tr>`;
+                    if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu}, 'service')"><div class="builder-item-main"><i class="fa-solid ${t.icon}" style="color:${t.color};"></i> ${t.name}</div><span style="font-size:0.75rem; color:gray;">$${t.cost}</span></div>`;
                 }
             });
 
@@ -1217,6 +1316,13 @@
                 if(clusTable) clusTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th><th>Actions</th></tr>`;
                 if(netTable) netTable.innerHTML = `<tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th></tr>`;
                 
+                // Refresh Region Dropdown in Wizard
+                const regWiz = document.getElementById('wiz-region');
+                if(regWiz) {
+                    regWiz.innerHTML = '';
+                    for(let r in DB.regions) regWiz.innerHTML += `<option value="${r}">${DB.regions[r].name}</option>`;
+                }
+
                 let scopeRegions = [];
                 if (!currentScopeId || currentScopeId === 'admin') {
                     for(let r in DB.regions) scopeRegions.push({id: r, data: DB.regions[r]});
@@ -1288,17 +1394,29 @@
             DB.templates.filter(t => !t.isCustom).forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name} ${t.isBlueprint ? '(Blueprint)' : ''}</option>`);
             
             document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none';
-            document.getElementById('deploy-instances').value = 1; document.getElementById('btn-execute-deploy').disabled = true; openModal('deployModal');
+            document.getElementById('deploy-instances').value = 1; document.getElementById('btn-execute-deploy').disabled = true; document.getElementById('deploy-flavor-wrap').style.display = 'none';
+            openModal('deployModal');
         }
         function updateDeployConfig() {
             const tplId = document.getElementById('deploy-template').value;
-            if (tplId === 'none') { document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none'; document.getElementById('btn-execute-deploy').disabled = true; return; }
+            if (tplId === 'none') { document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none'; document.getElementById('btn-execute-deploy').disabled = true; document.getElementById('deploy-flavor-wrap').style.display = 'none'; return; }
             
-            if (tplId === 'vps') { document.getElementById('vps-config').style.display = 'block'; calcVPSCost(); } 
+            if (tplId === 'vps') { document.getElementById('vps-config').style.display = 'block'; calcVPSCost(); document.getElementById('deploy-flavor-wrap').style.display = 'none';} 
             else { 
                 document.getElementById('vps-config').style.display = 'none'; 
                 const tpl = DB.templates.find(t => t.id === tplId); 
                 document.getElementById('deploy-bench').innerText = tpl.bench; document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost); 
+                
+                // Flavor Check for Blueprints
+                if(tpl.flavors && tpl.flavors.length > 0) {
+                    const fWrap = document.getElementById('deploy-flavor-wrap');
+                    const fSel = document.getElementById('deploy-flavor-select');
+                    fSel.innerHTML = '';
+                    tpl.flavors.forEach((f, idx) => fSel.innerHTML += `<option value="${idx}">${f}</option>`);
+                    fWrap.style.display = 'block';
+                } else {
+                    document.getElementById('deploy-flavor-wrap').style.display = 'none';
+                }
             }
             document.getElementById('scale-config').style.display = 'block'; document.getElementById('deploy-info').style.display = 'block'; validateQuota();
         }
@@ -1337,19 +1455,66 @@
         // --- SCENARIO ACTIONS ---
 
         // 1. Save Custom Service
+        function openPublishServiceModal() {
+            document.getElementById('cs-method').value = 'basic';
+            toggleServiceMethod();
+            openModal('addServiceModal');
+        }
+
+        function toggleServiceMethod() {
+            const m = document.getElementById('cs-method').value;
+            if(m === 'basic') {
+                document.getElementById('cs-basic-wrap').style.display = 'block';
+                document.getElementById('cs-adv-wrap').style.display = 'none';
+            } else {
+                document.getElementById('cs-basic-wrap').style.display = 'none';
+                document.getElementById('cs-adv-wrap').style.display = 'block';
+            }
+        }
+
         function confirmAddService() {
             const name = document.getElementById('cs-name').value || 'New Service';
             const cat = document.getElementById('cs-cat').value;
-            const cost = parseInt(document.getElementById('cs-cost').value) || 0;
+            let cost = 0; let cpu = 2;
+
+            if (document.getElementById('cs-method').value === 'basic') {
+                cost = parseInt(document.getElementById('cs-cost').value) || 0;
+                cpu = parseInt(document.getElementById('cs-cpu').value) || 2;
+            } else {
+                cost = 250; // Mock parsing from JSON
+                cpu = 8;
+            }
             
-            DB.templates.push({ id: 'cs_' + Date.now(), name: name, cost: cost, reqGPU: false, bench: cat, icon: 'fa-server', color: 'var(--vz-purple)', baseCpu: 2, isCustom: true, isBlueprint: false });
+            DB.templates.push({ id: 'cs_' + Date.now(), name: name, cost: cost, reqGPU: false, bench: cat, icon: 'fa-server', color: 'var(--vz-purple)', baseCpu: cpu, isCustom: true, isBlueprint: false, flavors: [] });
             
             closeModal('addServiceModal');
+            document.getElementById('cs-name').value = '';
             renderApp();
-            alert("Custom Service saved! It is now available in your Catalog and Template Builder palette.");
+            alert("Custom Service Published! It is now available in your Catalog and the Template Builder palette.");
         }
 
         // 2. Add Cluster Wizard Execution
+        function openRegionWizard() {
+            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active')); document.querySelectorAll('.wiz-dot').forEach(d => {d.classList.remove('active'); d.classList.remove('done');});
+            document.getElementById('rstep-1').classList.add('active'); document.getElementById('rdot-1').classList.add('active'); openModal('regionWizardModal');
+        }
+        function goToRegionStep(step) {
+            document.querySelectorAll('#regionWizardModal .wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('rstep-'+step).classList.add('active');
+            for(let i=1; i<=2; i++) { let dot = document.getElementById('rdot-'+i); dot.classList.remove('active', 'done'); if(i < step) dot.classList.add('done'); if(i === step) dot.classList.add('active'); }
+        }
+        function executeRegionWizard() {
+            const rId = document.getElementById('rw-id').value;
+            const rName = document.getElementById('rw-name').value;
+            const rGpu = document.getElementById('rw-gpu').checked;
+            
+            if(rId && rName) {
+                DB.regions[rId] = { name: rName, hasGPU: rGpu, clusters: [], gateways: [] };
+                closeModal('regionWizardModal');
+                renderApp();
+                alert(`Region ${rName} created successfully.`);
+            }
+        }
+
         function executeWizard() {
             const name = document.getElementById('wiz-name').value || 'V/IS-NEW-CLUSTER';
             const reg = document.getElementById('wiz-region').value;
@@ -1359,7 +1524,7 @@
             
             closeModal('wizardModal');
             renderApp();
-            alert(`Cluster ${name} successfully provisioned in ${reg.toUpperCase()} region.`);
+            alert(`Cluster ${name} successfully provisioned in ${DB.regions[reg].name}.`);
         }
 
         // 3. Save Custom Template (Drag & Drop)
@@ -1367,33 +1532,50 @@
         let currentBuildCost = 0;
         let currentBuildCpu = 0;
 
-        function dragStart(ev, name, cost, cpu) { ev.dataTransfer.setData("name", name); ev.dataTransfer.setData("cost", cost); ev.dataTransfer.setData("cpu", cpu); }
+        function dragStart(ev, name, cost, cpu, type) { ev.dataTransfer.setData("name", name); ev.dataTransfer.setData("cost", cost); ev.dataTransfer.setData("cpu", cpu); ev.dataTransfer.setData("type", type); }
         function allowDrop(ev) { ev.preventDefault(); document.getElementById('builder-canvas').classList.add('drag-over'); }
         function dragLeave(ev) { document.getElementById('builder-canvas').classList.remove('drag-over'); }
         function drop(ev) {
             ev.preventDefault(); const canvas = document.getElementById('builder-canvas'); canvas.classList.remove('drag-over'); document.getElementById('canvas-empty').style.display = 'none';
-            const name = ev.dataTransfer.getData("name"); const cost = parseInt(ev.dataTransfer.getData("cost")); const cpu = parseInt(ev.dataTransfer.getData("cpu"));
+            const name = ev.dataTransfer.getData("name"); const cost = parseInt(ev.dataTransfer.getData("cost")); const cpu = parseInt(ev.dataTransfer.getData("cpu")); const type = ev.dataTransfer.getData("type");
             
             currentBuildCost += cost; currentBuildCpu += cpu;
-            stagedTemplateItems.push({name, cost, cpu});
+            stagedTemplateItems.push({name, cost, cpu, type});
             
             canvas.innerHTML += `<div class="canvas-node"><div><strong>${name}</strong></div><div style="font-weight:bold; color:var(--vz-navy);">$${cost}/mo</div></div>`;
             document.getElementById('builder-cost').innerText = formatCurrency(currentBuildCost);
+        }
+
+        function clearCanvas() {
+            stagedTemplateItems = []; currentBuildCost = 0; currentBuildCpu = 0;
+            document.getElementById('builder-cost').innerText = '$0';
+            document.getElementById('builder-canvas').innerHTML = `<div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;"><i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here<br><span style="font-size:0.8rem; opacity:0.7;">(Drag multiple disks to create Deployment Flavors)</span></div>`;
         }
 
         function saveCustomTemplate() {
             const name = document.getElementById('builder-name').value;
             if (!name || stagedTemplateItems.length === 0) { alert("Please name your template and drag items onto the canvas."); return; }
             
-            DB.templates.push({ id: 'bp_' + Date.now(), name: name, cost: currentBuildCost, bench: 'Custom Composition', icon: 'fa-cube', color: 'var(--vz-red)', baseCpu: currentBuildCpu, isCustom: false, isBlueprint: true });
+            // Flavor Check
+            let disks = stagedTemplateItems.filter(i => i.type === 'disk').map(i => i.name);
+            let flavors = disks.length > 1 ? disks : [];
+
+            DB.templates.push({ id: 'bp_' + Date.now(), name: name, cost: currentBuildCost, bench: 'Custom Composition', icon: 'fa-cube', color: 'var(--vz-red)', baseCpu: currentBuildCpu, isCustom: false, isBlueprint: true, flavors: flavors });
             
-            stagedTemplateItems = []; currentBuildCost = 0; currentBuildCpu = 0;
+            clearCanvas();
             document.getElementById('builder-name').value = '';
-            document.getElementById('builder-cost').innerText = '$0';
-            document.getElementById('builder-canvas').innerHTML = `<div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;"><i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here</div>`;
-            
             renderApp();
             alert(`Blueprint '${name}' saved successfully. End Users can now deploy it from the Workloads tab.`);
+            switchGenericTab('tpl-list', document.querySelectorAll('.sub-tab')[1], 'tpl');
+        }
+
+        function loadTemplateToBuilder(id) {
+            const tpl = DB.templates.find(t => t.id === id);
+            if(!tpl) return;
+            switchGenericTab('tpl-build', document.querySelectorAll('.sub-tab')[0], 'tpl');
+            document.getElementById('builder-name').value = tpl.name;
+            // In a real app we'd save the specific dragged components, for prototype we mock restoration:
+            alert("Loading blueprint components into canvas for editing...");
         }
 
         // --- UTILS & NEW UI LOGIC ---
@@ -1403,12 +1585,12 @@
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
         function openClusterDetail(clusterName, nodes, cpu, ram) { document.getElementById('cd-title').innerText = clusterName; document.getElementById('cd-stats-grid').innerHTML = `<div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Nodes</label><div style="font-size:1.5rem; font-weight:bold;">${nodes}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total vCPU</label><div style="font-size:1.5rem; font-weight:bold;">${cpu}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total RAM</label><div style="font-size:1.5rem; font-weight:bold;">${ram}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Storage Cap</label><div style="font-size:1.5rem; font-weight:bold;">1.2 PB</div></div>`; document.getElementById('cd-used-cpu').innerText = Math.floor(cpu * 0.7); openModal('clusterDetailModal'); }
         
-        function goToStep(step) {
+        function goToClusterStep(step) {
             if(step === 3) {
-                document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('step-3').classList.add('active');
+                document.querySelectorAll('#wizardModal .wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('step-3').classList.add('active');
                 setTimeout(() => { executeWizard(); }, 1500); return;
             }
-            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('step-'+step).classList.add('active');
+            document.querySelectorAll('#wizardModal .wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('step-'+step).classList.add('active');
             for(let i=1; i<=3; i++) { let dot = document.getElementById('dot-'+i); dot.classList.remove('active', 'done'); if(i < step) dot.classList.add('done'); if(i === step) dot.classList.add('active'); }
         }
 

@@ -96,6 +96,7 @@
         th, td { padding: 14px 12px; text-align: left; border-bottom: 1px solid var(--vz-border); font-size: 0.9rem;}
         th { color: var(--text-muted); font-weight: 600; background: #F9FAFB; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px;}
         td { color: var(--vz-navy); font-weight: 500;}
+        tr.group-header td { background: var(--vz-gray-bg); font-weight: 700; color: var(--vz-navy); font-size: 0.85rem; padding: 8px 12px; border-top: 2px solid var(--vz-border); }
 
         /* Form Elements & Sub-tabs */
         .form-group { margin-bottom: 20px; }
@@ -180,7 +181,7 @@
         .wiz-dot.active { background: var(--vz-red); }
         .wiz-dot.done { background: var(--success); }
 
-        /* General Charts */
+        /* General Charts & Layouts */
         .chart-container { height: 160px; display: flex; align-items: flex-end; gap: 8px; border-bottom: 2px solid var(--vz-border); padding-bottom: 5px; margin-top: 15px;}
         .chart-bar { width: 10%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative;}
         .progress-bg { background: var(--vz-gray-bg); height: 10px; border-radius: 5px; overflow: hidden; margin-top: 10px;}
@@ -192,6 +193,8 @@
         .dense-list-item:hover { background: #F8FAFC; cursor: pointer;}
         .dense-list-title { font-weight: 600; color: var(--vz-navy); font-size: 0.95rem; display: flex; align-items: center; gap: 10px;}
         .dense-list-meta { color: var(--text-muted); font-size: 0.85rem;}
+        
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 20px; align-items: center; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--vz-border);}
     </style>
 </head>
 <body>
@@ -202,20 +205,21 @@
             <div class="login-logo"><i class="fa-solid fa-cube"></i> V/IS</div>
             <h3 style="color:var(--text-muted); font-size:1rem; margin-bottom: 30px; font-weight: 500;">Virtuozzo Infrastructure Platform</h3>
             <div style="background: #EFF6FF; border: 1px solid #BFDBFE; padding: 10px; border-radius: 6px; margin-bottom: 20px; font-size: 0.8rem; color: var(--vz-navy); text-align: left;">
-                <strong>Test Accounts:</strong><br>
+                <strong>Scenario Roles:</strong><br>
                 Admin (Tier 1): <code>admin</code> / <code>admin</code><br>
-                MSP (Tier 3): <code>msp</code> / <code>msp</code>
+                MSP (Tier 3): <code>msp</code> / <code>msp</code><br>
+                End User (Tier 4): <code>user</code> / <code>user</code>
             </div>
             <div class="form-group" style="text-align: left;">
                 <label>Username</label>
-                <input type="text" class="form-control" id="login-user" placeholder="admin or msp">
+                <input type="text" class="form-control" id="login-user" placeholder="admin, msp, or user">
             </div>
             <div class="form-group" style="text-align: left;">
                 <label>Password</label>
                 <input type="password" class="form-control" id="login-pass" placeholder="Enter password">
             </div>
             <button class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 1rem; margin-top: 10px;" onclick="executeLogin()">Sign In <i class="fa-solid fa-arrow-right"></i></button>
-            <div id="login-error" style="color: var(--vz-red); font-size: 0.85rem; margin-top: 15px; font-weight: 600; display: none;">Invalid credentials. Try admin/admin or msp/msp.</div>
+            <div id="login-error" style="color: var(--vz-red); font-size: 0.85rem; margin-top: 15px; font-weight: 600; display: none;">Invalid credentials.</div>
         </div>
     </div>
     
@@ -254,14 +258,14 @@
         <header class="topbar">
             <div>
                 <span class="tier-label">Hierarchical Context</span>
-                <button class="scope-button" onclick="openScopePicker()">
+                <button class="scope-button" onclick="openScopePicker()" id="btn-scope-picker">
                     <i class="fa-solid fa-sitemap" style="color:var(--text-muted);"></i>
                     <span id="main-scope-readout">Global Infrastructure Hub</span>
                     <i class="fa-solid fa-caret-down" style="margin-left: 5px; color:var(--text-muted); font-size:0.8rem;"></i>
                 </button>
             </div>
             <div style="display: flex; gap: 20px; align-items: center;">
-                <div class="persona-switch">
+                <div class="persona-switch" id="persona-toggle-wrap">
                     <button id="btn-pers-biz" class="persona-btn active" onclick="setPersona('biz')">Business View</button>
                     <button id="btn-pers-ops" class="persona-btn" onclick="setPersona('ops')">Ops View</button>
                 </div>
@@ -292,16 +296,16 @@
             <div id="view-overview" class="view-section active">
                 <div class="page-header">
                     <div><h1><span id="ov-title-name">Global Hub</span> Executive Dashboard</h1><p>Aggregated telemetry and business metrics for the selected scope.</p></div>
-                    <button class="btn btn-secondary"><i class="fa-solid fa-download"></i> Export Report</button>
+                    <button class="btn btn-secondary" id="btn-export-report"><i class="fa-solid fa-download"></i> Export Report</button>
                 </div>
-                <div class="grid-4" style="margin-bottom: 24px;">
+                <div class="grid-4" style="margin-bottom: 24px;" id="ov-metrics-row">
                     <div class="card metric-card"><div class="header-row"><span>Wholesale Spend</span><i class="fa-solid fa-dollar-sign"></i></div><div class="val" id="ov-spend">$0</div></div>
                     <div class="card metric-card"><div class="header-row"><span>Active Workloads</span><i class="fa-solid fa-layer-group"></i></div><div class="val" id="ov-workloads">0</div></div>
                     <div class="card metric-card"><div class="header-row"><span>Effective Margin</span><i class="fa-solid fa-percent"></i></div><div class="val" id="ov-margin">0%</div></div>
-                    <div class="card metric-card"><div class="header-row"><span>Healthy Clusters</span><i class="fa-solid fa-server"></i></div><div class="val" id="ov-users">0 / 0</div></div>
+                    <div class="card metric-card"><div class="header-row"><span>End Users</span><i class="fa-solid fa-users"></i></div><div class="val" id="ov-users">0</div></div>
                 </div>
                 <div class="grid-2">
-                    <div class="card">
+                    <div class="card" id="ov-core-card">
                         <h3 style="margin-top:0; color: var(--vz-navy); font-size: 1.1rem;">Compute Core Utilization</h3>
                         <div style="display: flex; gap: 20px; align-items: center; margin-top: 25px;">
                             <div id="ov-core-ring" style="width: 140px; height: 140px; border-radius: 50%; background: conic-gradient(var(--vz-red) 250deg, var(--vz-gray-bg) 0); display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);">
@@ -338,16 +342,26 @@
                 </div>
             </div>
 
-            <!-- 2. WORKLOADS -->
+            <!-- 2. WORKLOADS (With Filtering) -->
             <div id="view-workloads" class="view-section">
                 <div class="page-header">
                     <div><h1>Workloads</h1><p>Running application services abstracted from infrastructure.</p></div>
                     <button class="btn btn-primary" onclick="openDeployModal()"><i class="fa-solid fa-plus"></i> Deploy Workload</button>
                 </div>
                 
+                <div class="filter-bar">
+                    <i class="fa-solid fa-filter" style="color:var(--text-muted);"></i>
+                    <input type="text" class="form-control" id="wl-filter-input" placeholder="Search workloads by name..." onkeyup="renderWorkloads()" style="max-width: 300px; padding: 8px;">
+                    <select class="form-control" id="wl-group-select" onchange="renderWorkloads()" style="max-width: 200px; padding: 8px;">
+                        <option value="none">No Grouping</option>
+                        <option value="tenant">Group by Tenant</option>
+                        <option value="type">Group by Template Type</option>
+                    </select>
+                </div>
+
                 <div class="card" style="padding: 0; overflow: hidden;">
                     <table id="workload-table">
-                        <!-- Populated by JS -->
+                        <!-- Populated by JS renderWorkloads() -->
                     </table>
                 </div>
             </div>
@@ -356,7 +370,7 @@
             <div id="view-templates" class="view-section">
                 <div class="page-header">
                     <div><h1>Template Builder & Catalog</h1><p>Construct reusable blueprints from infrastructure and services.</p></div>
-                    <button class="btn btn-primary" onclick="alert('Template Saved to V/IS Catalog.')"><i class="fa-solid fa-save"></i> Save Custom Template</button>
+                    <button class="btn btn-primary" onclick="saveCustomTemplate()"><i class="fa-solid fa-save"></i> Save Custom Template</button>
                 </div>
                 
                 <div class="sub-tabs">
@@ -366,19 +380,23 @@
 
                 <div id="tpl-build" class="tpl-tab card" style="padding: 0; overflow: hidden; border: 2px solid var(--vz-navy);">
                     <div style="padding: 15px 25px; background: var(--vz-navy); color: white; display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="margin:0; font-size: 1.1rem;"><i class="fa-solid fa-hammer" style="color:var(--vz-red); margin-right:8px;"></i> Architecture Canvas</h3>
+                        <div style="display:flex; align-items:center; gap: 15px;">
+                            <i class="fa-solid fa-hammer" style="color:var(--vz-red);"></i> 
+                            <input type="text" id="builder-name" placeholder="Name your Blueprint..." style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:white; padding:6px 10px; border-radius:4px; outline:none; font-weight:bold;">
+                        </div>
                         <div style="font-weight: bold; font-size: 1.2rem;">Est. Wholesale Cost: <span id="builder-cost" style="color: var(--success);">$0</span> /mo</div>
                     </div>
                     <div class="builder-layout" style="padding: 20px;">
                         <div class="builder-palette">
                             <h4 style="margin-top:0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Infrastructure</h4>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Compute Node (16 vCPU)', 120)"><i class="fa-solid fa-microchip" style="color:var(--vz-navy);"></i> Compute Node ($120)</div>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'NVMe Block (1TB)', 80)"><i class="fa-solid fa-hard-drive" style="color:var(--vz-navy);"></i> NVMe Storage ($80)</div>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Virtual Network Switch', 20)"><i class="fa-solid fa-network-wired" style="color:var(--vz-navy);"></i> Network Switch ($20)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Compute Node (16 vCPU)', 120, 16)"><i class="fa-solid fa-microchip" style="color:var(--vz-navy);"></i> Compute Node ($120)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'NVMe Block (1TB)', 80, 0)"><i class="fa-solid fa-hard-drive" style="color:var(--vz-navy);"></i> NVMe Storage ($80)</div>
+                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Virtual Network Switch', 20, 0)"><i class="fa-solid fa-network-wired" style="color:var(--vz-navy);"></i> Network Switch ($20)</div>
                             
                             <h4 style="margin-top:20px; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">Services & Gateways</h4>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'Envoy API Gateway', 50)"><i class="fa-solid fa-door-open" style="color:var(--vz-navy);"></i> API Gateway ($50)</div>
-                            <div class="builder-item" draggable="true" ondragstart="dragStart(event, 'DBaaS PostreSQL HA', 150)"><i class="fa-solid fa-database" style="color:var(--vz-navy);"></i> PostgreSQL DBaaS ($150)</div>
+                            <div id="builder-palette-services">
+                                <!-- Populated dynamically based on DB.templates -->
+                            </div>
                         </div>
                         
                         <div class="builder-canvas" id="builder-canvas" ondragover="allowDrop(event)" ondragleave="dragLeave(event)" ondrop="drop(event)">
@@ -417,7 +435,10 @@
                     </table>
                 </div>
                 <div id="srv-cust" class="srv-tab card" style="display:none; padding:0; overflow:hidden;">
-                    <div style="padding: 40px; text-align: center; color: var(--text-muted);">No custom services published yet in this scope.</div>
+                    <table id="custom-services-table">
+                        <!-- Populated via JS Data Engine -->
+                    </table>
+                    <div id="cust-srv-empty" style="padding: 40px; text-align: center; color: var(--text-muted);">No custom services published yet.</div>
                 </div>
             </div>
 
@@ -432,21 +453,25 @@
                 </div>
                 
                 <div class="sub-tabs">
-                    <div class="sub-tab active" onclick="switchGenericTab('inf-dist', this, 'inf')">Scope Distribution</div>
-                    <div class="sub-tab" onclick="switchGenericTab('inf-clus', this, 'inf')">Clusters Overview</div>
+                    <div class="sub-tab active" onclick="switchGenericTab('inf-clus', this, 'inf')">Clusters Overview</div>
+                    <div class="sub-tab" onclick="switchGenericTab('inf-hng', this, 'inf')">Host Node Groups</div>
                     <div class="sub-tab" onclick="switchGenericTab('inf-net', this, 'inf')">Gateways & Networking</div>
                     <div class="sub-tab" onclick="switchGenericTab('inf-adapt', this, 'inf')">Pluggable Adapters</div>
+                    <div class="sub-tab" onclick="switchGenericTab('inf-dist', this, 'inf')">Scope Distribution</div>
                 </div>
 
-                <div id="inf-dist" class="inf-tab card">
-                    <div id="infra-stats" style="display: flex; flex-direction: column; gap: 15px;">
-                        <!-- Populated via JS -->
-                    </div>
-                </div>
-
-                <div id="inf-clus" class="inf-tab card" style="display:none; padding:0; overflow:hidden;">
+                <div id="inf-clus" class="inf-tab card" style="padding:0; overflow:hidden;">
                     <table id="infra-clusters-table">
                         <!-- Populated via JS dynamically -->
+                    </table>
+                </div>
+
+                <div id="inf-hng" class="inf-tab card" style="display:none; padding:0; overflow:hidden;">
+                    <table>
+                        <tr><th>Group Name</th><th>Associated Cluster</th><th>Nodes</th><th>Media Type</th><th>Role</th></tr>
+                        <tr><td><strong>Tier-1-NVMe</strong></td><td>V/IS-EU-01</td><td>12</td><td><span class="badge purple">NVMe</span></td><td>Hot Data / DB</td></tr>
+                        <tr><td><strong>Tier-2-Archive</strong></td><td>V/IS-EU-01</td><td>20</td><td><span class="badge blue">HDD + SSD Cache</span></td><td>Cold Storage / Backup</td></tr>
+                        <tr><td><strong>S3-Scale-Out</strong></td><td>V/IS-S3-Fabric</td><td>48</td><td><span class="badge purple">NVMe</span></td><td>S3 Object Gateway</td></tr>
                     </table>
                 </div>
 
@@ -462,6 +487,12 @@
                         <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" onclick="alert('Opening Adapter Connection Wizard...')"><i class="fa-solid fa-plus"></i> Add Adapter</button>
                     </div>
                     <div id="infra-adapters-list">
+                        <!-- Populated via JS -->
+                    </div>
+                </div>
+
+                <div id="inf-dist" class="inf-tab card" style="display:none;">
+                    <div id="infra-stats" style="display: flex; flex-direction: column; gap: 15px;">
                         <!-- Populated via JS -->
                     </div>
                 </div>
@@ -657,14 +688,14 @@
         </div>
     </div>
 
-    <!-- Deploy Workload Modal (with VPS, Scaling, Quotas) -->
+    <!-- Deploy Workload Modal -->
     <div class="modal-overlay" id="deployModal">
         <div class="modal">
             <div class="modal-header">
                 <h2>Deploy Scalable Workload</h2>
                 <i class="fa-solid fa-xmark sp-close" onclick="closeModal('deployModal')"></i>
             </div>
-            <div class="form-group">
+            <div class="form-group" id="deploy-target-wrap">
                 <label>Target Tenant Scope</label>
                 <select class="form-control" id="deploy-target-tenant"></select>
                 <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;" id="deploy-scope-warn-txt"></div>
@@ -698,7 +729,6 @@
                 </div>
             </div>
 
-            <!-- Scaling & Quota Check -->
             <div id="scale-config" style="display: none; margin-bottom: 20px;">
                 <div class="form-group">
                     <label>Number of Instances to Deploy</label>
@@ -712,7 +742,7 @@
             <div id="deploy-info" style="display: none; background: var(--vz-navy); color: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">ESTIMATED PERFORMANCE</div><div id="deploy-bench" style="font-weight: 800; font-size: 1.1rem;">--</div></div>
-                    <div style="text-align: right;"><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">MONTHLY WHOLESALE BASE</div><div id="deploy-cost" style="font-weight: 800; font-size: 1.2rem; color: var(--success);">--</div></div>
+                    <div style="text-align: right;"><div style="font-size: 0.75rem; color: #9CA3AF; margin-bottom: 5px;">MONTHLY COST</div><div id="deploy-cost" style="font-weight: 800; font-size: 1.2rem; color: var(--success);">--</div></div>
                 </div>
                 <button class="btn btn-primary" style="width: 100%; margin-top: 20px; padding: 12px;" onclick="executeDeploy()" id="btn-execute-deploy">Confirm & Provision</button>
             </div>
@@ -735,9 +765,7 @@
             </div>
 
             <div id="cd-overview" class="cd-tab">
-                <div class="grid-4" id="cd-stats-grid">
-                    <!-- Populated via JS -->
-                </div>
+                <div class="grid-4" id="cd-stats-grid"></div>
             </div>
 
             <div id="cd-rg" class="cd-tab" style="display:none;">
@@ -757,102 +785,65 @@
                     <input type="number" class="form-control" value="1000">
                     <div style="font-size:0.75rem; color:gray; margin-top:4px;">Currently deployed: <span id="cd-used-cpu"></span> vCPU</div>
                 </div>
-                <div class="form-group">
-                    <label>Max Storage Provisioning (TB)</label>
-                    <input type="number" class="form-control" value="1000">
-                </div>
                 <button class="btn btn-primary">Save Quotas</button>
             </div>
 
             <div id="cd-perms" class="cd-tab" style="display:none;">
-                <p style="color:var(--text-muted);">Map IAM Teams or Users to administrative roles on this specific cluster.</p>
                 <table style="border: 1px solid var(--vz-border);">
                     <tr style="background:#F9FAFB;"><th>Entity (User/Team)</th><th>Cluster Role</th><th>Actions</th></tr>
                     <tr><td><i class="fa-solid fa-users" style="color:var(--info); margin-right:5px;"></i> <strong>Team: DevOps Alpha</strong></td><td>Cluster Admin</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Revoke</button></td></tr>
-                    <tr><td><i class="fa-solid fa-user" style="color:var(--text-muted); margin-right:5px;"></i> Alice S.</td><td>Read-Only Auditor</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Revoke</button></td></tr>
                 </table>
-                <button class="btn btn-secondary" style="margin-top:15px;"><i class="fa-solid fa-link"></i> Bind New Team</button>
             </div>
         </div>
     </div>
 
-    <!-- UI ONLY MODALS (Wizards, Services, Users) -->
+    <!-- UI ONLY MODALS -->
     <div class="modal-overlay" id="addServiceModal">
         <div class="modal">
             <div class="modal-header"><h2>Publish Custom Service</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addServiceModal')"></i></div>
-            <div class="form-group"><label>Service Flavor Category</label><select class="form-control"><option>Database-as-a-Service (DBaaS)</option><option>Infrastructure-as-a-Service (IaaS)</option><option>Kubernetes-as-a-Service (K8s)</option><option>Desktop-as-a-Service (VDI)</option></select></div>
-            <div class="form-group"><label>Custom Service Name</label><input type="text" class="form-control" placeholder="e.g. Acme Secure DB"></div>
-            <div class="form-group"><label>Base Wholesale Cost ($/mo)</label><input type="number" class="form-control" value="100"></div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="closeModal('addServiceModal')">Publish Service</button>
+            <div class="form-group"><label>Service Flavor Category</label><select class="form-control" id="cs-cat"><option>Infrastructure-as-a-Service (IaaS)</option><option>Database-as-a-Service (DBaaS)</option></select></div>
+            <div class="form-group"><label>Custom Service Name</label><input type="text" id="cs-name" class="form-control" placeholder="e.g. My Custom VM"></div>
+            <div class="form-group"><label>Base Cost ($/mo)</label><input type="number" id="cs-cost" class="form-control" value="50"></div>
+            <button class="btn btn-primary" style="width: 100%;" onclick="confirmAddService()">Publish Service</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="wizardModal">
         <div class="modal large">
             <div class="modal-header"><h2>Add Infrastructure Cluster</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('wizardModal')"></i></div>
-            <div class="wizard-tracker">
-                <div class="wiz-dot active" id="dot-1"></div><div class="wiz-dot" id="dot-2"></div><div class="wiz-dot" id="dot-3"></div>
-            </div>
+            <div class="wizard-tracker"><div class="wiz-dot active" id="dot-1"></div><div class="wiz-dot" id="dot-2"></div><div class="wiz-dot" id="dot-3"></div></div>
+            
             <div class="wizard-step active" id="step-1">
                 <h3>Step 1: Choose Deployment Method</h3>
                 <div style="display:flex; gap:20px; margin-top:20px;">
                     <div class="card" style="flex:1; cursor:pointer; border:2px solid var(--vz-navy);" onclick="document.getElementById('method-sel').innerText='Selected: Bare Metal';">
                         <h4 style="margin-top:0;"><i class="fa-solid fa-server"></i> Bare Metal Provisioning</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Deploy V/IS directly to bare metal via PXE Boot ISO or RedFish API integration.</p>
-                    </div>
-                    <div class="card" style="flex:1; cursor:pointer; border:2px solid transparent;" onclick="document.getElementById('method-sel').innerText='Selected: API Attachment'; this.style.borderColor='var(--vz-navy)'; this.previousElementSibling.style.borderColor='transparent';">
-                        <h4 style="margin-top:0;"><i class="fa-solid fa-link"></i> Attach Existing Cluster</h4>
-                        <p style="font-size:0.85rem; color:var(--text-muted);">Attach an existing Virtuozzo Hybrid Infrastructure (VHI) or VHS storage node via API Token.</p>
+                        <p style="font-size:0.85rem; color:var(--text-muted);">Deploy V/IS directly to bare metal via PXE Boot ISO.</p>
                     </div>
                 </div>
                 <div id="method-sel" style="font-weight:bold; margin-bottom: 20px; color:var(--vz-navy);">Selected: Bare Metal</div>
                 <div style="text-align:right;"><button class="btn btn-primary" onclick="goToStep(2)">Next Step <i class="fa-solid fa-arrow-right"></i></button></div>
             </div>
+            
             <div class="wizard-step" id="step-2">
                 <h3>Step 2: Configuration Parameters</h3>
-                <div class="form-group"><label>Target Region</label><select class="form-control"><option>EU (Frankfurt)</option><option>US (Virginia)</option></select></div>
-                <div class="form-group"><label>Hardware Endpoints (IP Range or RedFish URLs)</label><textarea class="form-control" rows="3" placeholder="192.168.100.10-50"></textarea></div>
+                <div class="form-group"><label>Target Region</label><select class="form-control" id="wiz-region"><option value="eu">EU (Frankfurt)</option><option value="us">US (Virginia)</option></select></div>
+                <div class="form-group"><label>Cluster Name</label><input type="text" class="form-control" id="wiz-name" value="V/IS-NEW-CLUSTER"></div>
                 <div style="display:flex; justify-content:space-between; margin-top:20px;">
                     <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
                     <button class="btn btn-primary" onclick="goToStep(3)">Validate & Deploy <i class="fa-solid fa-check"></i></button>
                 </div>
             </div>
+            
             <div class="wizard-step" id="step-3" style="text-align:center; padding: 40px 0;">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 3rem; color: var(--vz-red); margin-bottom: 20px;"></i>
                 <h3>Provisioning Cluster...</h3>
                 <p style="color:var(--text-muted);">Executing pre-flight checks and initiating deployment jobs.</p>
-                <button class="btn btn-secondary" style="margin-top:20px;" onclick="closeModal('wizardModal')">Close Wizard (Run in Background)</button>
             </div>
         </div>
     </div>
 
-    <div class="modal-overlay" id="addUserModal">
-        <div class="modal">
-            <div class="modal-header"><h2>Invite New User</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addUserModal')"></i></div>
-            <div class="form-group"><label>Full Name</label><input type="text" class="form-control" id="new-user-name" placeholder="e.g. Jane Doe"></div>
-            <div class="form-group"><label>Email Address</label><input type="email" class="form-control" id="new-user-email" placeholder="jane@example.com"></div>
-            <div class="form-group"><label>Assign Role</label><select class="form-control" id="new-user-role"></select></div>
-            <div class="form-group"><label>Scope Assignment</label><input type="text" class="form-control" id="new-user-scope" disabled style="background: var(--vz-gray-bg); font-weight: bold;"><div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 5px;">User restricted to active scope.</div></div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="confirmAddUser()">Send Invitation</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="addRoleModal">
-        <div class="modal">
-            <div class="modal-header"><h2>Create Custom Role</h2><i class="fa-solid fa-xmark sp-close" onclick="closeModal('addRoleModal')"></i></div>
-            <div class="form-group"><label>Role Name</label><input type="text" class="form-control" id="new-role-name" placeholder="e.g. Billing Analyst"></div>
-            <div class="form-group"><label>Permissions (RBAC)</label>
-                <div style="display: flex; flex-direction: column; gap: 10px; background: #F8FAFC; padding: 15px; border-radius: 6px; border: 1px solid var(--vz-border);">
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox" checked> View Telemetry</label>
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage Workloads</label>
-                    <label style="font-weight:normal; margin:0;"><input type="checkbox"> Manage FinOps</label>
-                </div>
-            </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 10px; padding: 12px;" onclick="confirmAddRole()">Save Role</button>
-        </div>
-    </div>
-
-    <!-- --- JAVASCRIPT APP LOGIC (DATA ENGINE & RBAC) --- -->
+    <!-- --- JAVASCRIPT APP LOGIC (DATA ENGINE & RBAC & SCENARIO) --- -->
     <script>
         const formatCurrency = (num) => '$' + num.toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0});
 
@@ -871,41 +862,53 @@
             } else if (user === 'msp' && pass === 'msp') {
                 currentUser = { id: 'msp', role: 't3', rootScope: 'eu-eurocloud-berlinIT', initials: 'MS', name: 'Berlin IT MSP Admin' };
                 toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 3 (MSP) Privileges Granted';
+            } else if (user === 'user' && pass === 'user') {
+                currentUser = { id: 'user', role: 't4', rootScope: 't1', initials: 'EU', name: 'End User (AutoMakers)' };
+                toast.innerHTML = '<i class="fa-solid fa-shield-check"></i> Authenticated: Tier 4 (End User) Restricted View';
             } else {
                 document.getElementById('login-error').style.display = 'block';
                 return;
             }
 
-            // UI Transitions
             document.getElementById('login-error').style.display = 'none';
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('main-sidebar').style.display = 'flex';
             document.getElementById('main-wrapper').style.display = 'flex';
             
-            // Profile Update
             document.getElementById('user-initials').innerText = currentUser.initials;
             document.getElementById('ud-name').innerText = currentUser.name;
-            document.getElementById('ud-role').innerText = currentUser.role === 't1' ? 'Tier 1 Permissions' : 'Tier 3 Permissions';
+            document.getElementById('ud-role').innerText = currentUser.role === 't1' ? 'Tier 1 Permissions' : (currentUser.role === 't3' ? 'Tier 3 Permissions' : 'Tier 4 Consumer');
 
-            // Set Scope & Roles
             currentScopeId = currentUser.rootScope;
             applyRoleRestrictions();
             
             toast.style.display = 'block';
             setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => {toast.style.display = 'none'; toast.style.opacity = '1';}, 300); }, 3000);
 
-            // Default route based on role
-            setPersona('biz');
+            if(currentUser.role === 't4') {
+                setPersona('biz'); switchView('workloads', document.getElementById('biz-workloads'), 'biz');
+            } else {
+                setPersona('biz');
+            }
             renderApp();
         }
 
         function applyRoleRestrictions() {
             const isT1 = currentUser.role === 't1';
+            const isT3 = currentUser.role === 't3';
+            const isT4 = currentUser.role === 't4';
+
+            document.getElementById('btn-scope-picker').style.display = isT4 ? 'none' : 'flex';
+            document.getElementById('persona-toggle-wrap').style.display = isT4 ? 'none' : 'flex';
+
             // Biz Menu Enforcements
-            document.getElementById('biz-overview').style.display = isT1 ? 'flex' : 'none';
-            document.getElementById('biz-templates').style.display = isT1 ? 'flex' : 'none';
+            document.getElementById('biz-overview').style.display = !isT4 ? 'flex' : 'none';
+            document.getElementById('biz-templates').style.display = !isT4 ? 'flex' : 'none';
             document.getElementById('biz-infrastructure').style.display = isT1 ? 'flex' : 'none';
             document.getElementById('biz-observability').style.display = isT1 ? 'flex' : 'none';
+            document.getElementById('biz-finops').style.display = !isT4 ? 'flex' : 'none';
+            document.getElementById('biz-iam').style.display = !isT4 ? 'flex' : 'none';
+            document.getElementById('biz-services').style.display = !isT4 ? 'flex' : 'none';
             
             // Ops Menu Enforcements
             document.getElementById('ops-infrastructure').style.display = isT1 ? 'flex' : 'none';
@@ -932,60 +935,37 @@
         // --- MOCK CAPACITIES ---
         const SCOPE_CAPACITY = { maxCpu: 500, usedCpu: 0 };
 
-        // --- HEAVILY SEEDED MOCK DATABASE ---
+        // --- MOCK DATABASE (Stateful for Scenario) ---
         const DB = {
             regions: {
                 eu: { name: "EU (Frankfurt)", hasGPU: false, clusters: [{id: 'V/IS-EU-01', nodes: 32, cpu: 1280, ram: '40 TB', type: 'Hyperconverged', status: 'Healthy'}, {id: 'V/IS-S3-Fabric', nodes: 48, cpu: 960, ram: '24 PB NVMe', type: 'Storage Only', status: 'Healthy'}], gateways: [{name: 'Primary Envoy', route: 'api.eu.vis.cloud', status: 'Healthy'}] },
-                us: { name: "US (Virginia)", hasGPU: true, clusters: [{id: 'V/IS-US-Edge', nodes: 1, cpu: 64, ram: '2 TB', type: 'Edge', status: 'Warning'}], gateways: [{name: 'US API Mesh', route: 'api.us.vis.cloud', status: 'Healthy'}] },
-                apj: { name: "APJ (Singapore)", hasGPU: true, clusters: [{id: 'V/IS-APJ-01', nodes: 16, cpu: 512, ram: '16 TB', type: 'Hyperconverged', status: 'Healthy'}], gateways: [{name: 'APJ Gateway', route: 'api.apj.vis.cloud', status: 'Healthy'}] }
+                us: { name: "US (Virginia)", hasGPU: true, clusters: [{id: 'V/IS-US-Edge', nodes: 1, cpu: 64, ram: '2 TB', type: 'Edge', status: 'Warning'}], gateways: [] },
+                apj: { name: "APJ (Singapore)", hasGPU: true, clusters: [{id: 'V/IS-APJ-01', nodes: 16, cpu: 512, ram: '16 TB', type: 'Hyperconverged', status: 'Healthy'}], gateways: [] }
             },
             templates: [
-                { id: 'vps', name: 'Linux VPS', cost: 0, reqGPU: false, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)', baseCpu: 2 },
-                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 150, reqGPU: false, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)', baseCpu: 8 },
-                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 45, reqGPU: false, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--purple)', baseCpu: 4 },
-                { id: 'ai', name: 'AI Reasoning Agent', cost: 1200, reqGPU: true, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)', baseCpu: 16 },
-                { id: 'k8s', name: 'Managed Kubernetes', cost: 300, reqGPU: false, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)', baseCpu: 12 }
+                { id: 'vps', name: 'Linux VPS', cost: 0, bench: 'Custom Specifications', icon: 'fa-linux', color: 'var(--vz-red)', baseCpu: 2, isCustom: false, isBlueprint: false },
+                { id: 'db', name: 'PostgreSQL HA (Gold)', cost: 150, bench: '14,000 IOPS', icon: 'fa-database', color: 'var(--vz-navy)', baseCpu: 8, isCustom: false, isBlueprint: false },
+                { id: 'vdi', name: 'Sovereign VDI Workspace', cost: 45, bench: '<15ms Latency', icon: 'fa-desktop', color: 'var(--purple)', baseCpu: 4, isCustom: false, isBlueprint: false },
+                { id: 'ai', name: 'AI Reasoning Agent', cost: 1200, bench: '45 Tokens/sec', icon: 'fa-brain', color: 'var(--purple)', baseCpu: 16, isCustom: false, isBlueprint: false },
+                { id: 'k8s', name: 'Managed Kubernetes', cost: 300, bench: 'Auto-scaling enabled', icon: 'fa-dharmachakra', color: 'var(--info)', baseCpu: 12, isCustom: false, isBlueprint: false }
             ],
             roles: [
                 { id: 'r1', name: 'Platform Administrator', perms: 'Full Access (All Modules)' },
-                { id: 'r2', name: 'Tenant Owner', perms: 'Workloads, Billing, Users' },
-                { id: 'r3', name: 'Developer', perms: 'Workloads, Observability' }
+                { id: 'r2', name: 'Tenant Owner', perms: 'Workloads, Billing, Users' }
             ],
             users: [
-                { id: 'u1', name: 'Sergey G.', email: 'sergey@virtuozzo.com', role: 'Platform Administrator', scopeId: null, status: 'Active' },
-                { id: 'u2', name: 'Alice Smith', email: 'alice@automakers.de', role: 'Tenant Owner', scopeId: 't1', status: 'Active' },
-                { id: 'u3', name: 'Dev Team Alpha', email: 'dev@wallst.com', role: 'Developer', scopeId: 't4', status: 'Active' },
-                { id: 'u4', name: 'John Doe', email: 'john@medtech.eu', role: 'Developer', scopeId: 't2', status: 'Invited' }
+                { id: 'u1', name: 'Sergey G.', email: 'admin@virtuozzo.com', role: 'Platform Administrator', scopeId: null, status: 'Active' },
+                { id: 'u2', name: 'Alice Smith', email: 'alice@automakers.de', role: 'Tenant Owner', scopeId: 't1', status: 'Active' }
             ],
             adapters: [
-                { region: 'eu', name: 'Amazon S3 Archive Target', icon: 'fa-aws', color: '#FF9900', meta: 'Attached to V/IS-EU-01. Syncing 2.4 TB/day.', status: 'Connected', badge: 'green' },
-                { region: 'eu', name: 'Legacy Ceph Cluster', icon: 'fa-server', color: 'var(--vz-navy)', meta: 'Migration target. 40% complete.', status: 'Syncing', badge: 'yellow' },
-                { region: 'us', name: 'Datadog Telemetry', icon: 'fa-chart-pie', color: 'var(--purple)', meta: 'Exporting cluster metrics.', status: 'Connected', badge: 'green' }
+                { region: 'eu', name: 'Amazon S3 Archive Target', icon: 'fa-aws', color: '#FF9900', meta: 'Attached to V/IS-EU-01.', status: 'Connected', badge: 'green' }
             ],
             hierarchy: {
                 eu: { t2: {
                     eurocloud: { name: "EuroCloud Disti", t3: {
                         berlinIT: { name: "Berlin IT MSP", tenants: [
-                            { id: 't1', name: 'AutoMakers GmbH', spend: 6500, margin: 30.7, users: 450, workloads: [{name: 'Main DB', type: 'db'}, {name: 'Fleet Mgr (5x)', type: 'vps'}, {name: 'K8s Cluster Alpha', type: 'k8s'}], alerts: [{id:'a1', msg: 'Approaching Storage Quota', type: 'warning'}], incidents: [{msg: 'Storage Node Failure (EU-01) - Auto-healing active.', type: 'danger', icon: 'fa-triangle-exclamation'}] },
-                            { id: 't2', name: 'MedTech EU', spend: 2400, margin: 32, users: 120, workloads: [{name: 'VDI Pool A (50x)', type: 'vdi'}, {name: 'VDI Pool B (20x)', type: 'vdi'}], alerts: [{id:'a3', msg: 'VDI scaling drift detected.', type: 'warning'}], incidents: [{msg: 'Backup Job exported 4TB to S3.', type: 'success', icon: 'fa-check'}] }
-                        ]},
-                        parisTech: { name: "Paris Tech Cloud", tenants: [
-                            { id: 't3', name: 'Fashion SaaS', spend: 1500, margin: 44.4, users: 50, workloads: [{name: 'E-commerce DB', type: 'db'}], alerts: [], incidents: [] }
-                        ]}
-                    }}
-                }},
-                us: { t2: {
-                    amerihost: { name: "AmeriHost Wholesale", t3: {
-                        nySolutions: { name: "NY Solutions", tenants: [
-                            { id: 't4', name: 'Wall St Data', spend: 15000, margin: 9.0, users: 1200, workloads: [{name: 'AI Analyst Core', type: 'ai'}, {name: 'Data Lake DB', type: 'db'}], alerts: [{id:'a2', msg: 'High IOPS / Compute imbalance detected', type: 'danger'}], incidents: [{msg: 'High CPU Contention. Tenant exceeding soft limits.', type: 'warning', icon: 'fa-bolt'}] },
-                            { id: 't5', name: 'Healthcare Corp', spend: 4200, margin: 24, users: 300, workloads: [{name: 'Records DB', type: 'db'}, {name: 'Portal App', type: 'vps'}], alerts: [], incidents: [] }
-                        ]}
-                    }}
-                }},
-                apj: { t2: {
-                    asiacloud: { name: "AsiaCloud Aggregator", t3: {
-                        tokyoIT: { name: "Tokyo IT Partners", tenants: [
-                            { id: 't7', name: 'GamingCo Japan', spend: 7500, margin: 35, users: 2500, workloads: [{name: 'Game Servers (10x)', type: 'k8s'}, {name: 'Player DB', type: 'db'}], alerts: [], incidents: [] }
+                            { id: 't1', name: 'AutoMakers GmbH', spend: 6500, margin: 30.7, users: 450, workloads: [{name: 'Main DB', type: 'db'}], alerts: [], incidents: [] },
+                            { id: 't2', name: 'MedTech EU', spend: 2400, margin: 32, users: 120, workloads: [{name: 'VDI Pool A (50x)', type: 'vdi'}], alerts: [], incidents: [] }
                         ]}
                     }}
                 }}
@@ -1020,380 +1000,315 @@
             let current = getById(childId); while (current) { if (current.parent === ancestorId) return true; current = getById(current.parent); } return false;
         }
         function getChildType(pType) { return { 'Region': 'Distributor', 'Distributor': 'MSP', 'MSP': 'Tenant', 'Tenant': null }[pType] || 'Region'; }
-        function pluralize(type) { return type === 'MSP' ? 'MSPs' : type + 's'; }
 
         // --- SCOPE PICKER MODAL (RBAC AWARE) ---
-        let activeTab = 'all'; let drillStack = []; let selectedId = null; let typeFilter = 'All'; let FAVORITES = new Set(['eu', 't1', 't4']);
+        let activeTab = 'all'; let drillStack = []; let selectedId = null; let typeFilter = 'All'; let FAVORITES = new Set(['eu', 't1']);
 
         function openScopePicker() {
             document.getElementById('scopeModal').style.display = 'flex';
-            
-            // Jailing logic: MSPs cannot drill above their root scope
             drillStack = [currentUser.rootScope]; 
-            
             if (currentScopeId && currentScopeId !== currentUser.rootScope) { 
                 const path = getPath(currentScopeId);
                 let rootIndex = currentUser.rootScope ? path.findIndex(p => p.id === currentUser.rootScope) : 0;
                 if(rootIndex === -1) rootIndex = 0;
-
-                for(let i = rootIndex; i < path.length - 1; i++) {
-                    drillStack.push(path[i].id);
-                }
+                for(let i = rootIndex; i < path.length - 1; i++) drillStack.push(path[i].id);
             }
-            selectedId = currentScopeId;
-            setPickerTab('all'); setTimeout(() => document.getElementById('sp-search-input').focus(), 100);
+            selectedId = currentScopeId; setPickerTab('all'); setTimeout(() => document.getElementById('sp-search-input').focus(), 100);
         }
-        
         function setPickerTab(tab) {
             activeTab = tab; typeFilter = 'All'; document.getElementById('sp-search-input').value = '';
-            document.querySelectorAll('.sp-tab').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-btn-${tab}`).classList.add('active'); renderPickerUI();
+            document.querySelectorAll('.sp-tab').forEach(el => el.classList.remove('active')); document.getElementById(`tab-btn-${tab}`).classList.add('active'); renderPickerUI();
         }
         function handleSearch() { if (activeTab === 'all' && document.getElementById('sp-search-input').value.trim() !== '') setPickerTab('search'); else renderPickerUI(); }
-        function drillIn(id, event) { if(event) event.stopPropagation(); drillStack.push(id); selectedId = null; renderPickerUI(); document.getElementById('sp-search-input').value = ''; }
+        function drillIn(id, event) { if(event) event.stopPropagation(); drillStack.push(id); selectedId = null; renderPickerUI(); }
         function drillTo(index) { drillStack = drillStack.slice(0, index + 1); selectedId = null; renderPickerUI(); }
         function selectRow(id) { selectedId = id; renderPickerUI(); }
-        function toggleFav(id, event) { if(event) event.stopPropagation(); FAVORITES.has(id) ? FAVORITES.delete(id) : FAVORITES.add(id); renderPickerUI(); }
         function getEffectiveSelectionId() { if (selectedId) return selectedId; if (activeTab === 'all' && drillStack.length > 1) return drillStack[drillStack.length - 1]; return currentUser.rootScope; }
         function confirmScopeSelection() { currentScopeId = getEffectiveSelectionId(); closeModal('scopeModal'); renderApp(); }
 
         function renderPickerUI() {
             const listEl = document.getElementById('sp-list'); const headerEl = document.getElementById('sp-table-header');
             const breadcrumbsEl = document.getElementById('sp-breadcrumbs'); const chipsEl = document.getElementById('sp-chips');
-            const searchInput = document.getElementById('sp-search-input'); const query = searchInput.value.toLowerCase().trim();
-            const effId = getEffectiveSelectionId();
-
-            const btnSelect = document.getElementById('sp-btn-select'); const info = document.getElementById('sp-selection-info');
+            const effId = getEffectiveSelectionId(); const btnSelect = document.getElementById('sp-btn-select');
+            
             btnSelect.disabled = !effId && currentUser.role !== 't1';
             
-            if (selectedId) info.innerHTML = `Selected: <strong>${getById(selectedId).name}</strong>`; 
-            else if (effId) info.innerHTML = `Current Level: <strong>${getById(effId).name}</strong>`; 
-            else { info.innerHTML = 'Global Hub (Root)'; btnSelect.disabled = false; }
-
             listEl.innerHTML = '';
             if (activeTab === 'all') {
                 chipsEl.style.display = 'none'; headerEl.className = 'sp-table-header sp-grid-all';
                 let parentId = drillStack[drillStack.length - 1]; let children = getChildren(parentId);
                 
-                // Breadcrumbs rendering relative to rootScope
                 if (parentId === currentUser.rootScope) {
                     let rootName = parentId === null ? 'Global Hub' : getById(parentId).name;
                     breadcrumbsEl.innerHTML = `<span style="font-style:italic; color:var(--text-muted); font-weight:normal;">Base Scope: ${rootName}</span>`;
-                    
                     let cType = parentId === null ? 'REGION' : getChildType(getById(parentId).type);
-                    searchInput.placeholder = `Search ${pluralize(cType || '').toLowerCase()} here...`; 
-                    headerEl.innerHTML = `<div></div><div>${cType}</div><div style="text-align:right;">${pluralize(cType)}</div><div></div><div></div>`;
+                    headerEl.innerHTML = `<div></div><div>${cType}</div><div style="text-align:right;"></div><div></div><div></div>`;
                 } else {
                     let path = getPath(parentId); 
-                    if(currentUser.rootScope) {
-                        let rootIdx = path.findIndex(p => p.id === currentUser.rootScope);
-                        if(rootIdx > -1) path = path.slice(rootIdx);
-                    }
+                    if(currentUser.rootScope) { let rootIdx = path.findIndex(p => p.id === currentUser.rootScope); if(rootIdx > -1) path = path.slice(rootIdx); }
                     let rootName = currentUser.rootScope ? getById(currentUser.rootScope).name : 'Global Hub';
                     let bcHTML = `<span class="sp-breadcrumb-link" onclick="drillTo(0)">${rootName}</span>`;
                     path.forEach((n, i) => { 
-                        if (i === 0 && n.id === currentUser.rootScope) return; // Skip if it's the root we just printed
+                        if (i === 0 && n.id === currentUser.rootScope) return; 
                         bcHTML += ` <i class="fa-solid fa-chevron-right" style="font-size:0.7rem; margin:0 5px; color:#9CA3AF;"></i> `; 
-                        if (i === path.length - 1) bcHTML += `<span>${n.name}</span>`; 
-                        else bcHTML += `<span class="sp-breadcrumb-link" onclick="drillTo(${i})">${n.name}</span>`; 
+                        if (i === path.length - 1) bcHTML += `<span>${n.name}</span>`; else bcHTML += `<span class="sp-breadcrumb-link" onclick="drillTo(${i})">${n.name}</span>`; 
                     });
-                    breadcrumbsEl.innerHTML = bcHTML; 
-                    let cType = getChildType(getById(parentId).type);
-                    searchInput.placeholder = `Search ${pluralize(cType || '').toLowerCase()} here...`; headerEl.innerHTML = `<div></div><div>${cType ? cType.toUpperCase() : ''}</div><div style="text-align:right;">${cType ? pluralize(cType).toUpperCase() : ''}</div><div></div><div></div>`;
+                    breadcrumbsEl.innerHTML = bcHTML; let cType = getChildType(getById(parentId).type);
+                    headerEl.innerHTML = `<div></div><div>${cType ? cType.toUpperCase() : ''}</div><div style="text-align:right;"></div><div></div><div></div>`;
                 }
                 
                 children.forEach(n => {
                     let cc = getChildren(n.id).length; let canDrill = cc > 0 || n.type !== 'Tenant';
                     let nameHtml = canDrill ? `<span class="name-link" onclick="drillIn('${n.id}', event)">${n.name}</span>` : n.name;
-                    listEl.innerHTML += `<div class="${n.id === selectedId ? 'sp-row selected sp-grid-all' : 'sp-row sp-grid-all'}" onclick="selectRow('${n.id}')"><div class="sp-cell-icon"><i class="fa-solid ${n.icon}"></i></div><div class="sp-cell-name">${nameHtml}</div><div class="sp-cell-count">${canDrill ? cc : '—'}</div><div></div><div class="sp-star ${FAVORITES.has(n.id)?'active':''}" onclick="toggleFav('${n.id}', event)"><i class="fa-solid fa-star"></i></div></div>`;
+                    listEl.innerHTML += `<div class="${n.id === selectedId ? 'sp-row selected sp-grid-all' : 'sp-row sp-grid-all'}" onclick="selectRow('${n.id}')"><div class="sp-cell-icon"><i class="fa-solid ${n.icon}"></i></div><div class="sp-cell-name">${nameHtml}</div><div class="sp-cell-count">${canDrill ? cc : '—'}</div><div></div><div class="sp-star" style="color:transparent;"><i class="fa-solid fa-star"></i></div></div>`;
                 });
-                if(children.length===0) listEl.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No items at this level.</div>`;
             } else {
-                breadcrumbsEl.innerHTML = activeTab === 'fav' ? 'Your Favorites' : 'Scope Search'; searchInput.placeholder = activeTab === 'fav' ? "Filter favorites..." : "Search across allowed hierarchy...";
-                headerEl.className = 'sp-table-header sp-grid-flat'; headerEl.innerHTML = `<div></div><div>NAME</div><div>TYPE</div><div>PATH</div><div></div>`; chipsEl.style.display = 'flex';
-                
-                let rawItems = activeTab === 'fav' ? HIERARCHY.filter(n => FAVORITES.has(n.id)) : HIERARCHY; 
-                // Enforce RBAC filtering for search
-                if (currentUser.rootScope) {
-                    rawItems = rawItems.filter(n => isDescendant(n.id, currentUser.rootScope) || n.id === currentUser.rootScope);
-                }
-                if (activeTab === 'search' && query === '') rawItems = [];
-                
-                let matchedItems = rawItems.filter(n => n.name.toLowerCase().includes(query));
-                let counts = { 'All': matchedItems.length, 'Region':0, 'Distributor':0, 'MSP':0, 'Tenant':0 }; matchedItems.forEach(n => counts[n.type]++); chipsEl.innerHTML = '';
-                if(counts['All'] > 0 || activeTab === 'fav') { ['All', 'Region', 'Distributor', 'MSP', 'Tenant'].forEach(t => { if (counts[t] > 0 || t === 'All') chipsEl.innerHTML += `<div class="sp-chip ${typeFilter === t ? 'active' : ''}" onclick="typeFilter='${t}'; renderPickerUI()">${t} ${counts[t]}</div>`; }); }
-                let finalItems = typeFilter === 'All' ? matchedItems : matchedItems.filter(n => n.type === typeFilter);
-                
-                if (activeTab === 'search' && query === '') { listEl.innerHTML = `<div style="padding:60px; text-align:center; color:var(--text-muted);"><i class="fa-solid fa-search" style="font-size:3rem; margin-bottom:15px; opacity:0.3;"></i><br>Type to search across your allowed scope</div>`; headerEl.innerHTML = ''; chipsEl.style.display = 'none'; } 
-                else if (finalItems.length === 0) listEl.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No matches found.</div>`;
-                else { finalItems.forEach(n => {
-                        let pPath = n.parent ? getPath(n.parent).map(x=>x.name).join(' › ') : 'Global Hub'; let display = n.name;
-                        if(query) { let idx = display.toLowerCase().indexOf(query); if(idx > -1) display = display.slice(0,idx) + `<span class="search-match">${display.slice(idx, idx+query.length)}</span>` + display.slice(idx+query.length); }
-                        listEl.innerHTML += `<div class="${n.id === selectedId ? 'sp-row selected sp-grid-flat' : 'sp-row sp-grid-flat'}" onclick="selectRow('${n.id}')"><div class="sp-cell-icon"><i class="fa-solid ${n.icon}"></i></div><div class="sp-cell-name">${display}</div><div class="sp-cell-type">${n.type}</div><div class="sp-cell-path">${pPath}</div><div class="sp-star ${FAVORITES.has(n.id)?'active':''}" onclick="toggleFav('${n.id}', event)"><i class="fa-solid fa-star"></i></div></div>`;
-                });}
+                breadcrumbsEl.innerHTML = 'Global Search'; chipsEl.style.display = 'none';
+                listEl.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">Use drill-down navigation for scope selection.</div>`;
             }
         }
 
-        // --- RENDER MAIN DASHBOARD (CONTEXT AWARE) ---
-        function renderApp() {
-            const readout = document.getElementById('main-scope-readout'); const titleName = document.getElementById('ov-title-name');
-            if (!currentScopeId) { readout.innerText = "Global Hub"; titleName.innerText = "Global Hub"; } 
-            else { let node = getById(currentScopeId); readout.innerText = node.name; titleName.innerText = node.name; }
+        // --- FILTERING & RENDERING (Workloads) ---
+        function renderWorkloads() {
+            const wlTable = document.getElementById('workload-table'); 
+            const filterText = document.getElementById('wl-filter-input').value.toLowerCase();
+            const groupMode = document.getElementById('wl-group-select').value;
+            
+            // Gather workloads in scope
+            let wls = []; SCOPE_CAPACITY.usedCpu = 0;
+            HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId)).forEach(n => {
+                n.data.workloads.forEach(w => { wls.push({...w, tenantName: n.data.name}); });
+            });
 
-            let data = { spend: 0, users: 0, workloads: [], alerts: [], incidents: [], t2Count: 0, t3Count: 0, tenantCount: 0 };
-            let totalMargin = 0, marginWeights = 0; SCOPE_CAPACITY.usedCpu = 0;
+            // Filter
+            if (filterText) wls = wls.filter(w => w.name.toLowerCase().includes(filterText) || w.type.toLowerCase().includes(filterText) || w.tenantName.toLowerCase().includes(filterText));
+
+            wlTable.innerHTML = `<tr><th>Workload Name</th><th>Type / Template</th><th>Tenant Scope</th><th>Status</th><th>Actions</th></tr>`;
+            if (wls.length === 0) { wlTable.innerHTML += `<tr><td colspan="5" style="text-align:center; padding: 40px; color:gray;">No workloads found.</td></tr>`; return; }
+
+            // Grouping Logic
+            if (groupMode === 'none') {
+                wls.forEach(w => {
+                    let tpl = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'gray', icon:'fa-server', baseCpu: 2};
+                    SCOPE_CAPACITY.usedCpu += tpl.baseCpu;
+                    wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--danger); border-color:#FECDD3; background:#FFF1F2;">Destroy</button></td></tr>`;
+                });
+            } else {
+                let grouped = {};
+                wls.forEach(w => {
+                    let key = groupMode === 'tenant' ? w.tenantName : (DB.templates.find(t=>t.id===w.type)?.name || w.type);
+                    if(!grouped[key]) grouped[key] = [];
+                    grouped[key].push(w);
+                });
+                for (let key in grouped) {
+                    wlTable.innerHTML += `<tr class="group-header"><td colspan="5">${key} (${grouped[key].length})</td></tr>`;
+                    grouped[key].forEach(w => {
+                        let tpl = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'gray', icon:'fa-server', baseCpu: 2};
+                        SCOPE_CAPACITY.usedCpu += tpl.baseCpu;
+                        wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tpl.icon}" style="color:${tpl.color}; margin-right:5px;"></i> ${tpl.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button></td></tr>`;
+                    });
+                }
+            }
+        }
+
+        // --- RENDER MAIN APP ---
+        function renderApp() {
+            buildFlatHierarchy(); // Ensure hierarchy is fresh if DB changes
+            
+            const readout = document.getElementById('main-scope-readout');
+            if (!currentScopeId) { readout.innerText = "Global Hub"; } 
+            else { let node = getById(currentScopeId); readout.innerText = node.name; }
+
+            let data = { spend: 0, users: 0, workloads: 0, t2Count: 0, t3Count: 0, tenantCount: 0 };
             
             HIERARCHY.filter(n => n.type === 'Distributor' && isDescendant(n.id, currentScopeId)).forEach(() => data.t2Count++);
             HIERARCHY.filter(n => n.type === 'MSP' && isDescendant(n.id, currentScopeId)).forEach(() => data.t3Count++);
             
             let activeTenants = HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId));
             activeTenants.forEach(n => {
-                let t = n.data; data.spend += t.spend; data.users += t.users;
-                data.workloads = data.workloads.concat(t.workloads.map(w => ({...w, tenantName: t.name})));
-                if(t.alerts) data.alerts = data.alerts.concat(t.alerts.map(a => ({...a, tenantName: t.name})));
-                if(t.incidents) data.incidents = data.incidents.concat(t.incidents.map(i => ({...i, tenantName: t.name})));
-                totalMargin += (t.margin * t.spend); marginWeights += t.spend; data.tenantCount++;
-            });
-            data.margin = marginWeights > 0 ? (totalMargin / marginWeights).toFixed(1) : 0;
-
-            // Overview Update (If T1)
-            if (currentUser.role === 't1') {
-                document.getElementById('ov-spend').innerText = formatCurrency(data.spend);
-                document.getElementById('ov-workloads').innerText = data.workloads.length;
-                document.getElementById('ov-margin').innerText = data.margin + '%';
-                document.getElementById('ov-users').innerText = data.users.toLocaleString();
-                let corePct = Math.min(98, Math.max(30, Math.floor((data.spend / 200) + 20))); document.getElementById('ov-core-pct').innerText = corePct + '%';
-                document.getElementById('ov-core-ring').style.background = `conic-gradient(${corePct > 85 ? 'var(--vz-red)' : 'var(--success)'} ${corePct * 3.6}deg, var(--vz-gray-bg) 0)`;
-
-                const alertCont = document.getElementById('ov-alerts-container');
-                alertCont.innerHTML = '';
-                if(data.alerts.length > 0) {
-                    data.alerts.forEach(a => {
-                        alertCont.innerHTML += `<div style="font-size:0.9rem; padding: 12px; background: ${a.type === 'danger' ? '#FEF2F2' : '#FFFBEB'}; border-left: 4px solid ${a.type === 'danger' ? 'var(--vz-red)' : 'var(--warning)'}; margin-bottom:10px; border-radius:4px;"><strong>${a.tenantName}:</strong> ${a.msg}</div>`;
-                    });
-                } else alertCont.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-muted);"><i class="fa-solid fa-check-circle" style="font-size:2rem; color:var(--success); margin-bottom:10px;"></i><br>System Healthy</div>`;
-            }
-
-            // Incidents (Ops) Update
-            const incCont = document.getElementById('ops-incident-log');
-            incCont.innerHTML = '';
-            if(data.incidents.length > 0) {
-                data.incidents.forEach(i => {
-                    let bg = i.type === 'danger' ? 'background:#FEF2F2;' : '';
-                    incCont.innerHTML += `<div class="dense-list-item" style="${bg} border-left: 4px solid var(--${i.type});"><div class="dense-list-title"><i class="fa-solid ${i.icon}" style="color:var(--${i.type});"></i> [${i.tenantName}] Event Log</div><div class="dense-list-meta">${i.msg} <button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-left:15px;">Investigate</button></div></div>`;
-                });
-            } else incCont.innerHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No active incidents in this scope.</div>`;
-
-            // Workloads Table View
-            const wlTable = document.getElementById('workload-table'); 
-            wlTable.innerHTML = `<tr><th>Workload Name</th><th>Type / Template</th><th>Tenant Scope</th><th>Status</th><th>Actions</th></tr>`;
-            if (data.workloads.length === 0) wlTable.innerHTML += `<tr><td colspan="5" style="text-align:center; padding: 40px; color:gray;">No workloads deployed in this scope.</td></tr>`;
-            data.workloads.forEach(w => {
-                let tplInfo = DB.templates.find(t=>t.id===w.type) || {name: w.type, color:'var(--vz-navy)', icon:'fa-server', baseCpu: 2};
-                SCOPE_CAPACITY.usedCpu += tplInfo.baseCpu; // Calculate used quota
-                wlTable.innerHTML += `<tr><td><strong>${w.name}</strong></td><td><i class="fa-solid ${tplInfo.icon}" style="color:${tplInfo.color}; margin-right:5px;"></i> ${tplInfo.name}</td><td>${w.tenantName}</td><td><span class="badge green">Running</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; margin-right:5px;">Edit</button><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem; color:var(--danger); border-color:#FECDD3; background:#FFF1F2;">Destroy</button></td></tr>`;
+                let t = n.data; data.spend += t.spend; data.users += t.users; data.workloads += t.workloads.length;
+                data.tenantCount++;
             });
 
-            // Services & Templates (Context Aware)
-            const regNodeId = currentScopeId ? getPath(currentScopeId)[0].id : 'eu';
-            const regData = DB.regions[regNodeId] || DB.regions.eu;
-            
-            if (currentUser.role === 't1') {
-                const tplTable = document.getElementById('template-table');
-                tplTable.innerHTML = `<tr><th>Template Name</th><th>Spec / Bench</th><th>Base Cost</th></tr>`;
-                DB.templates.filter(t => !t.reqGPU || regData.hasGPU).forEach(t => {
-                    let costStr = t.cost > 0 ? `${formatCurrency(t.cost)}/mo` : 'Variable / Metered';
-                    tplTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${t.bench}</td><td>${costStr}</td></tr>`;
-                });
-            }
+            // Update Workloads specific tab
+            renderWorkloads();
 
+            // Populate Templates & Services Tabs
+            const tplTable = document.getElementById('template-table');
             const srvTable = document.getElementById('services-table'); 
-            srvTable.innerHTML = `<tr><th>Service Flavor</th><th>Wholesale Base Cost</th><th>SLA Guarantee</th><th>Actions</th></tr>`;
-            DB.templates.filter(t => !t.reqGPU || regData.hasGPU).forEach(t => {
+            const custSrvTable = document.getElementById('custom-services-table');
+            const paletteSrv = document.getElementById('builder-palette-services');
+            
+            if(tplTable) tplTable.innerHTML = `<tr><th>Template Name</th><th>Spec / Bench</th><th>Base Cost</th></tr>`;
+            if(srvTable) srvTable.innerHTML = `<tr><th>Service Flavor</th><th>Wholesale Base Cost</th><th>SLA Guarantee</th><th>Actions</th></tr>`;
+            if(custSrvTable) custSrvTable.innerHTML = `<tr><th>Custom Service</th><th>Category</th><th>Wholesale Cost</th><th>Actions</th></tr>`;
+            if(paletteSrv) paletteSrv.innerHTML = '';
+
+            let hasCustomSrv = false;
+
+            DB.templates.forEach(t => {
                 let costStr = t.cost > 0 ? `${formatCurrency(t.cost)}/mo` : 'Variable / Metered';
-                srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
+                if (t.isBlueprint && tplTable) {
+                    tplTable.innerHTML += `<tr><td><i class="fa-solid fa-cube" style="color:var(--vz-red); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>Custom Blueprint</td><td>${costStr}</td></tr>`;
+                } else if (t.isCustom) {
+                    hasCustomSrv = true;
+                    if(custSrvTable) custSrvTable.innerHTML += `<tr><td><i class="fa-solid fa-server" style="color:var(--vz-purple); margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${t.bench}</td><td>${costStr}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
+                    if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu})"><i class="fa-solid fa-server" style="color:var(--vz-purple);"></i> ${t.name} ($${t.cost})</div>`;
+                } else {
+                    if(srvTable) srvTable.innerHTML += `<tr><td><i class="fa-solid ${t.icon}" style="color:${t.color}; margin-right:8px;"></i> <strong>${t.name}</strong></td><td>${costStr}</td><td>${t.bench}</td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Edit</button></td></tr>`;
+                    if(paletteSrv) paletteSrv.innerHTML += `<div class="builder-item" draggable="true" ondragstart="dragStart(event, '${t.name}', ${t.cost}, ${t.baseCpu})"><i class="fa-solid ${t.icon}" style="color:${t.color};"></i> ${t.name} ($${t.cost})</div>`;
+                }
             });
 
-            // Infrastructure (Clusters & Gateways & Adapters) Context Aware (T1 Only)
-            if (currentUser.role === 't1') {
-                document.getElementById('infra-stats').innerHTML = `<div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--vz-border);"><span>Distributors</span><strong style="color:var(--vz-navy);">${data.t2Count}</strong></div><div style="display:flex; justify-content:space-between; padding-bottom:10px; border-bottom:1px solid var(--vz-border);"><span>MSPs</span><strong style="color:var(--vz-navy);">${data.t3Count}</strong></div><div style="display:flex; justify-content:space-between; padding-bottom:10px;"><span>Tenants</span><strong style="color:var(--vz-navy);">${data.tenantCount}</strong></div>`;
-                
+            if (document.getElementById('cust-srv-empty')) {
+                document.getElementById('cust-srv-empty').style.display = hasCustomSrv ? 'none' : 'block';
+                custSrvTable.style.display = hasCustomSrv ? 'table' : 'none';
+            }
+
+            // Infrastructure Tab (T1/T3)
+            const regNodeId = currentScopeId && getPath(currentScopeId).length > 0 ? getPath(currentScopeId)[0].id : 'eu';
+            
+            if (currentUser.role !== 't4') {
                 const clusTable = document.getElementById('infra-clusters-table');
-                const netTable = document.getElementById('infra-gateways-table');
-                
-                clusTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th><th>Actions</th></tr>`;
-                netTable.innerHTML = `<tr><th>Gateway Name</th><th>Protocol / Type</th><th>DNS Route</th><th>Status</th></tr>`;
+                if(clusTable) clusTable.innerHTML = `<tr><th>Cluster ID</th><th>Role / Type</th><th>Nodes</th><th>Resources</th><th>Status</th><th>Actions</th></tr>`;
                 
                 let scopeRegions = [];
-                if (!currentScopeId) {
+                if (!currentScopeId || currentScopeId === 'admin') {
                     for(let r in DB.regions) scopeRegions.push({id: r, data: DB.regions[r]});
                 } else {
                     scopeRegions.push({id: regNodeId, data: DB.regions[regNodeId]});
                 }
 
                 scopeRegions.forEach(reg => {
-                    if(reg.data.clusters) {
+                    if(reg.data.clusters && clusTable) {
                         reg.data.clusters.forEach(c => {
                             let badgeColor = c.status === 'Healthy' ? 'green' : 'yellow';
                             clusTable.innerHTML += `<tr style="cursor:pointer;" onclick="openClusterDetail('${c.id}', ${c.nodes}, ${c.cpu}, '${c.ram}')"><td><strong>${c.id}</strong></td><td>${c.type}</td><td>${c.nodes}</td><td><span class="badge blue">${c.cpu} vCPU / ${c.ram}</span></td><td><span class="badge ${badgeColor}">${c.status}</span></td><td><button class="btn btn-secondary" style="padding:4px 8px; font-size:0.75rem;">Manage</button></td></tr>`;
                         });
                     }
-                    if(reg.data.gateways) {
-                        reg.data.gateways.forEach(g => {
-                            netTable.innerHTML += `<tr><td><strong>${g.name}</strong></td><td>API Proxy</td><td>${g.route}</td><td><span class="badge green">${g.status}</span></td></tr>`;
-                        });
-                    }
                 });
             }
-
-            // Adapters Sync (Biz & Ops View)
-            let scopeAdapters = DB.adapters.filter(a => !currentScopeId || a.region === regNodeId);
-            let adaptHTML = '';
-            if(scopeAdapters.length > 0) {
-                scopeAdapters.forEach(a => {
-                    adaptHTML += `<div class="dense-list-item"><div class="dense-list-title"><i class="fa-brands ${a.icon}" style="font-size:1.5rem; color:${a.color};"></i> ${a.name}</div><div class="dense-list-meta">${a.meta} <span class="badge ${a.badge}" style="margin-left:10px;">${a.status}</span></div></div>`;
-                });
-            } else adaptHTML = `<div style="padding:40px; text-align:center; color:var(--text-muted);">No external adapters connected in this scope.</div>`;
             
-            const adaptListBiz = document.getElementById('infra-adapters-list');
-            const adaptListOps = document.getElementById('ops-adapters-list');
-            if (adaptListBiz) adaptListBiz.innerHTML = adaptHTML;
-            if (adaptListOps) adaptListOps.innerHTML = adaptHTML;
-
-            // Granular FinOps Matrix with AI Markup
-            const finTable = document.getElementById('fin-spenders');
-            if(finTable) {
-                finTable.innerHTML = `<tr><th>Tenant / Scope</th><th>Workloads</th><th>Wholesale Cost</th><th>Retail Revenue</th><th>Effective Margin</th><th>AI Markup Proposal</th></tr>`;
-                activeTenants.sort((a,b) => b.data.spend - a.data.spend).slice(0,6).forEach(n => {
-                    let t = n.data; let rev = t.spend * (1 + (t.margin/100));
-                    let mBadge = t.margin < 20 ? 'badge red' : 'badge green'; 
-                    let aiProp = t.margin < 20 ? `<span style="color:var(--info); cursor:pointer; font-weight:bold;"><i class="fa-solid fa-wand-magic-sparkles"></i> Increase DBaaS by +12%</span>` : `<span style="color:var(--text-muted);">Optimal</span>`;
-                    let rowBg = t.margin < 20 ? 'background: #FEF2F2;' : '';
-                    finTable.innerHTML += `<tr style="${rowBg}"><td><strong>${t.name}</strong></td><td>${t.workloads.length} Active</td><td>${formatCurrency(t.spend)}</td><td>${formatCurrency(rev)}</td><td><span class="${mBadge}">${t.margin}%</span></td><td>${aiProp}</td></tr>`;
-                });
-                if(activeTenants.length === 0) finTable.innerHTML += `<tr><td colspan="6" style="text-align:center; padding: 20px; color:gray;">No tenants in scope to display billing data.</td></tr>`;
-            }
-
-            // AI Observability Updates (T1 Only)
-            if (currentUser.role === 't1') {
-                const aiBox = document.getElementById('obs-ai-box');
-                if(aiBox) {
-                    if(data.workloads.length > 0) {
-                        aiBox.innerHTML = `<div class="alert-box" style="background: #EFF6FF; border-color: #BFDBFE; border-left-color: var(--info);"><div><h4 style="margin: 0 0 5px 0; color: #1E3A8A;"><i class="fa-solid fa-wand-magic-sparkles"></i> Drift Remediation Advisor</h4><p style="margin: 0; font-size: 0.9rem; color: #1E40AF;">V/IS Analytics detected ${data.alerts.length} configuration drifts in the current scope. Click to auto-generate Terraform sync state.</p></div><button class="btn btn-secondary" style="background: white; border-color: #BFDBFE; color: #1E3A8A;">Generate Code</button></div>`;
-                    } else {
-                        aiBox.innerHTML = ``;
-                    }
-                }
-            }
-
-            renderUserManagement();
             runTCO();
         }
 
-        // --- Persona Switcher Logic ---
-        function setPersona(type) {
-            document.getElementById('btn-pers-biz').classList.remove('active');
-            document.getElementById('btn-pers-ops').classList.remove('active');
-            document.getElementById('btn-pers-' + type).classList.add('active');
+        // --- SCENARIO ACTIONS ---
 
-            if (type === 'biz') {
-                document.getElementById('nav-biz').style.display = 'block';
-                document.getElementById('nav-ops').style.display = 'none';
-                if (currentUser.role === 't1') switchView('overview', document.getElementById('biz-overview'), 'biz');
-                else switchView('workloads', document.getElementById('biz-workloads'), 'biz');
-            } else {
-                document.getElementById('nav-biz').style.display = 'none';
-                document.getElementById('nav-ops').style.display = 'block';
-                switchView('ops-dash', document.getElementById('ops-health'), 'ops');
-            }
+        // 1. Save Custom Service
+        function confirmAddService() {
+            const name = document.getElementById('cs-name').value || 'New Service';
+            const cat = document.getElementById('cs-cat').value;
+            const cost = parseInt(document.getElementById('cs-cost').value) || 0;
+            
+            DB.templates.push({ id: 'cs_' + Date.now(), name: name, cost: cost, reqGPU: false, bench: cat, icon: 'fa-server', color: 'var(--vz-purple)', baseCpu: 2, isCustom: true, isBlueprint: false });
+            
+            closeModal('addServiceModal');
+            renderApp();
+            alert("Custom Service saved! It is now available in your Catalog and Template Builder palette.");
         }
 
-        // --- WORKLOAD DEPLOYMENT (VPS & Scaling & Quotas) ---
+        // 2. Add Cluster Wizard Execution
+        function executeWizard() {
+            const name = document.getElementById('wiz-name').value || 'V/IS-NEW-CLUSTER';
+            const reg = document.getElementById('wiz-region').value;
+            
+            // Push to DB
+            if (!DB.regions[reg].clusters) DB.regions[reg].clusters = [];
+            DB.regions[reg].clusters.push({ id: name, nodes: 5, cpu: 320, ram: '2 TB', type: 'Bare Metal', status: 'Healthy' });
+            
+            closeModal('wizardModal');
+            renderApp();
+            alert(`Cluster ${name} successfully provisioned in ${reg.toUpperCase()} region.`);
+        }
+
+        // 3. Save Custom Template (Drag & Drop)
+        let stagedTemplateItems = [];
+        let currentBuildCost = 0;
+        let currentBuildCpu = 0;
+
+        function dragStart(ev, name, cost, cpu) { ev.dataTransfer.setData("name", name); ev.dataTransfer.setData("cost", cost); ev.dataTransfer.setData("cpu", cpu); }
+        function allowDrop(ev) { ev.preventDefault(); document.getElementById('builder-canvas').classList.add('drag-over'); }
+        function dragLeave(ev) { document.getElementById('builder-canvas').classList.remove('drag-over'); }
+        function drop(ev) {
+            ev.preventDefault(); const canvas = document.getElementById('builder-canvas'); canvas.classList.remove('drag-over'); document.getElementById('canvas-empty').style.display = 'none';
+            const name = ev.dataTransfer.getData("name"); const cost = parseInt(ev.dataTransfer.getData("cost")); const cpu = parseInt(ev.dataTransfer.getData("cpu"));
+            
+            currentBuildCost += cost; currentBuildCpu += cpu;
+            stagedTemplateItems.push({name, cost, cpu});
+            
+            canvas.innerHTML += `<div class="canvas-node"><div><strong>${name}</strong></div><div style="font-weight:bold; color:var(--vz-navy);">$${cost}/mo</div></div>`;
+            document.getElementById('builder-cost').innerText = formatCurrency(currentBuildCost);
+        }
+
+        function saveCustomTemplate() {
+            const name = document.getElementById('builder-name').value;
+            if (!name || stagedTemplateItems.length === 0) { alert("Please name your template and drag items onto the canvas."); return; }
+            
+            DB.templates.push({ id: 'bp_' + Date.now(), name: name, cost: currentBuildCost, bench: 'Custom Composition', icon: 'fa-cube', color: 'var(--vz-red)', baseCpu: currentBuildCpu, isCustom: false, isBlueprint: true });
+            
+            // Reset Canvas
+            stagedTemplateItems = []; currentBuildCost = 0; currentBuildCpu = 0;
+            document.getElementById('builder-name').value = '';
+            document.getElementById('builder-cost').innerText = '$0';
+            document.getElementById('builder-canvas').innerHTML = `<div id="canvas-empty" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: var(--text-muted); pointer-events: none;"><i class="fa-solid fa-object-ungroup" style="font-size: 3rem; margin-bottom: 10px; opacity: 0.3;"></i><br>Drag & Drop components here</div>`;
+            
+            renderApp();
+            alert(`Blueprint '${name}' saved successfully. End Users can now deploy it from the Workloads tab.`);
+        }
+
+        // --- WORKLOAD DEPLOYMENT ---
         function openDeployModal() {
             const tenantSelect = document.getElementById('deploy-target-tenant'); tenantSelect.innerHTML = '';
             let validTenants = HIERARCHY.filter(n => n.type === 'Tenant' && isDescendant(n.id, currentScopeId));
             if (validTenants.length === 0) { alert("No Tenants available in the current scope."); return; }
             validTenants.forEach(t => tenantSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`);
-            document.getElementById('deploy-scope-warn-txt').innerText = validTenants.length > 1 ? "Multiple tenants in scope. Select target." : "Target locked to active scope.";
-            const tplSelect = document.getElementById('deploy-template'); tplSelect.innerHTML = '<option value="none">-- Select Architecture Blueprint --</option>';
-            const regData = DB.regions[currentScopeId ? getPath(currentScopeId)[0].id : 'eu'] || DB.regions.eu;
-            DB.templates.filter(t => !t.reqGPU || regData.hasGPU).forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name}</option>`);
             
-            document.getElementById('deploy-info').style.display = 'none'; 
-            document.getElementById('vps-config').style.display = 'none'; 
-            document.getElementById('scale-config').style.display = 'none';
-            document.getElementById('deploy-instances').value = 1;
-            document.getElementById('btn-execute-deploy').disabled = true;
-            openModal('deployModal');
+            document.getElementById('deploy-target-wrap').style.display = currentUser.role === 't4' ? 'none' : 'block'; // Hide from T4
+
+            const tplSelect = document.getElementById('deploy-template'); tplSelect.innerHTML = '<option value="none">-- Select Architecture Blueprint --</option>';
+            // Show base templates and blueprints
+            DB.templates.filter(t => !t.isCustom).forEach(t => tplSelect.innerHTML += `<option value="${t.id}">${t.name} ${t.isBlueprint ? '(Blueprint)' : ''}</option>`);
+            
+            document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none';
+            document.getElementById('deploy-instances').value = 1; document.getElementById('btn-execute-deploy').disabled = true; openModal('deployModal');
         }
         function updateDeployConfig() {
             const tplId = document.getElementById('deploy-template').value;
-            if (tplId === 'none') { 
-                document.getElementById('deploy-info').style.display = 'none'; 
-                document.getElementById('vps-config').style.display = 'none'; 
-                document.getElementById('scale-config').style.display = 'none';
-                document.getElementById('btn-execute-deploy').disabled = true;
-                return; 
-            }
+            if (tplId === 'none') { document.getElementById('deploy-info').style.display = 'none'; document.getElementById('vps-config').style.display = 'none'; document.getElementById('scale-config').style.display = 'none'; document.getElementById('btn-execute-deploy').disabled = true; return; }
+            
             if (tplId === 'vps') { document.getElementById('vps-config').style.display = 'block'; calcVPSCost(); } 
             else { 
                 document.getElementById('vps-config').style.display = 'none'; 
                 const tpl = DB.templates.find(t => t.id === tplId); 
-                document.getElementById('deploy-bench').innerText = tpl.bench; 
-                document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost); 
+                document.getElementById('deploy-bench').innerText = tpl.bench; document.getElementById('deploy-cost').innerText = formatCurrency(tpl.cost); 
             }
-            document.getElementById('scale-config').style.display = 'block';
-            document.getElementById('deploy-info').style.display = 'block';
-            validateQuota();
+            document.getElementById('scale-config').style.display = 'block'; document.getElementById('deploy-info').style.display = 'block'; validateQuota();
         }
         function calcVPSCost() {
             const cpu = parseInt(document.getElementById('vps-cpu').value); const ram = parseInt(document.getElementById('vps-ram').value); const disk = parseInt(document.getElementById('vps-disk').value);
             document.getElementById('val-cpu').innerText = cpu; document.getElementById('val-ram').innerText = ram; document.getElementById('val-disk').innerText = disk;
-            document.getElementById('deploy-bench').innerText = `Linux (${cpu} vCPU, ${ram}GB RAM)`; 
-            document.getElementById('deploy-cost').innerText = formatCurrency(5 + (cpu * 2.5) + (ram * 1.5) + (disk * 0.08));
+            document.getElementById('deploy-bench').innerText = `Linux (${cpu} vCPU, ${ram}GB RAM)`; document.getElementById('deploy-cost').innerText = formatCurrency(5 + (cpu * 2.5) + (ram * 1.5) + (disk * 0.08));
             validateQuota();
         }
-        
         function validateQuota() {
-            const tplId = document.getElementById('deploy-template').value;
-            if (tplId === 'none') return;
+            const tplId = document.getElementById('deploy-template').value; if (tplId === 'none') return;
             const instances = parseInt(document.getElementById('deploy-instances').value) || 1;
-            
-            let cpuPerInstance = 0;
-            if (tplId === 'vps') {
-                cpuPerInstance = parseInt(document.getElementById('vps-cpu').value);
-            } else {
-                cpuPerInstance = DB.templates.find(t => t.id === tplId).baseCpu || 4; 
-            }
-
-            let totalRequestedCpu = cpuPerInstance * instances;
-            let availableCpu = SCOPE_CAPACITY.maxCpu - SCOPE_CAPACITY.usedCpu;
-
-            let warnBox = document.getElementById('deploy-scope-warn');
-            let btn = document.getElementById('btn-execute-deploy');
-
-            if (totalRequestedCpu > availableCpu) {
-                warnBox.style.background = '#FEF2F2';
-                warnBox.style.border = '1px solid #FECDD3';
-                warnBox.innerHTML = `<span style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Quota Exceeded:</strong> You requested ${totalRequestedCpu} vCPU, but your Tier has only ${availableCpu} vCPU available to deploy.</span>`;
-                btn.disabled = true;
-            } else {
-                warnBox.style.background = '#F0FDF4';
-                warnBox.style.border = '1px solid #BBF7D0';
-                warnBox.innerHTML = `<span style="color:var(--success);"><i class="fa-solid fa-check"></i> <strong>Capacity Validated:</strong> ${totalRequestedCpu} vCPU available out of ${availableCpu} vCPU limit.</span>`;
-                btn.disabled = false;
-            }
+            let cpuPerInstance = tplId === 'vps' ? parseInt(document.getElementById('vps-cpu').value) : (DB.templates.find(t => t.id === tplId).baseCpu || 4);
+            let totalRequestedCpu = cpuPerInstance * instances; let availableCpu = SCOPE_CAPACITY.maxCpu - SCOPE_CAPACITY.usedCpu;
+            let warnBox = document.getElementById('deploy-scope-warn'); let btn = document.getElementById('btn-execute-deploy');
+            if (totalRequestedCpu > availableCpu) { warnBox.style.background = '#FEF2F2'; warnBox.style.border = '1px solid #FECDD3'; warnBox.innerHTML = `<span style="color:var(--danger);"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Quota Exceeded:</strong> You requested ${totalRequestedCpu} vCPU, but your Tier has only ${availableCpu} vCPU available.</span>`; btn.disabled = true; } 
+            else { warnBox.style.background = '#F0FDF4'; warnBox.style.border = '1px solid #BBF7D0'; warnBox.innerHTML = `<span style="color:var(--success);"><i class="fa-solid fa-check"></i> <strong>Capacity Validated:</strong> ${totalRequestedCpu} vCPU available out of ${availableCpu} limit.</span>`; btn.disabled = false; }
         }
-
         function executeDeploy() {
             const btn = document.getElementById('btn-execute-deploy'); btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Provisioning...';
             setTimeout(() => {
-                const tplId = document.getElementById('deploy-template').value; 
-                const tplName = DB.templates.find(t=>t.id===tplId).name;
+                const tplId = document.getElementById('deploy-template').value; const tplName = DB.templates.find(t=>t.id===tplId).name;
                 const instances = parseInt(document.getElementById('deploy-instances').value) || 1;
                 const finalName = tplId === 'vps' ? `VPS Fleet (${instances}x)` : `${tplName} (${instances}x)`;
                 
-                const tenantNode = getById(document.getElementById('deploy-target-tenant').value);
+                let targetTenantId = currentUser.role === 't4' ? 't1' : document.getElementById('deploy-target-tenant').value; // Hardcode T4 to t1 for demo
+                const tenantNode = getById(targetTenantId);
+                
                 tenantNode.data.workloads.push({ name: finalName, type: tplId }); 
                 tenantNode.data.spend += (tplId === 'vps' ? 30 : DB.templates.find(t=>t.id===tplId).cost) * instances;
                 
@@ -1401,83 +1316,30 @@
             }, 800);
         }
 
-        // --- USER MANAGEMENT ---
-        function renderUserManagement() {
-            const uTable = document.getElementById('user-table'); uTable.innerHTML = `<tr><th>User Identity</th><th>Role</th><th>Scope Restriction</th><th>Status</th></tr>`;
-            DB.users.filter(u => u.scopeId === null || isDescendant(u.scopeId, currentScopeId) || isDescendant(currentScopeId, u.scopeId)).forEach(u => {
-                let sName = u.scopeId ? getById(u.scopeId).name : 'Global / Root';
-                let bCol = u.status === 'Active' ? 'green' : 'yellow';
-                uTable.innerHTML += `<tr><td><strong>${u.name}</strong><div style="font-size:0.8rem; color:var(--text-muted);">${u.email}</div></td><td><span class="badge blue" style="background:#DBEAFE; color:#1E40AF;">${u.role}</span></td><td>${sName}</td><td><span class="badge ${bCol}">${u.status}</span></td></tr>`;
-            });
-            const rTable = document.getElementById('roles-table'); rTable.innerHTML = `<tr><th>Role Definition</th><th>Assigned Permissions</th></tr>`;
-            DB.roles.forEach(r => rTable.innerHTML += `<tr><td><strong>${r.name}</strong></td><td style="color:var(--text-muted); font-size:0.85rem;">${r.perms}</td></tr>`);
-            
-            const roleSel = document.getElementById('new-user-role'); roleSel.innerHTML = '';
-            DB.roles.forEach(r => roleSel.innerHTML += `<option value="${r.name}">${r.name}</option>`);
-            document.getElementById('new-user-scope').value = currentScopeId ? getById(currentScopeId).name : 'Global / Root';
-        }
-        function confirmAddUser() {
-            const name = document.getElementById('new-user-name').value; const email = document.getElementById('new-user-email').value; const role = document.getElementById('new-user-role').value;
-            if(name && email) { DB.users.push({ id: 'u_new_'+Math.random(), name, email, role, scopeId: currentScopeId, status: 'Invited' }); closeModal('addUserModal'); document.getElementById('new-user-name').value = ''; document.getElementById('new-user-email').value = ''; renderUserManagement(); }
-        }
-        function confirmAddRole() {
-            const name = document.getElementById('new-role-name').value;
-            if(name) { DB.roles.push({ id: 'r_new_'+Math.random(), name, perms: 'Custom Selection' }); closeModal('addRoleModal'); document.getElementById('new-role-name').value = ''; renderUserManagement(); }
-        }
-
         // --- UTILS & NEW UI LOGIC ---
-        function switchView(viewId, el, menuType) {
-            document.querySelectorAll(`#nav-${menuType} li`).forEach(li => li.classList.remove('active')); if(el) el.classList.add('active');
-            document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active');
-            if(viewId === 'observability') { const genChart = (id, color) => { const el = document.getElementById(id); if(el) { el.innerHTML = ''; for(let i=0; i<15; i++) el.innerHTML += `<div class="chart-bar" style="background: ${color}; height: ${Math.min(100, Math.max(10, 40 + (Math.random()*40-20)))}%;"></div>`; }}; genChart('chart-cpu', 'var(--vz-navy)'); genChart('chart-iops', 'var(--vz-red)'); }
-        }
-        function switchGenericTab(targetId, el, prefix) {
-            document.querySelectorAll(`.${prefix}-tab`).forEach(t => t.style.display = 'none');
-            el.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById(targetId).style.display = 'block';
-        }
+        function switchView(viewId, el, menuType) { document.querySelectorAll(`#nav-${menuType} li`).forEach(li => li.classList.remove('active')); if(el) el.classList.add('active'); document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active')); document.getElementById('view-' + viewId).classList.add('active'); }
+        function switchGenericTab(targetId, el, prefix) { document.querySelectorAll(`.${prefix}-tab`).forEach(t => t.style.display = 'none'); el.parentElement.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active')); el.classList.add('active'); document.getElementById(targetId).style.display = 'block'; }
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        function openClusterDetail(clusterName, nodes, cpu, ram) { document.getElementById('cd-title').innerText = clusterName; document.getElementById('cd-stats-grid').innerHTML = `<div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Nodes</label><div style="font-size:1.5rem; font-weight:bold;">${nodes}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total vCPU</label><div style="font-size:1.5rem; font-weight:bold;">${cpu}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total RAM</label><div style="font-size:1.5rem; font-weight:bold;">${ram}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Storage Cap</label><div style="font-size:1.5rem; font-weight:bold;">1.2 PB</div></div>`; document.getElementById('cd-used-cpu').innerText = Math.floor(cpu * 0.7); openModal('clusterDetailModal'); }
         
-        function openClusterDetail(clusterName, nodes, cpu, ram) { 
-            document.getElementById('cd-title').innerText = clusterName; 
-            document.getElementById('cd-stats-grid').innerHTML = `<div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Nodes</label><div style="font-size:1.5rem; font-weight:bold;">${nodes}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total vCPU</label><div style="font-size:1.5rem; font-weight:bold;">${cpu}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Total RAM</label><div style="font-size:1.5rem; font-weight:bold;">${ram}</div></div><div class="card" style="padding:15px;"><label style="font-size:0.8rem; color:var(--text-muted);">Storage Cap</label><div style="font-size:1.5rem; font-weight:bold;">1.2 PB</div></div>`;
-            document.getElementById('cd-used-cpu').innerText = Math.floor(cpu * 0.7);
-            openModal('clusterDetailModal'); 
-        }
-        
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('scopeModal').style.display === 'flex' && event.key === 'Escape') { if (activeTab === 'all' && drillStack.length > 1) drillTo(drillStack.length - 2); else closeModal('scopeModal'); }
-        });
-
-        // Template Builder Drag & Drop
-        let currentBuildCost = 0;
-        function dragStart(ev, name, cost) { ev.dataTransfer.setData("name", name); ev.dataTransfer.setData("cost", cost); }
-        function allowDrop(ev) { ev.preventDefault(); document.getElementById('builder-canvas').classList.add('drag-over'); }
-        function dragLeave(ev) { document.getElementById('builder-canvas').classList.remove('drag-over'); }
-        function drop(ev) {
-            ev.preventDefault(); const canvas = document.getElementById('builder-canvas'); canvas.classList.remove('drag-over'); document.getElementById('canvas-empty').style.display = 'none';
-            const name = ev.dataTransfer.getData("name"); const cost = parseInt(ev.dataTransfer.getData("cost")); currentBuildCost += cost;
-            canvas.innerHTML += `<div class="canvas-node"><div><strong>${name}</strong></div><div style="font-weight:bold; color:var(--vz-navy);">$${cost}/mo</div></div>`;
-            document.getElementById('builder-cost').innerText = formatCurrency(currentBuildCost);
-        }
-
-        // Infrastructure Wizard
-        function openWizard() {
-            document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active')); document.querySelectorAll('.wiz-dot').forEach(d => {d.classList.remove('active'); d.classList.remove('done');});
-            document.getElementById('step-1').classList.add('active'); document.getElementById('dot-1').classList.add('active'); openModal('wizardModal');
-        }
         function goToStep(step) {
+            if(step === 3) {
+                document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('step-3').classList.add('active');
+                setTimeout(() => { executeWizard(); }, 1500); return;
+            }
             document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active')); document.getElementById('step-'+step).classList.add('active');
             for(let i=1; i<=3; i++) { let dot = document.getElementById('dot-'+i); dot.classList.remove('active', 'done'); if(i < step) dot.classList.add('done'); if(i === step) dot.classList.add('active'); }
         }
 
-        // FinOps TCO
         function runTCO() {
             const nodes = parseInt(document.getElementById('tco-nodes').value); const margin = parseInt(document.getElementById('tco-margin').value);
             document.getElementById('tco-nodes-val').innerText = nodes; document.getElementById('tco-margin-val').innerText = margin;
             const wholesale = (nodes * 22000 / 36) + (nodes * 200); const retail = wholesale * (1 + (margin/100));
             document.getElementById('tco-wholesale').innerText = formatCurrency(wholesale) + '/mo'; document.getElementById('tco-retail').innerText = formatCurrency(retail) + '/mo';
         }
+
+        document.addEventListener('keydown', function(event) { if (document.getElementById('scopeModal').style.display === 'flex' && event.key === 'Escape') { if (activeTab === 'all' && drillStack.length > 1) drillTo(drillStack.length - 2); else closeModal('scopeModal'); } });
 
         // Boot
         buildFlatHierarchy();
